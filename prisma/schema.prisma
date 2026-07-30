@@ -85,7 +85,8 @@ model Users {
 
 enum BettingCategory {
   SLOT
-  LIVE
+  LIVE_CASINO
+  OTHER
   POKER
   FISH
   SPORTS

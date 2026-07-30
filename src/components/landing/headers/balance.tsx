@@ -13,7 +13,7 @@ const Balance = () => {
 
   const wallet = data?.wallet;
   const isPending = isLoading || isFetching || !wallet;
-
+  console.log({ wallet });
   return (
     <div className="flex items-stretch rounded-full border border-[#242424] bg-[#151515] overflow-hidden shadow-[0_0_0_1px_rgba(31,193,107,0.05)]">
       {/* Balance readout */}

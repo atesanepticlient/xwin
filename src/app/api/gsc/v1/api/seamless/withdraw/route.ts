@@ -330,7 +330,6 @@ export const POST = async (req: NextRequest) => {
             return null;
           })
         ).filter(Boolean);
-
         if (txExecutions.length == 0) {
           return {
             ...entry,
@@ -401,6 +400,8 @@ export const POST = async (req: NextRequest) => {
       },
       { concurrency: 5 },
     );
+
+    console.log({responseData})
 
     return NextResponse.json({ data: responseData }, { status: 200 });
   } catch (error) {
