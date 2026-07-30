@@ -49,6 +49,8 @@ export const POST = async (req: NextRequest) => {
     } catch {
       return NextResponse.json(
         {
+          code: 999,
+          message: "Invalid JSON body",
           data: [
             {
               code: 999,
@@ -84,6 +86,8 @@ export const POST = async (req: NextRequest) => {
     ) {
       return NextResponse.json(
         {
+          code: 999,
+          message: "Invalid Parameters",
           data: [
             {
               code: 999,
@@ -133,6 +137,8 @@ export const POST = async (req: NextRequest) => {
     if (!isValidRequests) {
       return NextResponse.json(
         {
+          code: 999,
+          message: "Invalid Parameters",
           data: [
             {
               code: 999,
@@ -153,6 +159,8 @@ export const POST = async (req: NextRequest) => {
     if (!accpectedCurrency.includes(currency)) {
       return NextResponse.json(
         {
+          code: 999,
+          message: "Expect currency error",
           data: [
             {
               code: 999,
@@ -194,6 +202,8 @@ export const POST = async (req: NextRequest) => {
     if (operator_code !== MEMBER_OP_CODE) {
       return NextResponse.json(
         {
+          code: 1002,
+          message: "API proxy key error",
           data: responseData.map((entry: any) => ({
             ...entry,
             code: 1002,
@@ -216,6 +226,8 @@ export const POST = async (req: NextRequest) => {
     if (platformSign !== sign) {
       return NextResponse.json(
         {
+          code: 1004,
+          message: "API signature is invalid",
           data: responseData.map((entry: any) => ({
             ...entry,
             code: 1004,
