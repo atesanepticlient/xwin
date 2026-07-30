@@ -493,7 +493,7 @@ export const settled = async ({
   }
 
   const absAmount = Math.abs(amount);
-
+  
   return successResult(async (tx) => {
     try {
       await tx.wallet.update({

@@ -43,7 +43,7 @@ export const POST = async (req: NextRequest) => {
         { status: 200 },
       );
     }
-   
+
     const forwarded = req.headers.get("x-forwarded-for");
     const realIp = req.headers.get("x-real-ip");
 
@@ -287,6 +287,8 @@ export const POST = async (req: NextRequest) => {
         const txExecutions = (
           await pMap(transactions, async (tx: any) => {
             const action = tx.action?.toUpperCase();
+            console.log({ tx: transactions, action });
+
             if (action === "BET") {
               const result = await placeBet({
                 wagerCode: tx.wager_code,
