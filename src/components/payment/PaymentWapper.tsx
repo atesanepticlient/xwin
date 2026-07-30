@@ -24,7 +24,7 @@ const PaymentWapper = ({
   }, [methods, type, setAllMethods, setType]);
 
   return (
-    <div className="min-h-[50vh]">
+    <div className="min-h-[50vh] ">
       {isLoading && (
         <div className="w-full h-[50vh] flex items-center justify-center">
           <ScaleLoader color="#212121" />

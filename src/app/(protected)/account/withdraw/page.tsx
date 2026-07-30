@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import PaymentFilterButton from "@/components/account/deposit/PaymentFilterButton";
 import Payment from "@/components/payment/Payment";
@@ -15,7 +13,7 @@ const WithdrawPage = async () => {
       <main>
         <PageHeader title="Withdraw found" />
         <DpWdTab />
-        <div className="p-2 rounded-md bg-white">
+        <div className="p-2 px-3 rounded-md bg-white">
           <div>
             <AccountId accountId={user?.playerId || ""} />
             <p className="hidden md:text-sm text-accent">

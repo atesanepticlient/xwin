@@ -13,8 +13,8 @@ const DepositPage = async () => {
       <main>
         <PageHeader title="Deposit" />
         <DpWdTab/>
-        <div className="p-2 rounded-md bg-white">
-          <div className="py-2">
+        <div className="p-2 px-3 rounded-md bg-white">
+          <div className="py-2 ">
             <AccountId accountId={user?.playerId || ""} />
             <p className="hidden md:text-sm text-accent">
               Select payment method to top up your account:
@@ -22,7 +22,7 @@ const DepositPage = async () => {
           </div>
           <PaymentFilterButton />
         </div>
-        <PaymentWapper type="deposit">
+        <PaymentWapper type="deposit" >
           <Payment />
         </PaymentWapper>
       </main>

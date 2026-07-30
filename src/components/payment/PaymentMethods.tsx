@@ -9,7 +9,7 @@ interface PaymentMethodsTypesProps {
 }
 const PaymentMethodsTypes = ({ method }: PaymentMethodsTypesProps) => {
   return (
-    <div className="bg-[#D0E1D0] p-2 md:p-4">
+    <div className="bg-[#D0E1D0] p-2 md:p-4 px-3 lg:px-2">
       <h4 className="text-[#336633] text-sm md:text-base mb-1 uppercase">
         {method.methodName}
       </h4>
@@ -26,7 +26,7 @@ const PaymentMethodsC = () => {
   const { methods, allMethods } = usePaymentMethods((state) => state);
 
   return (
-    <div className="flex flex-col gap-2 md:gap-4">
+    <div className="flex flex-col gap-2 md:gap-4 ">
       {methods.length == 0 &&
         allMethods.map((m, i) => <PaymentMethodsTypes key={i} method={m} />)}
 
