@@ -214,10 +214,8 @@ export const POST = async (req: NextRequest) => {
     if (platformSign !== sign) {
       return NextResponse.json(
         {
-          code: 1004,
-          message: "API signature is invalid",
           data: responseData.map((entry: any) => ({
-            member_account: "...",
+            ...entry,
             product_code: 1006,
             code: 1004,
             message: "API signature is invalid",
