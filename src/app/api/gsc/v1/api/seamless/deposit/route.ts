@@ -27,16 +27,8 @@ export const POST = async (req: NextRequest) => {
     } catch {
       return NextResponse.json(
         {
-          data: [
-            {
-              code: 999,
-              message: "Invalid JSON body",
-              member_account: "",
-              product_code: null,
-              before_balance: 0,
-              balance: 0,
-            },
-          ],
+          code: 999,
+          message: "Invalid Parameters",
         },
         { status: 200 },
       );
@@ -62,16 +54,8 @@ export const POST = async (req: NextRequest) => {
     ) {
       return NextResponse.json(
         {
-          data: [
-            {
-              code: 999,
-              message: "Invalid Parameters",
-              member_account: "",
-              product_code: null,
-              before_balance: 0,
-              balance: 0,
-            },
-          ],
+          code: 999,
+          message: "Invalid Parameters",
         },
         { status: 200 },
       );
@@ -127,16 +111,8 @@ export const POST = async (req: NextRequest) => {
     if (!isValidRequests) {
       return NextResponse.json(
         {
-          data: [
-            {
-              code: 999,
-              message: "Invalid Parameters",
-              member_account: "",
-              product_code: null,
-              before_balance: 0,
-              balance: 0,
-            },
-          ],
+          code: 999,
+          message: "Invalid Parameters",
         },
         { status: 200 },
       );
@@ -145,16 +121,8 @@ export const POST = async (req: NextRequest) => {
     if (!accpectedCurrency.includes(currency)) {
       return NextResponse.json(
         {
-          data: [
-            {
-              code: 999,
-              message: "Expect currency error",
-              member_account: "",
-              product_code: null,
-              before_balance: 0,
-              balance: 0,
-            },
-          ],
+          code: 999,
+          message: "Expect currency error",
         },
         {
           status: 200,
@@ -182,11 +150,8 @@ export const POST = async (req: NextRequest) => {
     if (operator_code !== MEMBER_OP_CODE) {
       return NextResponse.json(
         {
-          data: responseData.map((entry: any) => ({
-            ...entry,
-            code: 1002,
-            message: "API proxy key error",
-          })),
+          code: 1002,
+          message: "API proxy key error",
         },
         { status: 200 },
       );
@@ -204,11 +169,8 @@ export const POST = async (req: NextRequest) => {
     if (platformSign !== sign) {
       return NextResponse.json(
         {
-          data: responseData.map((entry: any) => ({
-            ...entry,
-            code: 1004,
-            message: "API signature is invalid",
-          })),
+          code: 1004,
+          message: "API signature is invalid",
         },
         { status: 200 },
       );
@@ -357,7 +319,7 @@ export const POST = async (req: NextRequest) => {
           return {
             ...entry,
             code: 999,
-            message: "Internal server error y",
+            message: "Internal server error ",
             before_balance: 0,
             balance: 0,
           };
@@ -421,16 +383,8 @@ export const POST = async (req: NextRequest) => {
     console.error("ERROR ON WITHDRAW API", error);
     return NextResponse.json(
       {
-        data: [
-          {
-            code: 999,
-            message: "Internal server error x",
-            member_account: "",
-            product_code: null,
-            before_balance: 0,
-            balance: 0,
-          },
-        ],
+        code: 999,
+        message: "Internal server error",
       },
       { status: 200 },
     );

@@ -118,13 +118,13 @@ export async function POST(req: NextRequest) {
     const SECRET_KEY = process.env.GSC_SECRET_KEY!;
 
     if (operator_code !== MEMBER_OP_CODE) {
-      responseData = responseData.map((entry) => ({
-        ...entry,
-        code: 1002, // API proxy key error (per PDF Seamless wallet code table)
-        message: "Invalid Operator code",
-      }));
-
-      return NextResponse.json({ data: responseData }, { status: 200 });
+      return NextResponse.json(
+        {
+          code: 1002, // API proxy key error (per PDF Seamless wallet code table)
+          message: "Invalid Operator code",
+        },
+        { status: 200 },
+      );
     }
 
     // Per PDF 2.1 Balance: sign = md5(operator_code + request_time + "getbalance" + secret_key)
@@ -136,13 +136,10 @@ export async function POST(req: NextRequest) {
     );
 
     if (platformSign !== sign) {
-      responseData = responseData.map((entry) => ({
-        ...entry,
-        code: 1004,
-        message: "API signature is invalid",
-      }));
-
-      return NextResponse.json({ data: responseData }, { status: 200 });
+      return NextResponse.json(
+        { code: 1004, message: "API signature is invalid" },
+        { status: 200 },
+      );
     }
 
     responseData = await pMap(responseData, async (entry) => {
