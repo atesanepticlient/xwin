@@ -61,6 +61,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const forwarded = req.headers.get("x-forwarded-for");
+    const realIp = req.headers.get("x-real-ip");
+
+    const ip = forwarded?.split(",")[0].trim() || realIp || "unknown";
+
+    const ALLOWED_IPS = [process.env.GSC_IP];
+
+    if (!ALLOWED_IPS.includes(ip)) {
+      return NextResponse.json(
+        {
+          code: 1005,
+          message: "IP not allowed",
+        },
+        { status: 403 },
+      );
+    }
+
     const { operator_code, currency, sign, request_time, batch_requests } =
       body;
 
