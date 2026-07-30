@@ -214,6 +214,8 @@ export const POST = async (req: NextRequest) => {
     if (platformSign !== sign) {
       return NextResponse.json(
         {
+          code: 0,
+          message: "",
           data: responseData.map((entry: any) => ({
             ...entry,
             product_code: 1006,
