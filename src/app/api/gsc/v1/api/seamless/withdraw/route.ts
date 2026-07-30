@@ -4,6 +4,7 @@ import {
   betPreserve,
   betPreserveRefund,
   cancelBet,
+  freeBet,
   getTip,
   placeBet,
   rollback,
@@ -325,6 +326,12 @@ export const POST = async (req: NextRequest) => {
                 roundId: tx.round_id,
               });
               return result;
+            } else if (action == "FREEBET") {
+              const result = await freeBet({
+                userId: user.id,
+                amount: tx.amount,
+              });
+              return result;
             }
 
             return null;
@@ -400,8 +407,6 @@ export const POST = async (req: NextRequest) => {
       },
       { concurrency: 5 },
     );
-
-    console.log({ responseData });
 
     return NextResponse.json(
       { data: responseData, code: 0, message: "" },

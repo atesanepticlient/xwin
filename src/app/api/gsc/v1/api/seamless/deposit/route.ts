@@ -5,6 +5,7 @@ import {
   betPreserveRefund,
   bonus,
   cancelBet,
+  freeBet,
   getTip,
   jackPot,
   leaderboardReward,
@@ -340,16 +341,23 @@ export const POST = async (req: NextRequest) => {
                 roundId: tx.round_id,
               });
               return result;
+            } else if (action == "FREEBET") {
+              const result = await freeBet({
+                userId: user.id,
+                amount: tx.amount,
+              });
+              return result;
             }
 
             return null;
           })
         ).filter(Boolean);
+        console.log({ txExecutions });
         if (txExecutions.length == 0) {
           return {
             ...entry,
             code: 999,
-            message: "Internal server error",
+            message: "Internal server error y",
             before_balance: 0,
             balance: 0,
           };
@@ -416,7 +424,7 @@ export const POST = async (req: NextRequest) => {
         data: [
           {
             code: 999,
-            message: "Internal server error",
+            message: "Internal server error x",
             member_account: "",
             product_code: null,
             before_balance: 0,

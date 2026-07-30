@@ -90,7 +90,7 @@ export const rollback = async ({
         data: updateBettingRecord,
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 1");
     }
   });
 };
@@ -158,7 +158,7 @@ export const placeBet = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 2");
     }
   });
 };
@@ -191,7 +191,7 @@ export const getTip = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 3");
     }
   });
 };
@@ -240,7 +240,7 @@ export const cancelBet = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 4");
     }
   });
 };
@@ -280,7 +280,7 @@ export const adjustment = async ({
         data: updateWallet,
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 5");
     }
   });
 };
@@ -316,7 +316,7 @@ export const freeBet = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 6");
     }
   });
 };
@@ -352,7 +352,7 @@ export const jackPot = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 7");
     }
   });
 };
@@ -388,7 +388,7 @@ export const bonus = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 8");
     }
   });
 };
@@ -424,7 +424,7 @@ export const promo = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 9");
     }
   });
 };
@@ -460,7 +460,7 @@ export const leaderboardReward = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 10");
     }
   });
 };
@@ -516,7 +516,7 @@ export const settled = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 11");
     }
   });
 };
@@ -549,7 +549,7 @@ export const betPreserve = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 12");
     }
   });
 };
@@ -574,7 +574,7 @@ export const betPreserveRefund = async ({
         },
       });
     } catch {
-      return errorResult(999, "Internal Server Error");
+      return errorResult(999, "Internal Server Error 13");
     }
   });
 };
