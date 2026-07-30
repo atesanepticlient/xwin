@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { FaQuestion } from "react-icons/fa";
 import SecondaryButton from "./buttons/secondary-button";
-import { ScaleLoader } from "react-spinners";
 import FlipText from "./FlipText";
 
 interface LogoutModalProps {
@@ -27,7 +25,7 @@ const LogoutModal = ({
   onLogout,
 }: LogoutModalProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
 
   // Support both controlled (isOpen) and uncontrolled modes
   const isModalOpen = isOpen !== undefined ? isOpen : internalOpen;

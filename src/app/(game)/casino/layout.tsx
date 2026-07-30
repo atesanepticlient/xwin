@@ -1,8 +1,5 @@
 import React from "react";
-import SearchGame from "./search-game";
-import FilterOpenButton from "./filter-open-button";
-import FilterCasino from "./filter-casino";
-import Slider from "../slider";
+
 import PageHeader from "@/components/page-header";
 import { SearchButton } from "../search-game";
 

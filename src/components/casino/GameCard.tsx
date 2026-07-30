@@ -19,7 +19,6 @@ const GameCard: React.FC<GameCardProps> = ({
   game,
   theme = "dark",
   onPlay,
-  onPlayFree,
   onFavoriteToggle,
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);

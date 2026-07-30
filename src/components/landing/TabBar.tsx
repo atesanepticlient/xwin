@@ -3,7 +3,7 @@
 import React from "react";
 import { IoMdHome } from "react-icons/io";
 import { FaDollarSign, FaTrophy } from "react-icons/fa";
-import { IoMenuSharp, IoTicket } from "react-icons/io5";
+import { IoMenuSharp} from "react-icons/io5";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";

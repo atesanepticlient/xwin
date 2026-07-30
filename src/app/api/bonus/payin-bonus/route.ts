@@ -16,7 +16,7 @@ export async function GET() {
     });
 
     return NextResponse.json({ bonuses });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, activeBonusId: selectedBonusId });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to update bonus state" },
       { status: 500 },

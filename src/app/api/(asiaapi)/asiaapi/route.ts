@@ -1,5 +1,4 @@
 import { INTERNAL_SERVER_ERROR } from "@/error";
-import axios from "axios";
 
 import games from "@/../data/games.json";
 

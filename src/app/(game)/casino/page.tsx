@@ -2,10 +2,7 @@
 
 import React from "react";
 
-import DefalutGames from "./defalut-games";
-import FilteredGames from "./filteredGames";
-import { useGamesFilter } from "@/lib/store.zustond";
-import TabBar from "@/components/landing/TabBar";
+
 import PopularGames from "./popular";
 import FishGames from "./fish";
 import PockerGames from "./pocket";

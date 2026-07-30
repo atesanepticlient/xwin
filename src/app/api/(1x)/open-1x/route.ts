@@ -3,7 +3,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { findCurrentUser } from "@/data/user";
-import { headers } from "next/headers";
 import { replaceDomain } from "@/lib/utils";
 export async function POST() {
   try {
@@ -14,12 +13,11 @@ export async function POST() {
         { message: "Authentication failed" },
         { status: 401 },
       );
-    const headersList = await headers();
     const userLoginId = user.playerId;
-    const userIp =
-      headersList.get("x-forwarded-for")?.split(",")[0].trim() ||
-      headersList.get("x-real-ip") ||
-      "Unknown";
+    // const userIp =
+    //   headersList.get("x-forwarded-for")?.split(",")[0].trim() ||
+    //   headersList.get("x-real-ip") ||
+    //   "Unknown";
 
     const body = {
       currency: "BDT",

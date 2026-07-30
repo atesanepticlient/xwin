@@ -13,7 +13,6 @@ import {
   MdOutlineExitToApp,
 } from "react-icons/md";
 import AccountMenuItem from "./AccountMenuItem";
-import { logout } from "@/action/logout";
 import { signOut } from "next-auth/react";
 const AccountMenu = () => {
   return (

@@ -1,9 +1,8 @@
 import AccountNavigation from "@/components/account/AccountNavigation";
 // import Footer from "@/components/landing/footer/Footer";
 import { Metadata } from "next";
-import React, { Suspense } from "react";
+import React from "react";
 import Header from "@/components/landing/headers/Header";
-import Footer from "@/components/landing/footer/Footer";
 export const metadata: Metadata = {
   title: "Livvbet - Account",
   description:

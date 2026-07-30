@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Search, Radio, Star } from "lucide-react";
 import Link from "next/link";
 
@@ -14,24 +14,21 @@ export interface SportsHeaderProps {
 }
 
 export const SportsHeaderBar: React.FC<SportsHeaderProps> = ({
-  activeTab: controlledActiveTab,
-  onTabChange,
   onFavoriteClick,
-  onSearchClick,
 }) => {
   // Default state is null (no tab selected, matching the image)
-  const [internalTab, setInternalTab] = useState<TabType>(null);
+  // const [internalTab, setInternalTab] = useState<TabType>(null);
 
-  const currentTab =
-    controlledActiveTab !== undefined ? controlledActiveTab : internalTab;
+  // const currentTab =
+  //   controlledActiveTab !== undefined ? controlledActiveTab : internalTab;
 
-  const handleTabClick = (tab: TabType) => {
-    const nextTab = currentTab === tab ? null : tab;
-    setInternalTab(nextTab);
-    if (onTabChange) {
-      onTabChange(nextTab);
-    }
-  };
+  // const handleTabClick = (tab: TabType) => {
+  //   const nextTab = currentTab === tab ? null : tab;
+  //   setInternalTab(nextTab);
+  //   if (onTabChange) {
+  //     onTabChange(nextTab);
+  //   }
+  // };
 
   return (
     <div className="bg-gray-200/90">

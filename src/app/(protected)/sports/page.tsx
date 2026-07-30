@@ -10,7 +10,7 @@ import { useSearchParams } from "next/navigation";
 export default function GamePage() {
   const searchParams = useSearchParams();
 
-  const { gameUrl, loading, error, fetchGame, pageType } = useOpenGame();
+  const { gameUrl, loading, error, fetchGame } = useOpenGame();
   useEffect(() => {
     fetchGame();
   }, [fetchGame]);

@@ -8,7 +8,6 @@ interface TextPreloaderProps {
   style?: React.CSSProperties;
 }
 export default function TextPreloader({
-  theme = "dark",
   size = 5,
   className = "",
   style = {},

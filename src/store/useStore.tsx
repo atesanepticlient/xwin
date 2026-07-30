@@ -76,14 +76,14 @@ export const useSearchGames = create<{
     set((state) => ({ ...state, filterParams: props })),
 }));
 
-interface OpenGameData {
-  content: {
-    game: {
-      url: string;
-    };
-  };
-  // Add other fields if needed
-}
+// interface OpenGameData {
+//   content: {
+//     game: {
+//       url: string;
+//     };
+//   };
+//   // Add other fields if needed
+// }
 
 interface OpenGameStore {
   gameUrl: string;

@@ -96,7 +96,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     const userCurrency = user.wallet.currencyCode || "BDT";
-    let userBalance = new Decimal(user.wallet.balance);
+    const userBalance = new Decimal(user.wallet.balance);
 
     // --- COMMAND: getBalance ---
     if (cmd === "getBalance") {

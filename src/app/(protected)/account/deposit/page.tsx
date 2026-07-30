@@ -1,10 +1,8 @@
 import React from "react";
 import PaymentFilterButton from "@/components/account/deposit/PaymentFilterButton";
-import { RiErrorWarningFill } from "react-icons/ri";
 import Payment from "@/components/payment/Payment";
 import PaymentWapper from "@/components/payment/PaymentWapper";
 import { findCurrentUser } from "@/data/user";
-import SupportMailText from "@/components/support-mail-text";
 import PageHeader from "@/components/page-header";
 import AccountId from "@/components/account-id";
 import DpWdTab from "@/components/payment/dp-wd-tab";
@@ -17,7 +15,7 @@ const DepositPage = async () => {
         <DpWdTab/>
         <div className="p-2 rounded-md bg-white">
           <div className="py-2">
-            <AccountId accountId={user?.playerId!} />
+            <AccountId accountId={user?.playerId || ""} />
             <p className="hidden md:text-sm text-accent">
               Select payment method to top up your account:
             </p>

@@ -1,10 +1,8 @@
 "use client";
 import React from "react";
 import {
-  MdAlternateEmail,
   MdOutlineLocalOffer,
   MdOutlineAttachMoney,
-  MdOutlineDiamond,
   MdOutlineCardGiftcard,
 } from "react-icons/md";
 import AccountMenuItem from "./AccountMenuItem";

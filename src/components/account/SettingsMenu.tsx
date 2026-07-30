@@ -3,7 +3,6 @@ import React from "react";
 import {
   MdOutlineAttachMoney,
   MdOutlinePerson,
-  MdOutlineSportsSoccer,
   MdOutlinePowerSettingsNew,
 } from "react-icons/md";
 import AccountMenuItem from "./AccountMenuItem";

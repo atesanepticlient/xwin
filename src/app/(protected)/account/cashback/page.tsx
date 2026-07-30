@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import {
-  Users,
-  CheckCircle2,
-  Clock,
-  Lock,
-  Sparkles,
-  AlertCircle,
-} from "lucide-react";
+import { Users, CheckCircle2, Clock, Lock, Sparkles } from "lucide-react";
 import PageHeader from "@/components/page-header";
 
 interface Cashback {
@@ -59,7 +52,7 @@ export default function CashbackListPage() {
       if (!res.ok) throw new Error(data.error || "Failed to claim cashback");
 
       await fetchCashbacks();
-    } catch (error: any) {
+    } catch (error) {
       alert(error.message || "Failed to claim cashback");
     } finally {
       setClaimingId(null);

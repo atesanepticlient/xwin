@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/menubar";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { FaUser } from "react-icons/fa";
-import { AppSidebar } from "./Menu";
 import { cn } from "@/lib/utils";
 import AuthModal from "@/components/auth/AuthModal";
 import Login from "@/components/auth/Login";

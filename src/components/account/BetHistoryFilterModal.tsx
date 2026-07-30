@@ -43,7 +43,6 @@ export default function BetHistoryFilterModal({
   onClose,
   filters,
   onApplyFilters,
-  onResetFilters,
 }: FilterModalProps) {
   const [startDate, setStartDate] = useState(filters.startDate || "2026-07-21");
   const [endDate, setEndDate] = useState(filters.endDate || "2026-07-27");

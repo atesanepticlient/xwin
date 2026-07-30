@@ -1,5 +1,4 @@
 import AuthHeaderAndHolder from "@/components/auth/auth-header-and-holder";
-import FormLoader from "@/components/auth/FormLoader";
 import LoginForm from "@/components/auth/LoginForm";
 import Header from "@/components/landing/headers/Header";
 import TabBar from "@/components/landing/TabBar";

@@ -5,7 +5,6 @@ import { IoCopyOutline, IoMailOutline, IoClose } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 import Link from "next/link";
 import useCurrentUser from "@/hook/useCurrentUser";
-import PrimaryButton from "../buttons/primary-button";
 
 interface AccountHeaderProps {
   onClose?: () => void;

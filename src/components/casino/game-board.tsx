@@ -9,7 +9,6 @@ const GameBoard = ({
   url,
   content,
   onCloseGame,
-  error,
 }: {
   isLoading: boolean;
   url?: string;

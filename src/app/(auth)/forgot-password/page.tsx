@@ -1,4 +1,3 @@
-import FormLoader from "@/components/auth/FormLoader";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import React, { Suspense } from "react";
 import Header from "@/components/landing/headers/Header";

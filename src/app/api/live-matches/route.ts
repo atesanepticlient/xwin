@@ -260,7 +260,6 @@
 // }
 
 // app/api/live-sports-data/route.ts
-import { NextResponse } from "next/server";
 import puppeteer, { Browser } from "puppeteer";
 
 export const dynamic = "force-dynamic";
@@ -512,7 +511,7 @@ export async function GET(request: Request) {
           // Wait 10 seconds between refresh scrapes
           await delay(10000);
         }
-      } catch (error) {
+      } catch  {
         if (!isAborted) {
           const errPayload = `data: ${JSON.stringify({
             success: false,
