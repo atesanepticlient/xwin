@@ -405,7 +405,10 @@ export const POST = async (req: NextRequest) => {
       { concurrency: 5 },
     );
 
-    return NextResponse.json({ data: responseData }, { status: 200 });
+    return NextResponse.json(
+      { data: responseData, code: 0, message: "" },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("ERROR ON WITHDRAW API", error);
     return NextResponse.json(
