@@ -322,6 +322,7 @@ import {
   LiveMatchCardProps,
   LiveMatchSection,
 } from "./live-match-selection";
+import { liveMatchesCache } from "@/lib/live-matches-cache";
 
 interface DashboardWrapperProps {
   fallbackData?: {
@@ -437,37 +438,44 @@ const transformMatches = (
 export const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   fallbackData,
 }) => {
-  const [liveMatches, setLiveMatches] = useState<LiveMatchCardProps[]>([]);
-  const [sportsMatches, setSportsMatches] = useState<LiveMatchCardProps[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [liveMatches, setLiveMatches] = useState<LiveMatchCardProps[]>(
+    liveMatchesCache.liveMatches,
+  );
+  const [sportsMatches, setSportsMatches] = useState<LiveMatchCardProps[]>(
+    liveMatchesCache.sportsMatches,
+  );
+  const [loading, setLoading] = useState(!liveMatchesCache.hasData);
   const [error, setError] = useState<string | null>(null);
-  const [totalLive, setTotalLive] = useState<number>(0);
-  const [totalSports, setTotalSports] = useState<number>(0);
-
+  const [totalLive, setTotalLive] = useState(liveMatchesCache.totalLive);
+  const [totalSports, setTotalSports] = useState(liveMatchesCache.totalSports);
   useEffect(() => {
-    // Note: ensure the endpoint path matches your actual route file structure
     const eventSource = new EventSource("/api/live-matches");
 
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-
         if (data.success) {
           const transformedLive = transformMatches(
             data.data.liveMatches,
             "live",
           );
-          setLiveMatches(transformedLive);
-          setTotalLive(data.total.liveMatches || transformedLive.length);
-
           const transformedSports = transformMatches(
             data.data.sportsMatches,
             "sport",
           );
-          setSportsMatches(transformedSports);
-          setTotalSports(data.total.sportsMatches || transformedSports.length);
 
+          setLiveMatches(transformedLive);
+          setSportsMatches(transformedSports);
+          setTotalLive(data.total.liveMatches);
+          setTotalSports(data.total.sportsMatches);
           setError(null);
+
+          // update the cache so the next mount starts warm
+          liveMatchesCache.liveMatches = transformedLive;
+          liveMatchesCache.sportsMatches = transformedSports;
+          liveMatchesCache.totalLive = data.total.liveMatches;
+          liveMatchesCache.totalSports = data.total.sportsMatches;
+          liveMatchesCache.hasData = true;
         } else {
           setError(data.error || "Streaming error encountered");
         }
@@ -478,26 +486,14 @@ export const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
       }
     };
 
-    eventSource.onerror = (err) => {
-      console.error("EventSource stream connection error:", err);
+    eventSource.onerror = () => {
       eventSource.close();
-
-      if (fallbackData) {
-        setLiveMatches(fallbackData.liveMatches || []);
-        setSportsMatches(fallbackData.sportsMatches || []);
-        setTotalLive(fallbackData.liveMatches?.length || 0);
-        setTotalSports(fallbackData.sportsMatches?.length || 0);
-      } else {
-        setError("Connection lost. Retrying live updates...");
-      }
+      if (!liveMatchesCache.hasData) setError("Connection lost. Retrying...");
       setLoading(false);
     };
 
-    // Cleanup connection on component unmount
-    return () => {
-      eventSource.close();
-    };
-  }, [fallbackData]);
+    return () => eventSource.close();
+  }, []);
 
   if (loading) {
     return (
