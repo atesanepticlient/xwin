@@ -57,7 +57,7 @@ const getApiErrorMessage = (error: FetchQueryError | undefined): string =>
 const PaymentMain = ({ wallet }: { wallet: any }) => {
   const type = usePaymentMethods((state) => state.type);
   return (
-    <div className="rounded-sm shadow-sm">
+    <div className="rounded-sm shadow-sm w-[95%] mx-auto">
       <div className="bg-white w-full flex items-center justify-center py-2 md:py-4">
         <Image
           className="wallet-image w-[80px] object-cover mx-auto"
