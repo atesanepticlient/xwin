@@ -1,401 +1,231 @@
-// "use server";
-// import { registerSchema } from "@/schema";
-// import zod from "zod";
-
-// import { db } from "@/lib/db";
-// import { findUserByEmail } from "@/data/user";
-// import bcrypt from "bcryptjs";
-
-// import { playerIdGenerate } from "@/lib/helpers";
-// import { INTERNAL_SERVER_ERROR } from "@/error";
-// import { SIGNUP_SUCCESS } from "@/success";
-// // import { createAccount } from "@/provider/createAccount";
-// // import { createSportBookAccount } from "@/provider/createSportbook";
-
-// export const register = async (data: zod.infer<typeof registerSchema>) => {
-//   const exitingUser = await findUserByEmail(data.email);
-//   if (exitingUser) {
-//     return { error: "The Email already has an account" };
-//   }
-
-//   const exitingUserWithPhone = await db.users.findFirst({
-//     where: { phone: data.phone },
-//   });
-
-//   if (exitingUserWithPhone) {
-//     return { error: "The Phone already has an account" };
-//   }
-//   const { email, firstName, lastName, currencyCode, password, promo, phone } =
-//     data;
-
-//   try {
-//     const hasedPassword = bcrypt.hashSync(password, 10);
-//     const playerId = await playerIdGenerate();
-
-//     const newUser = await db.users.create({
-//       data: {
-//         email,
-//         phone,
-//         firstName,
-//         lastName,
-//         password: hasedPassword,
-//         casinoPassword: password,
-//         playerId: playerId!,
-//         turnOver: {},
-//         referral: {
-//           create: {},
-//         },
-//         wallet: {
-//           create: {
-//             balance: 0,
-//             currencyCode,
-//           },
-//         },
-//         bonusWallet: {
-//           create: {
-//             balance: 0,
-//             turnOver: 0,
-//             currencyCode,
-//           },
-//         },
-//       },
-//       include: { wallet: true },
-//     });
-
-//     const promoUser = await db.users.findFirst({
-//       where: { referId: promo },
-//       include: { referral: true },
-//     });
-
-//     if (promoUser) {
-//       await db.$transaction([
-//         db.referral.update({
-//           where: { userId: promoUser.id },
-//           data: {
-//             referredUsers: {
-//               connect: {
-//                 id: newUser.id,
-//               },
-//             },
-//           },
-//         }),
-//         db.users.update({
-//           where: { id: newUser.id },
-//           data: {
-//             referral: {
-//               connect: { id: promoUser!.referral!.id },
-//             },
-//           },
-//         }),
-//       ]);
-
-//       const site = await db.site.findFirst({
-//         where: {},
-//         select: {
-//           referBonuseMainUser: true,
-//           referBonuseRefererUser: true,
-//           turnover: true,
-//         },
-//       });
-
-//       await db.bonusWallet.update({
-//         where: {
-//           userId: newUser.id,
-//         },
-//         data: {
-//           balance: {
-//             increment: site!.referBonuseMainUser!,
-//           },
-//           turnOver: {
-//             increment: +site!.referBonuseMainUser! * +site!.turnover!,
-//           },
-//         },
-//       });
-//       await db.bonusWallet.update({
-//         where: {
-//           userId: promoUser.id,
-//         },
-//         data: {
-//           balance: {
-//             increment: site!.referBonuseRefererUser!,
-//           },
-//           turnOver: {
-//             increment: +site!.referBonuseRefererUser! * +site!.turnover!,
-//           },
-//         },
-//       });
-
-//       await db.message.create({
-//         data: {
-//           title: `You have received ${site!.referBonuseMainUser} Bonus`,
-//           user: {
-//             connect: {
-//               id: newUser.id,
-//             },
-//           },
-//         },
-//       });
-
-//       await db.message.create({
-//         data: {
-//           title: `You have received ${
-//             site!.referBonuseMainUser
-//           }  Bonus from you referred user`,
-//           user: {
-//             connect: {
-//               id: promoUser.id,
-//             },
-//           },
-//         },
-//       });
-//     }
-
-//     // const casinoAccount = await createAccount({
-//     //   consumerId: +process.env.B2B_CONSUMER_ID!,
-//     //   userName: newUser.playerId,
-//     //   password: newUser.casinoPassword,
-//     //   currencyCode: newUser.wallet!.currencyCode,
-//     //   firstName: newUser.firstName,
-//     //   lastName: newUser.lastName,
-//     // });
-
-//     // const sportsBookRes = await createSportBookAccount({
-//     //   agent: process.env.SPORTBOOK_AGENT_NAME!,
-//     //   secret: process.env.SPORTBOOK_CONSUMER_SECERT!,
-//     //   userName: newUser!.playerId,
-//     // });
-
-//     // console.log({ sportsBookRes });
-//     // console.log({ casinoAccount });
-
-//     return {
-//       success: SIGNUP_SUCCESS,
-//     };
-//   } catch (error) {
-//     console.log("Signup error ", error);
-//     return { error: INTERNAL_SERVER_ERROR };
-//   }
-// };
-
-// -----------------------------
 "use server";
-import { registerSchema } from "@/schema";
-import zod from "zod";
+import zod, { z } from "zod";
 import { db } from "@/lib/db";
 import { findUserByEmail } from "@/data/user";
 import bcrypt from "bcryptjs";
-import { playerIdGenerate, referIdGenerate } from "@/lib/helpers";
+import {
+  playerIdGenerate,
+  referIdGenerate,
+  generateGuestEmail,
+  generateGuestPhone,
+  generateGuestPassword,
+  generateGuestName,
+} from "@/lib/helpers";
 import { INTERNAL_SERVER_ERROR } from "@/error";
 import { SIGNUP_SUCCESS } from "@/success";
-import { sendVerificationEmail } from "@/lib/mail";
+import { registerSchema, oneClickSchema } from "@/schema";
+import { BonusTypeEnum } from "@/types";
 
+// ---------------------------------------------------------------
+// "By e-mail" tab: no OTP - validates the email is free and creates
+// the user directly with everything collected across the 3 steps.
+// ---------------------------------------------------------------
 export const register = async (data: zod.infer<typeof registerSchema>) => {
-  const exitingUser = await findUserByEmail(data.email);
-  if (exitingUser) {
-    return { error: "The Email already has an account" };
-  }
-
-  const exitingUserWithPhone = await db.users.findFirst({
-    where: { phone: data.phone },
-  });
-
-  if (exitingUserWithPhone) {
-    return { error: "The Phone already has an account" };
-  }
-
   try {
-    // Generate OTP and send email
-    const token = Math.floor(100000 + Math.random() * 900000).toString();
-    const expires = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minutes expiry
+    const parsed = registerSchema.parse(data);
 
-    await db.verificationToken.upsert({
-      where: { email: data.email },
-      update: { token, expires },
-      create: {
-        email: data.email,
-        token,
-        expires,
-      },
+    const exitingUser = await findUserByEmail(parsed.email);
+    if (exitingUser) {
+      return { error: "The Email already has an account" };
+    }
+
+    const { email, country, currencyCode, password, promo, bonusType } = parsed;
+    const user = await createUserAndApplyBonus({
+      email,
+      // `phone`, `firstName`, `lastName` are still required (non-null)
+      // columns in the DB, and this wizard doesn't collect any of them,
+      // so we fill in placeholders rather than passing null.
+      phone: generateGuestPhone(),
+      firstName: "",
+      lastName: "",
+      country,
+      currencyCode,
+      password,
+      promo,
+      bonusType,
+      signupMethod: "EMAIL",
     });
 
-    await sendVerificationEmail(data.email, token);
-
-    return {
-      success: "OTP sent to your Email",
-      requiresOtp: true,
-      email: data.email,
-    };
-  } catch {
+    return { success: SIGNUP_SUCCESS, playerId: user.playerId };
+  } catch (error) {
+    console.log("Registration error ", error);
     return { error: INTERNAL_SERVER_ERROR };
   }
 };
 
-export const verifyOtpAndRegister = async (
-  email: string,
-  otp: string,
-  userData: zod.infer<typeof registerSchema>
+// ---------------------------------------------------------------
+// "One-click" tab (image 4): no email/password collected from the
+// user at all - country, currency, promo, bonus choice only. We mint
+// a guest email/phone/password behind the scenes and hand the
+// generated password + playerId back so the user can log in later.
+// ---------------------------------------------------------------
+export const oneClickRegister = async (
+  data: zod.infer<typeof oneClickSchema>,
 ) => {
   try {
-    const verificationToken = await db.verificationToken.findUnique({
-      where: { email },
+    const parsed = oneClickSchema.parse(data);
+
+    const email = generateGuestEmail();
+    const phone = generateGuestPhone();
+    const password = generateGuestPassword();
+    const { firstName, lastName } = generateGuestName();
+
+    const user = await createUserAndApplyBonus({
+      email,
+      phone,
+      firstName,
+      lastName,
+      country: parsed.country,
+      currencyCode: parsed.currencyCode,
+      password,
+      promo: parsed.promo,
+      bonusType: parsed.bonusType,
+      signupMethod: "ONE_CLICK",
     });
 
-    if (!verificationToken) {
-      return { error: "OTP not found. Please request a new one." };
-    }
+    return {
+      success: SIGNUP_SUCCESS,
+      playerId: user.playerId,
+      generatedPassword: password, // show this to the user ONCE, they need it to log in
+    };
+  } catch (error) {
+    console.log("One-click registration error ", error);
+    return { error: INTERNAL_SERVER_ERROR };
+  }
+};
 
-    if (verificationToken.token !== otp) {
-      return { error: "Invalid OTP" };
-    }
+// ---------------------------------------------------------------
+// Shared user-creation + referral-bonus logic used by both flows above
+// (unchanged from before).
+// ---------------------------------------------------------------
+async function createUserAndApplyBonus(args: {
+  email: string;
+  phone: string;
+  firstName: string;
+  lastName: string;
+  country: string;
+  currencyCode: string;
+  password: string;
+  promo?: string;
+  bonusType?: z.infer<typeof BonusTypeEnum>;
+  signupMethod: "EMAIL" | "ONE_CLICK";
+}) {
+  const {
+    email,
+    phone,
+    firstName,
+    lastName,
+    country,
+    currencyCode,
+    password,
+    promo,
+    bonusType,
+    signupMethod,
+  } = args;
 
-    if (new Date() > verificationToken.expires) {
-      return { error: "OTP has expired. Please request a new one." };
-    }
+  const hasedPassword = bcrypt.hashSync(password, 10);
+  const playerId = await playerIdGenerate();
+  const referId = await referIdGenerate(6);
 
-    // If OTP is valid, proceed with registration
-    const { firstName, lastName, currencyCode, password, promo, phone } =
-      userData;
+  const newUser = await db.users.create({
+    data: {
+      email,
+      phone,
+      firstName,
+      lastName,
+      country,
+      signupMethod,
+      password: hasedPassword,
+      casinoPassword: password,
+      playerId: playerId!,
+      referId,
 
-    const hasedPassword = bcrypt.hashSync(password, 10);
-    const playerId = await playerIdGenerate();
-
-    const referId = await referIdGenerate(6);
-
-    const newUser = await db.users.create({
-      data: {
-        email,
-        phone,
-        firstName,
-        lastName,
-        password: hasedPassword,
-        casinoPassword: password,
-        playerId: playerId!,
-        referId,
-
-        turnOver: {},
-        referral: {
-          create: {},
-        },
-
-        wallet: {
-          create: {
-            balance: 0,
-            currencyCode,
-          },
-        },
-        bonusWallet: {
-          create: {
-            balance: 0,
-            turnOver: 0,
-            currencyCode,
-          },
-        },
-        bettingRecord: {
-          create: {
-            totalBet: 0,
-            totalWin: 0,
-          },
+      turnOver: {},
+      referral: { create: {} },
+      wallet: { create: { balance: 0, currencyCode } },
+      bonusWallet: { create: { balance: 0, turnOver: 0, currencyCode } },
+      messages: {
+        create: {
+          title: "Your account was created",
+          description:
+            "You successfuly created an account on winrxbet. Now you can make deposit using our Payment System",
         },
       },
-      include: { wallet: true },
-    });
+    },
+    include: { wallet: true },
+  });
 
+  const bonusSetting = await db.bonusSetting.findUnique({
+    where: { id: "global" },
+  });
+
+  if (bonusType == "FIRST_PAYIN") {
+    const firstPayinBonusPercentage = bonusSetting?.firstPayin || 0.05;
+
+    await db.payinBonus.create({
+      data: {
+        user: { connect: { id: newUser.id } },
+        percentage: firstPayinBonusPercentage,
+        type: "FIRST_PAYIN",
+        expiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
+  if (promo) {
     const promoUser = await db.users.findFirst({
       where: { referId: promo },
       include: { referral: true },
     });
 
     if (promoUser) {
+      // 1. Link referral relationships
       await db.$transaction([
         db.referral.update({
           where: { userId: promoUser.id },
-          data: {
-            referredUsers: {
-              connect: {
-                id: newUser.id,
-              },
-            },
-          },
+          data: { referredUsers: { connect: { id: newUser.id } } },
         }),
         db.users.update({
           where: { id: newUser.id },
-          data: {
-            referral: {
-              connect: { id: promoUser!.referral!.id },
-            },
-          },
+          data: { referral: { connect: { id: promoUser.referral!.id } } },
         }),
       ]);
 
-      const site = await db.site.findFirst({
-        where: {},
-        select: {
-          referBonuseMainUser: true,
-          referBonuseRefererUser: true,
-          turnover: true,
-        },
-      });
+      // 2. Fetch bonus setting to get default amount if needed
+      const bonusSetting = await db.bonusSetting.findFirst();
 
-      await db.bonusWallet.update({
-        where: {
-          userId: newUser.id,
-        },
+      // 3. Create unclaimed, unclaimable cashback for the referrer
+      await db.cashback.create({
         data: {
-          balance: {
-            increment: site!.referBonuseMainUser!,
-          },
-          turnOver: {
-            increment: +site!.referBonuseMainUser! * +site!.turnover!,
-          },
-        },
-      });
-      await db.bonusWallet.update({
-        where: {
           userId: promoUser.id,
-        },
-        data: {
-          balance: {
-            increment: site!.referBonuseRefererUser!,
-          },
-          turnOver: {
-            increment: +site!.referBonuseRefererUser! * +site!.turnover!,
-          },
+          type: "INVITATION",
+          amount: bonusSetting?.inviationCode ?? null, // Can be null or updated later
+          expiry: null, // Admin will set expiry later when making claimable: true
+          hasClaimed: false,
+          claimable: false, // Initially false until activated
         },
       });
 
+      // 4. Send message notification
       await db.message.create({
         data: {
-          title: `You have received ${site!.referBonuseMainUser} Bonus`,
-          user: {
-            connect: {
-              id: newUser.id,
-            },
-          },
+          title: "You earned an Invitation Cashback! Check your bonus page.",
+          user: { connect: { id: promoUser.id } },
         },
       });
 
-      await db.message.create({
+      const inviteBonusPercentage = bonusSetting?.inviationCode;
+      // 5. Send bonus for new user
+      await db.payinBonus.create({
         data: {
-          title: `You have received ${
-            site!.referBonuseMainUser
-          }  Bonus from you referred user`,
-          user: {
-            connect: {
-              id: promoUser.id,
-            },
-          },
+          user: { connect: { id: newUser.id } },
+          percentage: inviteBonusPercentage,
+          type: "INVITATION",
+          expiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
       });
     }
-
-    // Delete the verification token after successful registration
-    await db.verificationToken.delete({ where: { email } });
-
-    return {
-      success: SIGNUP_SUCCESS,
-    };
-  } catch (error) {
-    console.log("Registration error ", error);
-    return { error: INTERNAL_SERVER_ERROR };
   }
-};
+
+  return newUser;
+}

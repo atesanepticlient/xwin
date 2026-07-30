@@ -102,3 +102,66 @@ export interface CasinoGamesOutput {
     games: Game[];
   };
 }
+
+export interface WalletBase {
+  id: string;
+  name: string;
+  label: string;
+  image: string;
+  isActive: boolean;
+  isRecommended: boolean;
+  category: "MOBILE_BANKING" | "CRYPTO";
+}
+
+export interface CryptoWalletInfo {
+  currencyCode: string;
+  network: string;
+  address: string;
+  qrCodeImage?: string | null;
+  memo?: string | null;
+}
+
+export interface DepositWallet extends WalletBase {
+  minDeposit: number;
+  maxDeposit: number;
+  crypto?: CryptoWalletInfo;
+}
+export interface TransactionItem {
+  id: string;
+  kind: "DEPOSIT" | "WITHDRAW";
+  amount: number;
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  merchantId: string;
+  method: "MOBILE_BANKING" | "CRYPTO" | null;
+  walletName: string | null;
+  reference: string | null;
+  createdAt: string;
+}
+
+export interface TransactionStatsBreakdown {
+  counts: { PENDING: number; ACCEPTED: number; REJECTED: number };
+  total: number;
+  totalAmount: number;
+}
+
+export interface TransactionsResponse {
+  items: TransactionItem[];
+  page: number;
+  limit: number;
+  hasMore: boolean;
+  stats: {
+    deposit: TransactionStatsBreakdown;
+    withdraw: TransactionStatsBreakdown;
+    pendingCount: number;
+  };
+}
+
+export interface TransactionFilters {
+  type: "all" | "deposit" | "withdraw";
+  status: "all" | "PENDING" | "ACCEPTED" | "REJECTED";
+  method: "all" | "MOBILE_BANKING" | "CRYPTO";
+  from?: string;
+  to?: string;
+  search?: string;
+  page: number;
+}

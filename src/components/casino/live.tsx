@@ -16,21 +16,21 @@ const Live = () => {
 
   const games = getGames(Categories.LiveDealers, undefined, 20);
   return (
-    <div>
+    <div className="px-3 pt-3">
       <GameSectionHeader
         seeMore={() => redirect("/live")}
         title="Live Casino"
       />
       <Swiper slidesPerView={"auto"} spaceBetween={5} className="mySwiper">
         {games?.slice(0, 10).map((game, i) => (
-          <SwiperSlide key={i} className="max-w-[40.33%] md:max-w-[20%] pb-8">
+          <SwiperSlide key={i} className="max-w-[40.33%] md:max-w-[20%] pb-2">
             <GameCard game={game} />
           </SwiperSlide>
         ))}
       </Swiper>
       <Swiper slidesPerView={"auto"} spaceBetween={5} className="mySwiper">
         {games?.slice(10, 20).map((game, i) => (
-          <SwiperSlide key={i} className="max-w-[40.33%] md:max-w-[20%] pb-8">
+          <SwiperSlide key={i} className="max-w-[40.33%] md:max-w-[20%] ">
             <GameCard game={game} />
           </SwiperSlide>
         ))}

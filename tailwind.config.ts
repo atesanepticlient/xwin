@@ -73,6 +73,7 @@ export default {
       fontFamily: {
         roboto: "var(--font-roboto)",
         inter: "var(--font-inter)",
+        russo: ["var(--font-russo-one)", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

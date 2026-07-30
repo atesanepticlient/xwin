@@ -27,3 +27,4 @@ export const NAME_CHANGED = "Name has changed successful!";
  * @type {string}
  */
 export const PHONE_CHANGED = "Phone number has changed successful!";
+export const EMAIL_CHANGED = "Email updated successfully";

@@ -3,13 +3,13 @@ import { authRoutes, publicRoutes, providerApiPrefix } from "./routes";
 import authConfig from "./auth.config";
 
 const { auth } = NextAuth({ ...authConfig });
+
 export default auth(async (req) => {
   const { nextUrl } = req;
   const session = !!req.auth;
 
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  // const isApiRoute = nextUrl.pathname.startsWith(apiAuthRoutePrefix);
   const isProvider = nextUrl.pathname.startsWith(providerApiPrefix);
 
   if (session && isAuthRoute && !isProvider) {
@@ -17,11 +17,11 @@ export default auth(async (req) => {
   }
 
   if (!session && !isPublicRoute && !isProvider && !isAuthRoute) {
-    const callbackUrl = nextUrl.pathname;
+    const callbackUrl = nextUrl.pathname + nextUrl.search;
+    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
 
-    const encodeCallbackUrl = encodeURIComponent(callbackUrl);
     return Response.redirect(
-      new URL(`/login?redirect=${encodeCallbackUrl}`, nextUrl)
+      new URL(`/login?redirect=${encodedCallbackUrl}`, nextUrl),
     );
   }
 });

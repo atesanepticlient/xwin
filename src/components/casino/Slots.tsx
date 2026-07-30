@@ -16,7 +16,7 @@ const Slots = () => {
 
   const games = getGames(Categories.Slots, undefined, 20);
   return (
-    <div>
+    <div className=" px-3 pt-3">
       <GameSectionHeader seeMore={() => redirect("/casino")} title="Slots" />
 
       {games && (
@@ -25,7 +25,7 @@ const Slots = () => {
             {games?.slice(0, 10).map((game, i) => (
               <SwiperSlide
                 key={i}
-                className="max-w-[40.33%] md:max-w-[20%] pb-8"
+                className="max-w-[40.33%] md:max-w-[20%] pb-2"
               >
                 <GameCard game={game} />
               </SwiperSlide>
@@ -35,7 +35,7 @@ const Slots = () => {
             {games?.slice(10, 20).map((game, i) => (
               <SwiperSlide
                 key={i}
-                className="max-w-[40.33%] md:max-w-[20%] pb-8"
+                className="max-w-[40.33%] md:max-w-[20%] pb-4"
               >
                 <GameCard game={game} />
               </SwiperSlide>

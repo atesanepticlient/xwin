@@ -1,37 +1,57 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import React from "react";
-import { IoIosArrowForward } from "react-icons/io";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 interface AccountMenuItemProps {
   icon: React.ReactNode;
-  lable: string;
-  href: string;
+  label: string;
+  href?: string;
+  warning?: boolean;
+  onClick?: () => void;
 }
-const AccountMenuItem = ({ icon, lable, href }: AccountMenuItemProps) => {
+
+const AccountMenuItem = ({
+  icon,
+  label,
+  href,
+  warning,
+  onClick,
+}: AccountMenuItemProps) => {
   const pathname = usePathname();
+  const isActive = href ? pathname === href : false;
 
-  const isActive = pathname == href ? true : false;
-  return (
-    <li
-      className={cn(
-        "flex items-center  px-1 py-2  hover:bg-[#141414] border-l-2 border-l-transparent hover:border-l-[#FFB805] transition-all cursor-pointer",
-        `${isActive && "bg-[#141414] border-l-[#FFB805]"}`
+  const sharedClasses = cn(
+    "flex items-center justify-between w-full px-4 py-3.5 hover:bg-gray-50 transition-colors rounded-lg text-left cursor-pointer",
+    isActive && "bg-gray-100 font-medium",
+  );
+
+  const content = (
+    <div className="flex items-center gap-3.5">
+      <div className="text-gray-500 text-lg flex items-center justify-center w-5 h-5">
+        {icon}
+      </div>
+      <span className="text-[15px] text-gray-800 font-normal">{label}</span>
+      {warning && (
+        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold">
+          !
+        </span>
       )}
-    >
-      <Link href={href} className="flex items-center justify-between w-full">
-        <div className="flex gap-3 items-center ">
-          <div className={`${isActive && "!text-[#FFB805]"}`}>{icon}</div>
-          <span className="text-sm md:text-base font-semibold md:font-medium text-white capitalize">
-            {lable}
-          </span>
-        </div>
+    </div>
+  );
 
-        <IoIosArrowForward className="w-5 h-5 md:hidden text-white" />
-      </Link>
+  return (
+    <li>
+      {onClick ? (
+        <button type="button" onClick={onClick} className={sharedClasses}>
+          {content}
+        </button>
+      ) : (
+        <Link href={href || "#"} className={sharedClasses}>
+          {content}
+        </Link>
+      )}
     </li>
   );
 };

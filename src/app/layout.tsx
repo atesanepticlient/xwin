@@ -1,20 +1,29 @@
 import type { Metadata } from "next";
-import { Roboto, Inter } from "next/font/google";
+import { Roboto, Inter, Russo_One } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { Suspense } from "react";
 import StoreProvider from "./StoreProvider";
 import GamesLoader from "./GamesLoader";
+import Intro from "./intro";
 
 const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin"],
 });
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
+});
+
+// Configure Russo One font
+const russoOne = Russo_One({
+  weight: "400",
+  variable: "--font-russo-one",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -33,12 +42,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={` ${inter.variable} ${roboto.className} font-inter antialiased !bg-[#1A1A1A] !text-white`}
+        className={` ${inter.variable} ${roboto.variable} ${russoOne.variable} font-inter antialiased !text-white`}
       >
         <Suspense>
           <SessionProvider session={session}>
             <StoreProvider>
               {children}
+              <Intro />
               <GamesLoader />
             </StoreProvider>
           </SessionProvider>

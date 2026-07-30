@@ -15,12 +15,17 @@ export const { signIn, signOut, auth, handlers } = NextAuth({
 
   callbacks: {
     async jwt({ token }) {
-      const user = await findUserById(token.sub!);
+      if (!token.sub) return token;
+
+      const user = await findUserById(token.sub);
       if (user) {
         token.role = user.role;
+        // Attach current tokenVersion from DB to the JWT
+        token.tokenVersion = user.tokenVersion ?? 0;
       }
       return token;
     },
+
     async session({ token, session }) {
       if (token.sub && session.user) {
         const user = await db.users.findUnique({
@@ -28,13 +33,25 @@ export const { signIn, signOut, auth, handlers } = NextAuth({
           include: { wallet: true, bonusWallet: true },
         });
 
-        if (user?.password) {
+        if (!user) {
+          return session; // User no longer exists
+        }
+
+        // 🔒 CHECK: If database tokenVersion is higher than token's version, invalidate session
+        if (user.tokenVersion !== token.tokenVersion) {
+          // Returning an empty object or null invalidates the NextAuth session
+          return {
+            ...session,
+            user: undefined as any,
+            expires: new Date(0).toISOString(),
+          };
+        }
+
+        if (user.password) {
           user.password = "";
         }
 
-        if (user) {
-          session.user = { ...user, emailVerified: new Date() };
-        }
+        session.user = { ...user, emailVerified: new Date() };
       }
       return session;
     },

@@ -1,16 +1,19 @@
 import FormLoader from "@/components/auth/FormLoader";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import React, { Suspense } from "react";
+import Header from "@/components/landing/headers/Header";
+import AuthHeaderAndHolder from "@/components/auth/auth-header-and-holder";
+import TabBar from "@/components/landing/TabBar";
 
 const ForgotPasswordPage = () => {
   return (
     <Suspense>
-      <div className="bg-[#1A1A1A] w-full flex justify-center items-center h-screen pb-24 md:pb-32">
-        <div className="w-[95%] md:w-[350px] mx-auto">
-          <FormLoader label="Reset Password">
-            <ForgotPasswordForm />
-          </FormLoader>
-        </div>
+      <div className="bg-slate-50 w-full h-screen">
+        <Header />
+        <AuthHeaderAndHolder title="Reset Password">
+          <ForgotPasswordForm />
+        </AuthHeaderAndHolder>
+        <TabBar />
       </div>
     </Suspense>
   );

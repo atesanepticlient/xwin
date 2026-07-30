@@ -1,16 +1,19 @@
+import AuthHeaderAndHolder from "@/components/auth/auth-header-and-holder";
 import FormLoader from "@/components/auth/FormLoader";
 import LoginForm from "@/components/auth/LoginForm";
+import Header from "@/components/landing/headers/Header";
+import TabBar from "@/components/landing/TabBar";
 import React, { Suspense } from "react";
 
 const LoginPage = () => {
   return (
-    <Suspense >
-      <div className="bg-[#1A1A1A] w-full flex justify-center items-center h-screen pb-24 md:pb-32">
-        <div className="w-[95%] md:w-[350px] mx-auto">
-          <FormLoader label="Login">
-            <LoginForm />
-          </FormLoader>
-        </div>
+    <Suspense>
+      <div className="bg-slate-50 w-full">
+        <Header />
+        <AuthHeaderAndHolder title="LOGIN">
+          <LoginForm />
+        </AuthHeaderAndHolder>
+        <TabBar />
       </div>
     </Suspense>
   );

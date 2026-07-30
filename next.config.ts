@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
       "mir-s3-cdn-cf.behance.net",
       "cdn.prod.website-files.com",
     ],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
   },
 };
 

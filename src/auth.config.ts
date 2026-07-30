@@ -20,7 +20,6 @@ export default {
       async authorize(credentials) {
         const user: string = (credentials!.email as string) || "";
         const password: string = (credentials!.password as string) || "";
-
         if (!user || !password) {
           throw new Error("Invalid Credentials");
         }
@@ -30,6 +29,9 @@ export default {
             OR: [
               {
                 email: user,
+              },
+              {
+                phone: user,
               },
               {
                 playerId: user,
@@ -44,7 +46,7 @@ export default {
 
         const passwordIsMatch = await bcrypt.compare(
           password,
-          account.password
+          account.password,
         );
 
         if (!passwordIsMatch) {

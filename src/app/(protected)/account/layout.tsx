@@ -23,9 +23,7 @@ const AccountLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
       <div className="md:hidden ">{children}</div>
-      <Suspense>
-        <Footer />
-      </Suspense>
+
     </div>
   );
 };

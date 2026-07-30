@@ -4,11 +4,11 @@ import Header from "@/components/landing/headers/Header";
 import Footer from "@/components/landing/footer/Footer";
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
+    <div className="bg-[#1b1b1b] min-h-screen">
       <Header />
-      <div className="bg-[#141B1F] min-h-screen pb-5 lg:pb-10">
+      <div className=" ">
         <div className=" container">
-          <Nav />
+          {/* <Nav /> */}
           {children}
         </div>
       </div>

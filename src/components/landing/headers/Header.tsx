@@ -3,11 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-import logo from "@/../public/assets/svg/livvbet-dark-logo.svg";
+import logo from "@/../public/assets/images/logo.png";
 
 import { FaGift } from "react-icons/fa";
 
-import { BiMenuAltRight } from "react-icons/bi";
 import {
   Menubar,
   MenubarContent,
@@ -26,7 +25,6 @@ import Registation from "@/components/auth/Registation";
 import useCurrentUser from "@/hook/useCurrentUser";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AuthButtons from "@/components/auth/AuthButtons";
-import Menusm from "./MenuLeft";
 import PrimaryButton from "@/components/buttons/primary-button";
 import SecondaryButton from "@/components/buttons/secondary-button";
 import {
@@ -42,6 +40,7 @@ import Logout from "./logout";
 import LogoutModal from "@/components/LogoutModal";
 
 import Contact from "./contact";
+import CountryFlag from "./country-flag";
 // import Balance from "./balance";
 // import Inbox from "./inbox";
 // import User from "./user";
@@ -53,10 +52,10 @@ const Header = () => {
   return (
     <header className="w-full  z-[1000] sticky top-0 left-0  flex flex-col items-center justify-between ">
       <TooltipProvider>
-        <div className="w-full bg-[#212121] px-5 md:px-7 lg:px-8 py-4 hidden md:flex items-center justify-between ">
+        <div className="w-full bg-[#292929] px-5 md:px-7 lg:px-8 py-4 hidden md:flex items-center justify-between ">
           <div className="flex items-center gap-4 md:gap-5 lg:gap-7  ">
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Link href="/invite-friend">
                   <button className="bg-[#4F4F4F] hover:bg-[#474747] cursor-pointer text-white p-1 rounded-md text-sm flex items-center gap-2 font-medium">
                     <FaGift className="w-4 h-4" /> 12000BDT
@@ -71,7 +70,7 @@ const Header = () => {
             <Contact />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ">
             {user && (
               <>
                 <Balance />
@@ -86,17 +85,6 @@ const Header = () => {
             {!user && (
               <AuthModal
                 trigger={
-                  <PrimaryButton className="!py-1 !font-medium">
-                    Registration
-                  </PrimaryButton>
-                }
-              >
-                <Registation />
-              </AuthModal>
-            )}
-            {!user && (
-              <AuthModal
-                trigger={
                   <SecondaryButton className="!py-1 !font-medium">
                     Login
                   </SecondaryButton>
@@ -105,19 +93,32 @@ const Header = () => {
                 <Login />
               </AuthModal>
             )}
+            {!user && (
+              <AuthModal
+                trigger={
+                  <PrimaryButton className="!py-1 !font-medium">
+                    Registration
+                  </PrimaryButton>
+                }
+              >
+                <Registation />
+              </AuthModal>
+            )}
           </div>
         </div>
       </TooltipProvider>
 
-      <div className="w-full bg-[#212121] border-t-[2px] border-t-[#4f4f4f36] px-5 md:px-7 lg:px-8 py-4 flex items-center justify-between md:py-2 px-2 md:px-4 ">
-        <div className="relative">
+      <div className="w-full bg-[#212121] border-t-[2px] border-t-[#4f4f4f36] px-2 md:px-7 lg:px-8 py-2 flex items-center justify-between md:py-2 px-2 md:px-4 ">
+        <div className="relative flex items-center gap-2">
           <Link href="/">
             <Image
               src={logo}
               alt="LivvBet"
-              className="w-[100px] md:w-[120px] lg:w-[140px] "
+              className="w-[110px] md:w-[120px] lg:w-[140px] "
             />
           </Link>
+
+          <CountryFlag />
         </div>
 
         <nav className="hidden md:block py-1 bg-[#FFCE00]">
@@ -202,7 +203,7 @@ const Header = () => {
           </Menubar>
         </nav>
 
-        <div className="flex md:hidden items-center gap-1 pr-2 py-2 md:py-3">
+        <div className="flex md:hidden items-center justify-end  py-2 md:py-3 ">
           <div className="">
             <AuthButtons />
           </div>
@@ -217,15 +218,11 @@ const Header = () => {
                   Deposit
                 </Link>
               </PrimaryButton> */}
-              <Menusm>
-                <FaUser className="w-4 h-4 !text-white" />
-              </Menusm>
+              <Link href={"/account"} className="bg-[#3a3a3a] hover:bg-[#4f4f4f] w-7 flex items-center justify-center aspect-square rounded-sm">
+                <FaUser className="w-4 h-4 !text-white  rounded-md" />
+              </Link>
             </div>
           )}
-
-          <AppSidebar>
-            <BiMenuAltRight className="w-5 h-5 ml-2 !text-white" />
-          </AppSidebar>
         </div>
       </div>
     </header>

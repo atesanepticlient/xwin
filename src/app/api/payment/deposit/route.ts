@@ -93,12 +93,12 @@ import { NextRequest } from "next/server";
 export const POST = async (req: NextRequest) => {
   try {
     const { account_number, amount, ps } = await req.json();
-
+    
     const user = await findCurrentUser();
     if (!user)
       return Response.json(
         { message: "Authentication failed" },
-        { status: 401 }
+        { status: 401 },
       );
 
     const return_url = "https://www.livvbet.com";
@@ -132,10 +132,10 @@ export const POST = async (req: NextRequest) => {
           payment_system: ps,
           custom_transaction_id: trx_id,
           custom_user_id: user.playerId,
-          webhook_id : process.env.APAY_WEBHOOK_ID,
+          webhook_id: process.env.APAY_WEBHOOK_ID,
           data,
         }),
-      }
+      },
     );
     const paymentData = await response.json();
 
@@ -157,10 +157,16 @@ export const POST = async (req: NextRequest) => {
 
     return Response.json(
       { payload: paymentData, success: true },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
-    console.log({ error });
+    if (error instanceof Error) {
+      console.error("Deposit API Error:", error.message);
+      console.error(error.stack);
+    } else {
+      console.error("Unknown error:", error);
+    }
+
     return Response.json({ message: INTERNAL_SERVER_ERROR }, { status: 500 });
   }
 };

@@ -43,7 +43,7 @@ const Wallet = () => {
               Bonus Points
             </span>
             <span className="font-semibold text-white text-sm md:text-base">
-              {+user!.bonusWallet!.balance}
+              {Number(user!.bonusWallet!.balance).toFixed(2)}
             </span>
           </div>
           <div className="flex justify-end items-center gap-3 pt-2">
@@ -72,7 +72,7 @@ const Wallet = () => {
             Main account
           </span>
           <span className="font-semibold text-white text-sm md:text-base">
-            {+user!.wallet!.balance}
+            {Number(user!.wallet!.balance).toFixed(2)}
           </span>
         </div>
       </div>

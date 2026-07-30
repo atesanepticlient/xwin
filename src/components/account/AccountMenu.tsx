@@ -1,60 +1,107 @@
 "use client";
 import React from "react";
-
-import { FaUserCircle } from "react-icons/fa";
-import { MdSecurity, MdOutlineHistory } from "react-icons/md";
-import { PiHandDepositBold, PiHandWithdrawFill } from "react-icons/pi";
-import { GrTransaction } from "react-icons/gr";
-import { IoIosLogOut } from "react-icons/io";
-
+import {
+  MdOutlineHistory,
+  MdOutlineFileDownload,
+  MdOutlineFileUpload,
+  MdSwapHoriz,
+  MdOutlineChatBubbleOutline,
+  MdOutlinePerson,
+  MdOutlineLock,
+  MdOutlineShield,
+  MdOutlineGroup,
+  MdOutlineExitToApp,
+} from "react-icons/md";
 import AccountMenuItem from "./AccountMenuItem";
-
+import { logout } from "@/action/logout";
+import { signOut } from "next-auth/react";
 const AccountMenu = () => {
   return (
-    <div className="p-1 md:p-2">
-      <ul>
-        <AccountMenuItem
-          lable="Personal profile"
-          href="/account/profile"
-          icon={<FaUserCircle className="w-5 md:h-5 text-white" />}
-        />
+    <div className="space-y-3">
+      {/* ACCOUNT */}
+      <div className="bg-white rounded-xl p-2 shadow-sm">
+        <p className="text-[11px] font-semibold text-gray-400 px-4 pt-2 pb-1 tracking-wider uppercase">
+          Account
+        </p>
+        <ul className="divide-y divide-gray-50">
+          <AccountMenuItem
+            label="Bet history"
+            href="/account/bet-history"
+            icon={<MdOutlineHistory className="w-5 h-5" />}
+          />
+          <AccountMenuItem
+            label="Make a deposit"
+            href="/account/deposit"
+            icon={<MdOutlineFileDownload className="w-5 h-5" />}
+          />
+          <AccountMenuItem
+            label="Withdraw funds"
+            href="/account/withdraw"
+            icon={<MdOutlineFileUpload className="w-5 h-5" />}
+          />
+          <AccountMenuItem
+            label="Transaction history"
+            href="/account/transaction"
+            icon={<MdSwapHoriz className="w-5 h-5" />}
+          />
+          <AccountMenuItem
+            label="Payment queries"
+            href="/account/payment-queries"
+            icon={<MdOutlineChatBubbleOutline className="w-5 h-5" />}
+          />
+        </ul>
+      </div>
 
-        <AccountMenuItem
-          lable="security"
-          href="/account/security"
-          icon={<MdSecurity className="w-5 h-5 text-white" />}
-        />
+      {/* PROFILE */}
+      <div className="bg-white rounded-xl p-2 shadow-sm">
+        <p className="text-[11px] font-semibold text-gray-400 px-4 pt-2 pb-1 tracking-wider uppercase">
+          Profile
+        </p>
+        <ul className="divide-y divide-gray-50">
+          <AccountMenuItem
+            label="Personal profile"
+            href="/account/profile"
+            icon={<MdOutlinePerson className="w-5 h-5" />}
+            warning
+          />
+          <AccountMenuItem
+            label="Security"
+            href="/account/security"
+            icon={<MdOutlineLock className="w-5 h-5" />}
+            warning
+          />
+          <AccountMenuItem
+            label="Responsible Gambling"
+            href="/account/responsible-gambling"
+            icon={<MdOutlineShield className="w-5 h-5" />}
+          />
+        </ul>
+      </div>
 
-        <AccountMenuItem
-          lable="My Message"
-          href="/account/my-messages"
-          icon={<MdOutlineHistory className="w-5 h-5 text-white" />}
-        />
+      {/* OTHER */}
+      <div className="bg-white rounded-xl p-2 shadow-sm">
+        <p className="text-[11px] font-semibold text-gray-400 px-4 pt-2 pb-1 tracking-wider uppercase">
+          Other
+        </p>
+        <ul>
+          <AccountMenuItem
+            label="Invite friends"
+            href="/account/invite-friends"
+            icon={<MdOutlineGroup className="w-5 h-5" />}
+          />
+        </ul>
+      </div>
 
-        <AccountMenuItem
-          lable="desposit"
-          href="/account/deposit"
-          icon={<PiHandDepositBold className="w-5 h-5 text-white" />}
-        />
-
-        <AccountMenuItem
-          lable="withdraw"
-          href="/account/withdraw"
-          icon={<PiHandWithdrawFill className="w-5 h-5 text-white" />}
-        />
-
-        <AccountMenuItem
-          lable="Transaction history"
-          href="/account/transaction"
-          icon={<GrTransaction className="w-5 h-5 text-white" />}
-        />
-
-        <AccountMenuItem
-          lable="log out"
-          href="/logout"
-          icon={<IoIosLogOut className="w-5 h-5 text-white" />}
-        />
-      </ul>
+      {/* LOG OUT */}
+      <div className="bg-white rounded-xl p-2 shadow-sm">
+        <ul>
+          <AccountMenuItem
+            label="Log out"
+            icon={<MdOutlineExitToApp className="w-5 h-5" />}
+            onClick={() => signOut({ callbackUrl: "/" })}
+          />
+        </ul>
+      </div>
     </div>
   );
 };

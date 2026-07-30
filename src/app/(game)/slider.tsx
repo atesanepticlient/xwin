@@ -15,7 +15,7 @@ const Slider = ({
   sliders: { image: string; link: string }[];
 }) => {
   return (
-    <div className="mb-3 md:mb-5 lg:mb-8">
+    <div className="mb-3 md:mb-5 lg:mb-8 px-3">
       <Swiper
         spaceBetween={10}
         slidesPerView={"auto"}
@@ -28,21 +28,16 @@ const Slider = ({
         modules={[Autoplay]}
       >
         {sliders.map((slider, i) => (
-          <SwiperSlide key={i}>
+          <SwiperSlide key={i} className="rounded-lg overflow-hidden">
             <a
               href={slider.link}
-              style={{
-                background: `url(
-                  "${slider.image}"
-                )`,
-              }}
-              className="block w-full  md:rounded-sm overflow-hidden"
+              className="block w-full overflow-hidden rounded-lg"
             >
               <img
                 src={slider.image}
-                className="w-full min-h-[110px] object-fill aspect-auto select-none"
+                className="w-full aspect-[16/8] object-cover select-none rounded-lg"
+                alt="Slider image"
               />
-              {/* <div className="shadow-left w-full h-full flex flex-col justify-center pl-20 md:pl-24"></div> */}
             </a>
           </SwiperSlide>
         ))}

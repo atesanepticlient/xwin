@@ -5,6 +5,7 @@ import PaymentMethodFilterMenu from "./PaymentMethodFilterMenu";
 
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -33,6 +34,24 @@ export const PaymentMethodNavSm = ({
         >
           <SheetHeader>
             <SheetTitle></SheetTitle>
+            <SheetClose asChild>
+              <button
+                className="
+        absolute 
+        top-5 
+        right-5
+        bg-blue-400/40
+        border-blue-400/50
+        border-2
+        px-3
+        py-2
+        text-xl
+        text-white
+      "
+              >
+                ✕
+              </button>
+            </SheetClose>
           </SheetHeader>
           <div className="mt-24 w-[70%]">
             <PaymentMethodFilterMenu />

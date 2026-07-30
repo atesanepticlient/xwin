@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { DepostisMethods, WithdrawMethods } from "@/types/api";
+import { SearchGamesProps } from "@/app/(game)/search-game";
+import { PaymentMethodsState } from "./types";
 
 export const useUpdatePageNavigation = create<{
   page: string;
@@ -9,34 +10,30 @@ export const useUpdatePageNavigation = create<{
   setPage: (page) => set((state) => ({ ...state, page })),
 }));
 
-export const usePaymentMethods = create<{
-  type?: "withdraw" | "deposit";
-  allMethods: WithdrawMethods[] | DepostisMethods[];
-  methods: WithdrawMethods[] | DepostisMethods[];
-  currentMethod: string;
-  setAllMethods: (methods: WithdrawMethods[] | DepostisMethods[]) => void;
-  setMethod: (methodName: string) => void;
-  setType: (type: "withdraw" | "deposit") => void;
-}>((set) => ({
+export const usePaymentMethods = create<PaymentMethodsState>((set) => ({
   type: undefined,
   allMethods: [],
   methods: [],
-  currentMethod: "",
-  setType: (type) => set((state) => ({ ...state, type })),
+  currentMethod: "all methods",
+  setType: (type) => set({ type }),
   setAllMethods: (methods) =>
-    set((state) => ({
-      ...state,
+    set({
       allMethods: methods,
+      methods: [],
       currentMethod: "all methods",
-    })),
+    }),
   setMethod: (methodName) =>
     set((state) => {
-      if (methodName == "all methods") {
-        return { ...state, methods: [], currentMethod: methodName };
+      if (methodName === "all methods") {
+        return { currentMethod: methodName, methods: [] };
       }
-      const method = state.allMethods.find((m) => m.methodName == methodName);
-
-      return { ...state, currentMethod: methodName, methods: [method!] };
+      const selected = state.allMethods.find(
+        (m) => m.methodName === methodName,
+      );
+      return {
+        currentMethod: methodName,
+        methods: selected ? [selected] : [],
+      };
     }),
 }));
 
@@ -58,4 +55,80 @@ export const useCasinoSearch = create<CasinoSearchProps>((set) => ({
   setSearch: (search) => set((state) => ({ ...state, search })),
   setGameType: (gameType) => set((state) => ({ ...state, gameType })),
   setSearchShow: (isSearchShow) => set((state) => ({ ...state, isSearchShow })),
+}));
+
+export const useSearchGames = create<{
+  showSearchUi: boolean;
+  filterParams: SearchGamesProps;
+  toggleSearchUi: () => void;
+  setFilterProps: (props: SearchGamesProps) => void;
+}>((set) => ({
+  showSearchUi: false,
+  filterParams: {
+    name: "",
+    category: "",
+    provider: "",
+    filteringOff: false,
+  },
+  toggleSearchUi: () =>
+    set((state) => ({ ...state, showSearchUi: !state.showSearchUi })),
+  setFilterProps: (props) =>
+    set((state) => ({ ...state, filterParams: props })),
+}));
+
+interface OpenGameData {
+  content: {
+    game: {
+      url: string;
+    };
+  };
+  // Add other fields if needed
+}
+
+interface OpenGameStore {
+  gameUrl: string;
+  loading: boolean;
+  error: string | null;
+
+  fetchGame: () => Promise<void>;
+
+  pageType: "" | "live" | "line";
+  setPageType: (type: "" | "live" | "line") => void;
+}
+export const useOpenGame = create<OpenGameStore>((set, get) => ({
+  gameUrl: "",
+  loading: false,
+  error: null,
+
+  pageType: "",
+
+  setPageType: (type) => set({ pageType: type }),
+
+  fetchGame: async () => {
+    if (get().gameUrl || get().loading) return;
+
+    try {
+      set({ loading: true, error: null });
+
+      const res = await fetch("/api/open-1x", {
+        method: "POST",
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || "Failed to open game");
+      }
+
+      set({
+        gameUrl: result.data.content.game.url,
+        loading: false,
+      });
+    } catch (e: any) {
+      set({
+        loading: false,
+        error: e.message,
+      });
+    }
+  },
 }));

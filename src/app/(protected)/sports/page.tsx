@@ -1,72 +1,56 @@
 "use client";
-import SecondaryButton from "@/components/buttons/secondary-button";
-import GameOpeningLoader from "@/components/loaders/game-opening-loader";
-import { useOpenGameMutation } from "@/lib/features/gamesApiSlice";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
 
-const Sports = () => {
-  const [openGame, { isLoading }] = useOpenGameMutation();
-  const [isIframeLoading, setIsLoading] = useState(true);
-  const [iframe, setIframe] = useState("");
+import { useEffect } from "react";
+import Header from "@/components/landing/headers/Header";
+import TabBar from "@/components/landing/TabBar";
+import { useOpenGame } from "@/store/useStore";
+import { getSportsUrl } from "@/lib/helpers";
+import { useSearchParams } from "next/navigation";
 
-  const [error, setError] = useState(false);
+export default function GamePage() {
+  const searchParams = useSearchParams();
 
+  const { gameUrl, loading, error, fetchGame, pageType } = useOpenGame();
   useEffect(() => {
-    openGame({ gameId: "3000", demo: "0", gameType: "SPORTS" })
-      .unwrap()
-      .then((res) => {
-        if (res) {
-          const url = res.content.game.url;
-          const iframeMode = res.content.game.iframe;
-          if (iframeMode == "0") {
-            location.href = url;
-          } else {
-            console.log("url ", url);
-            setIframe(url);
-          }
-        }
-      })
-      .catch((error) => {
-        console.log("Opend game error ", error);
-        setError(true);
-      });
-  }, []);
+    fetchGame();
+  }, [fetchGame]);
+
+  const type = searchParams.get("type");
+  const iframeUrl = getSportsUrl(
+    gameUrl,
+    type === "live" || type === "line" ? type : "",
+  );
+
+  console.log({ iframeUrl });
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black text-white">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div>
-      {(isLoading || isIframeLoading) && <GameOpeningLoader />}
-      {!isLoading && !error && iframe && (
-        <div className="w-full h-screen ">
-          <iframe
-            src={iframe}
-            onLoad={() => setIsLoading(false)}
-            className="w-full h-full border-0 rounded-b-lg"
-            allowFullScreen
-          />
-        </div>
-      )}
-      {!isLoading && error && (
-        <div className="w-full h-screen flex justify-center items-center">
-          <div className="w-[280px] md:w-[320px] lg:w-[350px] bg-white overflow-hidden rounded-xl">
-            <div className="h-[70%] w-full bg-red-500 px-8 py-2">
-              <h3 className="text-2xl font-semibold text-white">Error</h3>
+    <>
+      <Header />
 
-              <p className="text-sm font-normal text-white tracking-wide">
-                Sports is not available
-              </p>
-            </div>
+      <iframe
+        src={iframeUrl}
+        className="fixed inset-0 h-screen w-screen border-0"
+        allowFullScreen
+        title="Game"
+      />
 
-            <div className="flex justify-end items-end pb-4 pr-4">
-              <Link href="/" className="mt-4">
-                <SecondaryButton>Go Home</SecondaryButton>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      <TabBar />
+    </>
   );
-};
-
-export default Sports;
+}

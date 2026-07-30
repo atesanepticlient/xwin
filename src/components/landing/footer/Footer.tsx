@@ -12,7 +12,7 @@ import { MdOutlineSupportAgent } from "react-icons/md";
 import PrimaryButton from "@/components/buttons/primary-button";
 const Footer = () => {
   return (
-    <div className="mt-5 md:mt-7 lg:mt-12">
+    <div className="">
       {/* <Sponsors /> */}
       <div className="bg-[#212121] px-4">
         {/* <Contact /> */}
@@ -20,7 +20,7 @@ const Footer = () => {
         <About />
         <div className="mt-6 md:mt-8  px-5 md:px-8 py-6 md:py-8 shadow-sm">
           <div className="flex justify-center py-4 lg:py-6">
-            <a href="https://agent.livvbet.com/signup" target="blank">
+            <a href="https://agent.winrxbet.com/signup" target="blank">
               <PrimaryButton className="flex items-center gap-1">
                 Become an agent
                 <MdOutlineSupportAgent className="w-4 h-4 lg:w-5 lg:h-5" />{" "}
@@ -31,7 +31,7 @@ const Footer = () => {
             To register, users must accept the Terms of Service. If updated,
             users may discontinue services before changes take effect, at least
             two weeks after the announcement. While translations may be
-            available, the English version prevails. livvbet.com is operated by
+            available, the English version prevails. WinrxBet.com is operated by
             Caecus N.V., registered in Curaçao (163779) and licensed under
             OGL/2024/1262/0493 as of 07/11/2024. Payments are processed by
             Exidna Enterprises LTD (НЕ435756) and Kassifoni Enterprises LTD

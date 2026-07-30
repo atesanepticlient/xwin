@@ -37,7 +37,7 @@ export const GameCard = ({ game, gameType }: GameCardWithProviderProps) => {
 
   const findProviderImage = (providerName: Title) => {
     const provider = providers.find(
-      (provider) => provider.name == providerName
+      (provider) => provider.name == providerName,
     );
     return provider?.imageWhite;
   };
@@ -86,17 +86,17 @@ export const GameCard = ({ game, gameType }: GameCardWithProviderProps) => {
   return (
     <>
       {loaded && imageSrc ? (
-        <div className="relative mih-h-[120px] game-main overflow-hidden">
+        <div className="relative mih-h-[120px] game-main overflow-hidden rounded-md">
           <div
             title={game.name}
-            className={`relative overflow-y-hidden border border-gray-800 `}
+            className={`relative overflow-y-hidden  `}
           >
             <div className="shiny-card w-full">
               <img
                 alt={name}
                 src={imageSrc}
                 loading="lazy"
-                className="w-full h-auto  align-middle select-none"
+                className="w-full h-auto  align-middle select-none "
               />
             </div>
 
@@ -121,6 +121,10 @@ export const GameCard = ({ game, gameType }: GameCardWithProviderProps) => {
               </span>
             </div>
           )}
+
+          <div className="bg-gray-200/70">
+            <p className="text-center text-xs py-1 font-medium text-black line-clamp-1 max-w-[80%] mx-auto">{name}</p>
+          </div>
         </div>
       ) : (
         <GameLoader />

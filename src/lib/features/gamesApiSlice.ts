@@ -31,6 +31,13 @@ const gamesApiSlice = apiSlice.injectEndpoints({
         body: body,
       }),
     }),
+    openGSCGame: builder.mutation<any, any>({
+      query: (body) => ({
+        url: `/api/gsc/open-game`,
+        method: "POST",
+        body: body,
+      }),
+    }),
   }),
 });
 
@@ -38,4 +45,5 @@ export const {
   useFetchGamesListQuery,
   useFetchGamesListb2bQuery,
   useOpenGameMutation,
+  useOpenGSCGameMutation,
 } = gamesApiSlice;

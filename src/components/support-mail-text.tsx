@@ -4,7 +4,7 @@ import React from "react";
 
 const SupportMailText = () => {
   const { data } = useFetchContactQuery();
-  const mail = data?.payload.email;
+  const mail = data?.payload?.email;
   return <span>{mail}</span>;
 };
 

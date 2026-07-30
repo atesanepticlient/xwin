@@ -1,14 +1,14 @@
-import PageHeader from "@/components/PageHeader";
-import TransactionList from "@/components/transaction/TransactionList";
 import React from "react";
+import PageHeader from "@/components/page-header";
+import TransactionHistory from "@/components/transaction/TransactionHistory";
 
 const TransactionPage = () => {
   return (
-    <div className="md:px-4 md:py-5 h-screen ">
+    <div className="bg-slate-50 rounded-sm shadow-sm">
       <main>
-        <PageHeader label="Your Transactions" />
-        <div className="p-0 md:p-1">
-          <TransactionList />
+        <PageHeader title="Transaction History" />
+        <div className="p-2">
+          <TransactionHistory />
         </div>
       </main>
     </div>

@@ -1,6 +1,5 @@
 "use client";
 import { useFetchPaymentDataQuery } from "@/lib/features/paymentApiSlice";
-
 import { usePaymentMethods } from "@/store/useStore";
 import React, { useEffect } from "react";
 import { ScaleLoader } from "react-spinners";
@@ -12,29 +11,17 @@ const PaymentWapper = ({
   type: "withdraw" | "deposit";
   children: React.ReactNode;
 }) => {
-  const { data, isLoading } = useFetchPaymentDataQuery({ type });
-  const paymentData = data?.payload;
-  const deposits = paymentData?.deposit;
-  const withdraws = paymentData?.withdraw;
-  console.log("Payment wallets ", data);
+  const { data, isLoading } = useFetchPaymentDataQuery({type});
+  const methods =
+    type === "withdraw" ? data?.payload?.withdraw : data?.payload?.deposit;
   const { setAllMethods, setType } = usePaymentMethods((state) => state);
 
   useEffect(() => {
-    if (
-      deposits &&
-      withdraws &&
-      Array.isArray(deposits) &&
-      Array.isArray(withdraws)
-    ) {
-      if (type == "withdraw") {
-        setAllMethods(withdraws!);
-        setType("withdraw");
-      } else if (type == "deposit") {
-        setType("deposit");
-        setAllMethods(deposits!);
-      }
+    if (methods && Array.isArray(methods)) {
+      setType(type);
+      setAllMethods(methods);
     }
-  }, [setAllMethods, paymentData, type]);
+  }, [methods, type, setAllMethods, setType]);
 
   return (
     <div className="min-h-[50vh]">

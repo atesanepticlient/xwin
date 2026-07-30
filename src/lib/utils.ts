@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import crypto from "crypto";
+import crypto, { createHash } from "crypto";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -52,7 +52,7 @@ export function generateTrxId(): string {
 export function generateSignature(
   accessKey: string,
   privateKey: string,
-  transactions: any
+  transactions: any,
 ): string {
   // Create JSON string with unescaped slashes and unicode
   const json = JSON.stringify(transactions);
@@ -70,4 +70,32 @@ export function generateSignature(
     .digest("hex");
 
   return sha1Signature;
+}
+
+export function formatNumber(num: number) {
+  return new Intl.NumberFormat("en-US").format(num);
+}
+
+export function generateGSCPlatformSignature(
+  requestTime: string,
+  secretKey: string,
+  operatorCode: string,
+  key: string,
+): string {
+  const signatureString = `${operatorCode}${requestTime}${key}${secretKey}`;
+  return createHash("md5").update(signatureString).digest("hex");
+}
+
+export function generateOtp(length = 5) {
+  const max = Math.pow(10, length);
+  const min = Math.pow(10, length - 1);
+  return crypto.randomInt(min, max).toString();
+}
+
+export const accpectedCurrency = ["BDT", "IDR", "IDR2"];
+
+export function replaceDomain(url: string, newDomain: string) {
+  const parsed = new URL(url);
+  parsed.hostname = newDomain;
+  return parsed.toString();
 }

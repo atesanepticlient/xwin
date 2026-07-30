@@ -12,4 +12,4 @@ export const INTERNAL_SERVER_ERROR = "Somthing went wrong! Try Again";
  */
 export const CURRENT_ICORRECT_PASSOWRD = "password is incorrect";
 
-
+export const EMAIL_ALREADY_IN_USE = "This email is already in use";

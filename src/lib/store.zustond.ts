@@ -11,7 +11,7 @@ interface GameType {
     category: string,
     name?: string,
     limit?: number,
-    provider?: any
+    provider?: any,
   ) => NetEnt[] | null | undefined;
 
   setGames: (gamge: GamesList) => void;
@@ -57,7 +57,7 @@ export const useGames = create<GameType>((set, get) => ({
             "7053",
             "10269",
             "9896",
-          ].includes(game.id)
+          ].includes(game.id),
         ),
       ];
     }
@@ -69,7 +69,7 @@ export const useGames = create<GameType>((set, get) => ({
     if (name) {
       const searchLower = name.toLowerCase();
       flitedGames = flitedGames?.filter((game) =>
-        game.name.toLowerCase().includes(searchLower)
+        game.name.toLowerCase().includes(searchLower),
       );
     }
 

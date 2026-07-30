@@ -28,6 +28,12 @@ export const publicRoutes = [
   "/about-us",
   "/api/apay/deposit",
   "/api/apay/withdraw",
+  "/api/live-matches",
+  "/api/gregmorn/callbacks",
+  "/api/gsc/v1/api/seamless/balance",
+  "/api/gsc/v1/api/seamless/withdraw",
+  "/api/gsc/v1/api/seamless/deposit",
+  "/api/gsc/v1/api/seamless/pushbetdata",
 ];
 
 /**

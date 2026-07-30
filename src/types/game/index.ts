@@ -62,3 +62,16 @@ export type GameContent = {
     };
   };
 };
+
+export interface GameItem {
+  game_code: string;
+  game_name: string;
+  game_type: string;
+  image_url: string;
+  status: string;
+  product_id: number;
+  product_code: number;
+  provider_icon?: string;
+  is_favorite?: boolean;
+  support_currency?: string;
+}

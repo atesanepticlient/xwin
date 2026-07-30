@@ -115,16 +115,15 @@ export const MessageBox = ({
   return (
     <div className=" ">
       {messages?.length == 0 && (
-        <div className="w-full rounded-md bg-[#F2F2F2] max-h-[120px]  flex justify-center items-center text-sm font-normal text-[#212121]">
+        <div className="w-full rounded-md bg-white shadow-[0px_10px_10px_-10px_rgba(33,35,38,0.01)] h-[120px]  flex justify-center items-center text-sm font-normal text-[#212121]">
           You have no messages at the moment
         </div>
       )}
 
+
       {messages!.length > 0 && (
         <div className="overflow-y-auto max-h-[250px]">
-          <h3 className="uppercase font-semibold text-base text-[#2E2E2E]">
-            Messages
-          </h3>
+        
           <ul className="flex flex-col gap-1">
             {messages?.map((message, i) => (
               <li key={i} className="  border-b border-b-[#F2F2F2]">

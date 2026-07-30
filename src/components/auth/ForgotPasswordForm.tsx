@@ -46,7 +46,7 @@ const ForgotPasswordForm = () => {
   });
 
   const [passwordType, setPasswordType] = useState<"text" | "password">(
-    "password"
+    "password",
   );
   const [confirmPasswordType, setConfirmPasswordType] = useState<
     "text" | "password"
@@ -69,6 +69,29 @@ const ForgotPasswordForm = () => {
             otp: "",
             newPassword: "",
             confirmPassword: "",
+          });
+        } else if (res.error) {
+          SweetToast.fire({
+            icon: "error",
+            title: res.error,
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        }
+      });
+    });
+  };
+
+  const handleResendOtp = () => {
+    if (!email) return;
+    startTransition(() => {
+      sendPasswordResetEmail(email).then((res) => {
+        if (res.success) {
+          SweetToast.fire({
+            icon: "success",
+            title: res.success,
+            showConfirmButton: false,
+            timer: 2000,
           });
         } else if (res.error) {
           SweetToast.fire({
@@ -105,6 +128,10 @@ const ForgotPasswordForm = () => {
     });
   };
 
+  const goBackToEmail = () => {
+    setOtpSent(false);
+  };
+
   const togglePasswordType = () => {
     setPasswordType((prev) => (prev === "text" ? "password" : "text"));
   };
@@ -114,23 +141,30 @@ const ForgotPasswordForm = () => {
   };
 
   return (
-    <div className="w-full">
-      {!otpSent ? (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSendOtp)}>
-            <FormField
-              name="email"
-              render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormControl>
-                    <div className="flex items-center border border-border">
-                      <div className="relative flex-1">
+    <div className="w-full md:w-[400px] md:mx-auto">
+      <p className="text-center text-sm mb-6 text-black/90">
+        {otpSent
+          ? `Enter the OTP sent to ${email}`
+          : "Enter your email to reset your password"}
+      </p>
+
+      <div className="bg-white p-3 rounded-md">
+        {!otpSent ? (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSendOtp)}>
+              <FormField
+                name="email"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="relative">
                         <FloatingInput
                           {...field}
                           type="email"
                           id="floating-email"
                           disabled={pending}
-                          className="text-[#3b3b3b]"
+                          className="text-[#3b3b3b] py-5 rounded-sm bg-white"
                         />
                         <FloatingLabel
                           htmlFor="floating-email"
@@ -139,93 +173,108 @@ const ForgotPasswordForm = () => {
                           Email
                         </FloatingLabel>
                       </div>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <PrimaryButton className="w-full max-h-[40px] h-[40px] mt-4">
-              {pending ? (
-                <ScaleLoader
-                  color="#000"
-                  cssOverride={{ scale: 0.5 }}
-                  className="-translate-y-4"
-                />
-              ) : (
-                "Send OTP"
-              )}
-            </PrimaryButton>
-          </form>
-        </Form>
-      ) : (
-        <Form {...resetForm}>
-          <form onSubmit={resetForm.handleSubmit(handleResetPassword)}>
-            {/* Hidden email field - we'll keep it in the form but not show it */}
-            <FormField
-              name="email"
-              render={({ field }) => (
-                <FormItem className="hidden">
-                  <FormControl>
-                    <input type="hidden" {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+              <div className="mt-6">
+                <PrimaryButton
+                  type="submit"
+                  className="w-full py-3"
+                  disabled={pending}
+                >
+                  {pending ? (
+                    <ScaleLoader color="#fff" cssOverride={{ scale: 0.5 }} />
+                  ) : (
+                    "Send OTP"
+                  )}
+                </PrimaryButton>
+              </div>
+            </form>
+          </Form>
+        ) : (
+          <Form {...resetForm}>
+            <form onSubmit={resetForm.handleSubmit(handleResetPassword)}>
+              {/* Hidden email field - kept in the form but not shown */}
+              <FormField
+                name="email"
+                control={resetForm.control}
+                render={({ field }) => (
+                  <FormItem className="hidden">
+                    <FormControl>
+                      <input type="hidden" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              name="otp"
-              render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormControl>
-                    <div className="flex items-center border border-border">
-                      <div className="relative flex-1">
+              <FormField
+                name="otp"
+                control={resetForm.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="relative">
                         <FloatingInput
                           {...field}
                           type="text"
                           id="floating-otp"
                           disabled={pending}
-                          className="text-[#3b3b3b]"
+                          className="text-[#3b3b3b] py-5 rounded-sm bg-white"
                         />
                         <FloatingLabel
                           htmlFor="floating-otp"
                           className="font-normal text-[#3b3b3b]"
                         >
-                          Enter OTP 
+                          Enter OTP
                         </FloatingLabel>
                       </div>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <p className="text-xs mt-1 text-[#3b3b3b]">
+                Didn&apos;t receive OTP?{" "}
+                <button
+                  type="button"
+                  className="text-[#FFB805] hover:underline"
+                  onClick={handleResendOtp}
+                  disabled={pending}
+                >
+                  Resend
+                </button>
+              </p>
 
-            <FormField
-              name="newPassword"
-              render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormControl>
-                    <div className="flex items-center border border-border">
-                      <div className="relative flex-1">
-                        <FloatingInput
-                          {...field}
-                          type={passwordType}
-                          id="floating-new-password"
-                          disabled={pending}
-                          className="text-[#3b3b3b]"
-                        />
-                        <FloatingLabel
-                          htmlFor="floating-new-password"
-                          className="font-normal text-[#3b3b3b]"
-                        >
-                          New Password
-                        </FloatingLabel>
-                      </div>
-                      <div className="p-2 w-12 relative flex justify-center items-center">
+              <div className="my-3" />
+
+              <FormField
+                name="newPassword"
+                control={resetForm.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center border border-border rounded-md">
+                        <div className="relative flex-1">
+                          <FloatingInput
+                            {...field}
+                            type={passwordType}
+                            id="floating-new-password"
+                            disabled={pending}
+                            className="border-none text-[#3b3b3b]"
+                          />
+                          <FloatingLabel
+                            htmlFor="floating-new-password"
+                            className="font-normal text-[#3b3b3b]"
+                          >
+                            New Password
+                          </FloatingLabel>
+                        </div>
                         <button
                           type="button"
+                          className="p-3"
                           onClick={togglePasswordType}
                           disabled={pending}
                         >
@@ -235,39 +284,40 @@ const ForgotPasswordForm = () => {
                             <Eye className="text-[#3b3b3b] w-4 h-4" />
                           )}
                         </button>
-                        <div className="absolute top-1/2 -translate-y-1/2 left-0 w-[2px] h-7 bg-[#d5e4f0]"></div>
                       </div>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormControl>
-                    <div className="flex items-center border border-border">
-                      <div className="relative flex-1">
-                        <FloatingInput
-                          {...field}
-                          type={confirmPasswordType}
-                          id="floating-confirm-password"
-                          disabled={pending}
-                          className="text-[#3b3b3b]"
-                        />
-                        <FloatingLabel
-                          htmlFor="floating-confirm-password"
-                          className="font-normal text-[#3b3b3b]"
-                        >
-                          Confirm Password
-                        </FloatingLabel>
-                      </div>
-                      <div className="p-2 w-12 relative flex justify-center items-center">
+              <div className="my-3" />
+
+              <FormField
+                name="confirmPassword"
+                control={resetForm.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center border border-border rounded-md">
+                        <div className="relative flex-1">
+                          <FloatingInput
+                            {...field}
+                            type={confirmPasswordType}
+                            id="floating-confirm-password"
+                            disabled={pending}
+                            className="border-none text-[#3b3b3b]"
+                          />
+                          <FloatingLabel
+                            htmlFor="floating-confirm-password"
+                            className="font-normal text-[#3b3b3b]"
+                          >
+                            Confirm Password
+                          </FloatingLabel>
+                        </div>
                         <button
                           type="button"
+                          className="p-3"
                           onClick={toggleConfirmPasswordType}
                           disabled={pending}
                         >
@@ -277,29 +327,38 @@ const ForgotPasswordForm = () => {
                             <Eye className="text-[#3b3b3b] w-4 h-4" />
                           )}
                         </button>
-                        <div className="absolute top-1/2 -translate-y-1/2 left-0 w-[2px] h-7 bg-[#d5e4f0]"></div>
                       </div>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <PrimaryButton className="w-full max-h-[40px] h-[40px] mt-4">
-              {pending ? (
-                <ScaleLoader
-                  color="#000"
-                  cssOverride={{ scale: 0.5 }}
-                  className="-translate-y-4"
-                />
-              ) : (
-                "Reset Password"
-              )}
-            </PrimaryButton>
-          </form>
-        </Form>
-      )}
+              <div className="mt-6">
+                <PrimaryButton
+                  type="submit"
+                  className="w-full py-3"
+                  disabled={pending}
+                >
+                  {pending ? (
+                    <ScaleLoader color="#fff" cssOverride={{ scale: 0.5 }} />
+                  ) : (
+                    "Reset Password"
+                  )}
+                </PrimaryButton>
+                <button
+                  type="button"
+                  onClick={goBackToEmail}
+                  disabled={pending}
+                  className="w-full bg-[#bfbfbf] rounded-md py-2 mt-3"
+                >
+                  Back
+                </button>
+              </div>
+            </form>
+          </Form>
+        )}
+      </div>
 
       <div className="my-5 flex justify-center">
         <div className="w-full md:w-[300px] bg-border h-[1px]"></div>
@@ -308,7 +367,7 @@ const ForgotPasswordForm = () => {
         Remember your password?{" "}
         <Link
           href="/login"
-          className="text-[#FFB805] font-medium hover:underline"
+          className="text-[#266210] font-medium hover:underline"
         >
           Login
         </Link>

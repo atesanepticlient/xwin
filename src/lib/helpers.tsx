@@ -1,7 +1,7 @@
 import { currencies } from "@/data/currency";
 import { findUserPlayerId } from "@/data/user";
 import { db } from "./db";
-
+import { randomBytes, randomInt } from "crypto";
 export const playerIdGenerate = async () => {
   let id;
   let hasUser = true;
@@ -74,3 +74,43 @@ export const reduceTurnOver = async (amount: number, userId: string) => {
     return null;
   }
 };
+
+// e.g. "oneclick_9f3a1c2b@guest.local" - never emailed, just a unique key
+export const generateGuestEmail = () => {
+  return `oneclick_${randomBytes(6).toString("hex")}@guest.local`;
+};
+
+// e.g. "+8801XXXXXXXXX" placeholder phone since one-click collects none
+export const generateGuestPhone = () => {
+  return `+000${randomInt(100000000, 999999999)}`;
+};
+
+// A strong-enough random password. Shown to the user exactly once after
+// registration so they can log back in (also stored, same as your
+// existing casinoPassword pattern, so support can retrieve it).
+export const generateGuestPassword = () => {
+  return randomBytes(9).toString("base64url"); // 12 chars, url-safe
+};
+
+export const generateGuestName = () => {
+  const n = randomInt(100000, 999999);
+  return { firstName: "Guest", lastName: `${n}` };
+};
+
+export function getSportsUrl(url: string, type?: string | null) {
+  if (!url) return url;
+
+  const parsed = new URL(url);
+
+  // Default to "live"
+  const page = type === "line" ? "line" : "live";
+
+  parsed.pathname = parsed.pathname
+    .split("/")
+    .map((segment) =>
+      segment === "live" || segment === "line" ? page : segment,
+    )
+    .join("/");
+
+  return parsed.toString();
+}

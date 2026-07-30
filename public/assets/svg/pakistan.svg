@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <circle cx="256" cy="256" r="256" fill="#01411C"></circle>
+  <clipPath id="clip">
+    <circle cx="256" cy="256" r="256"></circle>
+  </clipPath>
+  <g clip-path="url(#clip)">
+    <rect x="0" y="0" width="110" height="512" fill="#FFFFFF"></rect>
+    <circle cx="300" cy="256" r="110" fill="#FFFFFF"></circle>
+    <circle cx="325" cy="235" r="90" fill="#01411C"></circle>
+    <polygon fill="#FFFFFF" points="
+      365,120
+      375,150
+      407,150
+      381,169
+      391,199
+      365,180
+      339,199
+      349,169
+      323,150
+      355,150"></polygon>
+  </g>
+</svg>

@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import {
   Sheet,
@@ -7,44 +8,33 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-// import {
-//   MdSportsBaseball,
-//   MdSportsEsports,
-//   MdEmojiEvents,
-//   MdOutlineCasino,
-//   MdLiveTv,
-// } from "react-icons/md";
-// import { IoIosArrowDown } from "react-icons/io";
-// import { cn } from "@/lib/utils";
-
 import AuthButtons from "@/components/auth/AuthButtons";
 import AccountNavigation from "@/components/account/AccountNavigation";
+
 const Menusm = ({ children }: { children: React.ReactNode }) => {
-  // const [seletecdMenuItem, setSelectedMenuItem] = useState("");
-
-  // const handleSelectMenuIcem = (item: string) => {
-  //   if (seletecdMenuItem == item) {
-  //     setSelectedMenuItem("");
-  //   } else {
-  //     setSelectedMenuItem(item);
-  //   }
-  // };
-
   return (
     <div className="left-menu-bar">
       <Sheet>
-        <SheetTrigger>{children}</SheetTrigger>
+        <SheetTrigger asChild>{children}</SheetTrigger>
         <SheetContent
-          side={"left"}
-          className="!bg-[#1A1A1A] !px-0 !border-none w-[60%]"
+          side="left"
+          className="!bg-[#151E28] !px-0 !border-r !border-[#2A394A] w-[85%] sm:w-[380px] text-white flex flex-col justify-between"
         >
-          <SheetHeader>
-            <SheetTitle></SheetTitle>
+          {/* Header */}
+          <SheetHeader className="px-4 py-3 bg-[#1C2836] border-b border-[#2A3A4D] flex flex-row items-center justify-between">
+            <SheetTitle className="text-white text-sm font-extrabold uppercase tracking-wider flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#00A859]" />
+              My Account
+            </SheetTitle>
           </SheetHeader>
 
-          <div className="h-full flex flex-col">
+          {/* Account Body Navigation */}
+          <div className="flex-1 overflow-y-auto">
             <AccountNavigation />
+          </div>
+
+          {/* Guest Auth Footer (Shows if logged out) */}
+          <div className="p-3 bg-[#18222D] border-t border-[#2A394A]">
             <AuthButtons />
           </div>
         </SheetContent>

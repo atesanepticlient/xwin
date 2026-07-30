@@ -7,18 +7,18 @@ const SiteContentTitle = ({ title }: { title: string }) => {
   return (
     <h4 className="text-sm md:text-balance font-medium text-white uppercase relative">
       {title}{" "}
-      <div className="absolute left-0 -bottom-2 w-5 h-1 bg-[#FFCE00]"></div>
+      <div className="absolute left-0 -bottom-2 w-5 h-1 bg-[#A5CF83]"></div>
     </h4>
   );
 };
 
 const SiteContent = () => {
   const { data } = useFetchContactQuery();
-  const email = data?.payload.email;
+  const email = data?.payload?.email;
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8 mt-6 md:mt-8   px-5 md:px-8 py-6 md:py-8 shadow-sm">
       <div>
-        <SiteContentTitle title="Livvbet" />
+        <SiteContentTitle title="WinrxBet" />
 
         <ul className="flex flex-col mt-4 md:mt-6">
           <li>

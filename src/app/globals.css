@@ -156,7 +156,10 @@
   text-transform: uppercase;
   font-size: 11px;
   line-height: 22px;
-  transition: background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease !important;
+  transition:
+    background-color 0.3s ease,
+    border 0.3s ease,
+    box-shadow 0.3s ease !important;
 }
 
 .magic-btn:hover {
@@ -248,7 +251,8 @@
 } */
 
 .wallet-bg {
-  background: linear-gradient(#000000a9, #000000a9),
+  background:
+    linear-gradient(#000000a9, #000000a9),
     url("../../public/assets/images/wallet-bg.jpg") no-repeat;
   background-position: center;
   background-size: cover;
@@ -884,7 +888,9 @@ svg#play:hover #lineTwo {
     #000000 100%
   ); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#575b60', endColorstr='#000000',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-  box-shadow: -1px 0px 0px #333, 0px -1px 0px #333;
+  box-shadow:
+    -1px 0px 0px #333,
+    0px -1px 0px #333;
 }
 .innerCircle {
   color: #ccc;
@@ -936,7 +942,9 @@ svg#play:hover #lineTwo {
     #000000 100%
   ); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#575b60', endColorstr='#000000',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-  box-shadow: -1px 0px 0px #666, 0px -1px 0px #666;
+  box-shadow:
+    -1px 0px 0px #666,
+    0px -1px 0px #666;
 }
 .innerCircle:active {
   color: #fff;
@@ -989,4 +997,58 @@ svg#play:hover #lineTwo {
   font-family: sans-serif;
   font-weight: bolder;
   text-shadow: -1px -1px 0px #444;
+}
+
+/* Hide scrollbar for Chrome, Edge, Safari */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Hide scrollbar for IE & old Edge */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+}
+
+
+
+
+
+
+/* globals.css or component.css */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Match card hover effect */
+.match-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.match-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
