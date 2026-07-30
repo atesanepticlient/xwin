@@ -182,6 +182,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         data: responseData,
+        code: 0,
+        message: "",
       },
       { status: 200 },
     );
