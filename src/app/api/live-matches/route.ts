@@ -17,6 +17,69 @@ const logger = {
   },
 };
 
+// Helper to diagnose browser launch errors
+function diagnoseBrowserError(error: any): {
+  type: string;
+  userMessage: string;
+  technical: string;
+  solution: string;
+} {
+  const errorStr = error.toString();
+  const stderr = error.stderr || "";
+
+  if (
+    errorStr.includes("libnspr4") ||
+    stderr.includes("libnspr4") ||
+    errorStr.includes("Cannot find module") ||
+    stderr.includes("cannot open shared object")
+  ) {
+    return {
+      type: "MISSING_DEPENDENCIES",
+      userMessage: "Server missing required Chrome libraries",
+      technical: `Missing system library (libnspr4 or similar). Full error: ${errorStr}`,
+      solution:
+        "Server admin: Run: sudo apt-get install nss nspr libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 libpangocairo-1.0-0",
+    };
+  }
+
+  if (errorStr.includes("No such file or directory")) {
+    return {
+      type: "CHROME_NOT_FOUND",
+      userMessage: "Chrome executable not found on server",
+      technical: errorStr,
+      solution:
+        "Either: 1) Use Browserless service, 2) Install Chromium: apt-get install chromium, 3) Use Docker with pre-installed Chrome",
+    };
+  }
+
+  if (errorStr.includes("Permission denied")) {
+    return {
+      type: "PERMISSION_DENIED",
+      userMessage: "Permission denied running Chrome process",
+      technical: errorStr,
+      solution:
+        "Check file permissions on ~/.cache/puppeteer or use --no-sandbox flag",
+    };
+  }
+
+  if (errorStr.includes("Memory") || errorStr.includes("Out of memory")) {
+    return {
+      type: "OUT_OF_MEMORY",
+      userMessage: "Server out of memory",
+      technical: errorStr,
+      solution: "Server needs more RAM or fewer concurrent Chrome processes",
+    };
+  }
+
+  return {
+    type: "UNKNOWN_BROWSER_ERROR",
+    userMessage: "Failed to launch browser",
+    technical: errorStr,
+    solution:
+      "Check server logs and troubleshooting: https://pptr.dev/troubleshooting",
+  };
+}
+
 async function scrapeMatches(url: string, browser: Browser) {
   let page;
   try {
@@ -249,8 +312,9 @@ export async function GET(request: Request) {
       });
 
       try {
-        // Launch browser with error handling
+        // Launch browser with enhanced error handling
         try {
+          logger.info("Attempting to launch Puppeteer browser...");
           browser = await puppeteer.launch({
             headless: true,
             args: [
@@ -263,18 +327,32 @@ export async function GET(request: Request) {
             ],
           });
           logger.info("✅ Puppeteer browser launched successfully");
-        } catch (error) {
-          logger.error("❌ Failed to launch Puppeteer browser", error);
+        } catch (launchError) {
+          const diagnosis = diagnoseBrowserError(launchError);
+
+          logger.error(`❌ Browser launch failed: ${diagnosis.type}`, {
+            technical: diagnosis.technical,
+            solution: diagnosis.solution,
+          });
+
           const errPayload = {
             success: false,
-            error: "Failed to initialize browser",
-            errorType: "BROWSER_LAUNCH_ERROR",
-            details: error instanceof Error ? error.message : "Unknown error",
+            error: diagnosis.userMessage,
+            errorType: diagnosis.type,
+            technical: diagnosis.technical,
+            solution: diagnosis.solution,
             timestamp: new Date().toISOString(),
+            helpUrl: "https://pptr.dev/troubleshooting",
           };
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(errPayload)}\n\n`),
-          );
+
+          try {
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify(errPayload)}\n\n`),
+            );
+          } catch (enqueueError) {
+            logger.error("Failed to send error to client", enqueueError);
+          }
+
           controller.close();
           return;
         }
