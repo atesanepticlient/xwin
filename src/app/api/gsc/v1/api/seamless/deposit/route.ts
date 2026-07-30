@@ -217,7 +217,8 @@ export const POST = async (req: NextRequest) => {
           code: 1004,
           message: "API signature is invalid",
           data: responseData.map((entry: any) => ({
-            ...entry,
+            member_account: "...",
+            product_code: 1006,
             code: 1004,
             message: "API signature is invalid",
           })),
