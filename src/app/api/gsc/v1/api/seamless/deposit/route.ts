@@ -43,7 +43,7 @@ export const POST = async (req: NextRequest) => {
         { status: 200 },
       );
     }
-
+   
     const forwarded = req.headers.get("x-forwarded-for");
     const realIp = req.headers.get("x-real-ip");
 
