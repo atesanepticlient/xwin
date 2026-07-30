@@ -206,8 +206,8 @@ export const POST = async (req: NextRequest) => {
           message: "API proxy key error",
           data: responseData.map((entry: any) => ({
             ...entry,
-            code: 1002,
-            message: "API proxy key error",
+            code: 0,
+            message: "",
           })),
         },
         { status: 200 },
@@ -230,8 +230,8 @@ export const POST = async (req: NextRequest) => {
           message: "API signature is invalid",
           data: responseData.map((entry: any) => ({
             ...entry,
-            code: 1004,
-            message: "API signature is invalid",
+            code: 0,
+            message: "",
           })),
         },
         { status: 200 },
