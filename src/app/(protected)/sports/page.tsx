@@ -101,6 +101,10 @@ export default function GamePage() {
           referrerPolicy="no-referrer-when-downgrade"
         />
       </main>
+      {/* Target the wrapper specifically on this page so it occupies layout flow instead of floating over the iframe */}
+      <div className="shrink-0 [&>div]:relative [&>div]:bottom-auto [&>div]:left-0 [&>div]:translate-x-0">
+        <TabBar />
+      </div>
     </div>
   );
 }
