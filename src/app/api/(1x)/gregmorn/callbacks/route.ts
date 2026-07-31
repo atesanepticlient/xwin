@@ -6,21 +6,43 @@ import { Decimal } from "@prisma/client/runtime/library";
 
 const USER_SECRET = process.env.GREGMORN_USER_SECRET || "";
 
+// Helper to standardise logging and response creation
+function createAndLogResponse(body: Record<string, any>, status = 200) {
+  console.log(
+    `[API RESPONSE] Status: ${status} | Payload:`,
+    JSON.stringify(body),
+  );
+  return Response.json(body, { status });
+}
+
 function verifySignature(
   rawBodyText: string,
   signatureHeader: string | null,
 ): boolean {
-  if (!signatureHeader || !USER_SECRET) return false;
+  if (!signatureHeader || !USER_SECRET) {
+    console.warn(
+      "[AUTH] Verification failed: Missing signature header or USER_SECRET env variable.",
+    );
+    return false;
+  }
 
   const expectedSignature = crypto
     .createHmac("sha256", USER_SECRET)
     .update(Buffer.from(rawBodyText, "utf8"))
     .digest("hex");
 
-  return crypto.timingSafeEqual(
+  const isValid = crypto.timingSafeEqual(
     Buffer.from(signatureHeader, "utf8"),
     Buffer.from(expectedSignature, "utf8"),
   );
+
+  if (!isValid) {
+    console.warn(
+      `[AUTH] Signature mismatch. Received: "${signatureHeader}", Expected: "${expectedSignature}"`,
+    );
+  }
+
+  return isValid;
 }
 
 // Helper to safely extract roundId from the provider's info JSON string
@@ -29,18 +51,26 @@ function parseRoundId(infoStr?: string): string | null {
   try {
     const parsed = JSON.parse(infoStr);
     return parsed.roundId || parsed.round_id || null;
-  } catch {
+  } catch (err) {
+    console.warn("[PARSER] Failed to parse 'info' JSON string:", infoStr, err);
     return null;
   }
 }
 
 export const POST = async (req: NextRequest) => {
+  const reqTime = new Date().toISOString();
+  console.log(`\n=== [POST /api/webhook] Request Received at ${reqTime} ===`);
+
   try {
     const rawBodyText = await req.text();
     const signature = req.headers.get("x-signature");
 
+    console.log(`[REQUEST HEADERS] x-signature: ${signature}`);
+    console.log(`[RAW BODY]`, rawBodyText);
+
     if (!verifySignature(rawBodyText, signature)) {
-      return Response.json(
+      console.error("[AUTH ERROR] Invalid HMAC signature.");
+      return createAndLogResponse(
         {
           status: "fail",
           error: "invalid_signature",
@@ -48,7 +78,7 @@ export const POST = async (req: NextRequest) => {
           currency: "BDT",
           login: "",
         },
-        { status: 400 },
+        400,
       );
     }
 
@@ -63,8 +93,13 @@ export const POST = async (req: NextRequest) => {
       round_finished,
     } = payload;
 
+    console.log(
+      `[PARSED PAYLOAD] Command: '${cmd}' | Login: '${login}' | TxID: '${transactionId}' | SessionID: '${sessionid}'`,
+    );
+
     if (!["getBalance", "writeBet", "rollback"].includes(cmd)) {
-      return Response.json(
+      console.error(`[COMMAND ERROR] Unknown or unsupported command: '${cmd}'`);
+      return createAndLogResponse(
         {
           status: "fail",
           error: "cmd_not_found",
@@ -72,18 +107,22 @@ export const POST = async (req: NextRequest) => {
           currency: "BDT",
           login: login || "",
         },
-        { status: 400 },
+        400,
       );
     }
 
     // 1. Fetch User and Wallet
+    console.log(`[DB SEARCH] Fetching user for playerId: '${login}'`);
     const user = await db.users.findFirst({
       where: { playerId: login },
       include: { wallet: true },
     });
 
     if (!user || !user.wallet) {
-      return Response.json(
+      console.error(
+        `[USER ERROR] User or wallet not found for login: '${login}'`,
+      );
+      return createAndLogResponse(
         {
           status: "fail",
           error: "user_not_found",
@@ -91,16 +130,23 @@ export const POST = async (req: NextRequest) => {
           currency: "BDT",
           login: login || "",
         },
-        { status: 400 },
+        400,
       );
     }
 
     const userCurrency = user.wallet.currencyCode || "BDT";
     const userBalance = new Decimal(user.wallet.balance);
 
+    console.log(
+      `[USER FOUND] User ID: ${user.id} | Current Balance: ${userBalance.toString()} ${userCurrency}`,
+    );
+
     // --- COMMAND: getBalance ---
     if (cmd === "getBalance") {
-      return Response.json({
+      console.log(
+        `[CMD: getBalance] Returning balance for user: ${user.playerId}`,
+      );
+      return createAndLogResponse({
         status: "success",
         error: "",
         login: user.playerId,
@@ -115,15 +161,26 @@ export const POST = async (req: NextRequest) => {
       payload.win !== undefined ? new Decimal(payload.win) : new Decimal(0);
     const roundId = parseRoundId(info);
 
+    console.log(
+      `[TRANSACTION DATA] Bet: ${bet.toString()} | Win: ${win.toString()} | Round ID: ${roundId}`,
+    );
+
     // --- COMMAND: writeBet ---
     if (cmd === "writeBet") {
+      console.log(
+        `[CMD: writeBet] Checking idempotency for transactionId: '${transactionId}'`,
+      );
+
       // Idempotency Check: Return existing balance if duplicate transactionId
       const existingTx = await db.bettingRecordSports.findUnique({
         where: { transactionId },
       });
 
       if (existingTx) {
-        return Response.json({
+        console.warn(
+          `[IDEMPOTENCY] Duplicate transaction detected for transactionId: '${transactionId}'. Skipping process.`,
+        );
+        return createAndLogResponse({
           status: "success",
           error: "",
           login: user.playerId,
@@ -134,7 +191,10 @@ export const POST = async (req: NextRequest) => {
 
       // Check Insufficient Funds
       if (bet.gt(userBalance)) {
-        return Response.json(
+        console.error(
+          `[BALANCE ERROR] Insufficient balance. Bet: ${bet.toString()}, Available: ${userBalance.toString()}`,
+        );
+        return createAndLogResponse(
           {
             status: "fail",
             error: "insufficient_balance",
@@ -142,7 +202,7 @@ export const POST = async (req: NextRequest) => {
             balance: userBalance.toNumber(),
             currency: userCurrency,
           },
-          { status: 400 },
+          400,
         );
       }
 
@@ -155,9 +215,16 @@ export const POST = async (req: NextRequest) => {
       if (bet.gt(0) && win.gt(0)) txType = "BET_WIN";
       else if (win.gt(0)) txType = "WIN";
 
+      console.log(
+        `[CMD: writeBet] Calculated Net Change: ${netAmount.toString()} | New Balance: ${newBalance.toString()} | TxType: ${txType}`,
+      );
+
       await db.$transaction(async (tx) => {
         // Ensure GameSession exists or create it
         if (sessionid) {
+          console.log(
+            `[DB TRANSACTION] Upserting SportsGameSession: '${sessionid}'`,
+          );
           await tx.sportsGameSession.upsert({
             where: { sessionId: sessionid },
             update: { gameId: gameId || undefined },
@@ -171,12 +238,18 @@ export const POST = async (req: NextRequest) => {
         }
 
         // Update Wallet Balance
+        console.log(
+          `[DB TRANSACTION] Updating balance for User ID: ${user.id} -> ${newBalance.toString()}`,
+        );
         await tx.wallet.update({
           where: { userId: user.id },
           data: { balance: newBalance },
         });
 
         // Create Betting Record
+        console.log(
+          `[DB TRANSACTION] Creating BettingRecordSports for TxID: '${transactionId}'`,
+        );
         await tx.bettingRecordSports.create({
           data: {
             transactionId,
@@ -196,7 +269,8 @@ export const POST = async (req: NextRequest) => {
         });
       });
 
-      return Response.json({
+      console.log(`[CMD: writeBet] Transaction processed successfully.`);
+      return createAndLogResponse({
         status: "success",
         error: "",
         login: user.playerId,
@@ -207,13 +281,20 @@ export const POST = async (req: NextRequest) => {
 
     // --- COMMAND: rollback ---
     if (cmd === "rollback") {
+      console.log(
+        `[CMD: rollback] Fetching transaction record for rollback TxID: '${transactionId}'`,
+      );
+
       const existingTx = await db.bettingRecordSports.findUnique({
         where: { transactionId },
       });
 
       // If missing or already cancelled, safely return current balance
       if (!existingTx || existingTx.status === "CANCELLED") {
-        return Response.json({
+        console.warn(
+          `[CMD: rollback] Transaction '${transactionId}' ${!existingTx ? "not found" : "already CANCELLED"}. No changes made.`,
+        );
+        return createAndLogResponse({
           status: "success",
           error: "",
           login: user.playerId,
@@ -224,14 +305,21 @@ export const POST = async (req: NextRequest) => {
 
       // Refund the original bet amount
       const refundedBalance = userBalance.add(existingTx.betAmount);
+      console.log(
+        `[CMD: rollback] Refunding bet amount: ${existingTx.betAmount.toString()} | New Balance: ${refundedBalance.toString()}`,
+      );
 
       await db.$transaction(async (tx) => {
+        console.log(`[DB TRANSACTION] Refunding user wallet ID: ${user.id}`);
         await tx.wallet.update({
           where: { userId: user.id },
           data: { balance: refundedBalance },
         });
 
         // Mark existing record as CANCELLED and log rollback details
+        console.log(
+          `[DB TRANSACTION] Updating transaction '${transactionId}' status to CANCELLED`,
+        );
         await tx.bettingRecordSports.update({
           where: { transactionId },
           data: {
@@ -240,10 +328,14 @@ export const POST = async (req: NextRequest) => {
           },
         });
 
-        // Optionally create a audit trail entry for rollback
+        // Optionally create an audit trail entry for rollback
+        const auditTxId = `rb_${transactionId}`;
+        console.log(
+          `[DB TRANSACTION] Creating rollback audit record with TxID: '${auditTxId}'`,
+        );
         await tx.bettingRecordSports.create({
           data: {
-            transactionId: `rb_${transactionId}`,
+            transactionId: auditTxId,
             sessionId: sessionid || null,
             userId: user.id,
             gameId: gameId || existingTx.gameId,
@@ -260,7 +352,8 @@ export const POST = async (req: NextRequest) => {
         });
       });
 
-      return Response.json({
+      console.log(`[CMD: rollback] Rollback completed successfully.`);
+      return createAndLogResponse({
         status: "success",
         error: "",
         login: user.playerId,
@@ -269,7 +362,8 @@ export const POST = async (req: NextRequest) => {
       });
     }
   } catch (error: any) {
-    return Response.json(
+    console.error(`[UNCAUGHT ERROR] Exception caught in API Handler:`, error);
+    return createAndLogResponse(
       {
         status: "fail",
         error: error.message || "unexpected_error",
@@ -277,7 +371,7 @@ export const POST = async (req: NextRequest) => {
         currency: "BDT",
         login: "",
       },
-      { status: 400 },
+      400,
     );
   }
 };
