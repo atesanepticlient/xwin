@@ -134,6 +134,7 @@ export interface TransactionItem {
   merchantId: string;
   method: "MOBILE_BANKING" | "CRYPTO" | null;
   walletName: string | null;
+  walletImage: string | null;
   reference: string | null;
   createdAt: string;
 }

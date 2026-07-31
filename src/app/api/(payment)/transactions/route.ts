@@ -14,7 +14,8 @@ interface TransactionItem {
   merchantId: string;
   method: WalletCategory | null;
   walletName: string | null;
-  reference: string | null; // payFrom for deposit, paymentWalletNumber for withdraw
+  walletImage: string | null;
+  reference: string | null;
   createdAt: string;
 }
 
@@ -104,7 +105,9 @@ export async function GET(req: NextRequest) {
             orderBy: { createdAt: "desc" },
             take: fetchTake,
             include: {
-              ewallet: { select: { walletName: true, category: true } },
+              ewallet: {
+                select: { walletName: true, category: true, walletImage: true },
+              },
             },
           }),
       type === "deposit"
@@ -114,11 +117,12 @@ export async function GET(req: NextRequest) {
             orderBy: { createdAt: "desc" },
             take: fetchTake,
             include: {
-              withdrawEWallet: { select: { walletName: true, category: true } },
+              withdrawEWallet: {
+                select: { walletName: true, category: true, walletImage: true },
+              },
             },
           }),
     ]);
-console.log({deposits})
     const merged: TransactionItem[] = [
       ...deposits.map((d) => ({
         id: d.id,
@@ -128,6 +132,7 @@ console.log({deposits})
         merchantId: d.merchantId,
         method: d.ewallet?.category ?? null,
         walletName: d.ewallet?.walletName ?? null,
+        walletImage: d.ewallet?.walletImage ?? null,
         reference: d.payFrom,
         createdAt: d.createdAt.toISOString(),
       })),
@@ -139,6 +144,7 @@ console.log({deposits})
         merchantId: w.merchantId,
         method: w.withdrawEWallet?.category ?? null,
         walletName: w.withdrawEWallet?.walletName ?? null,
+        walletImage: w.withdrawEWallet?.walletImage ?? null,
         reference: w.paymentWalletNumber,
         createdAt: w.createdAt.toISOString(),
       })),

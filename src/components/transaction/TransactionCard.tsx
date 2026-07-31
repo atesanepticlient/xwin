@@ -1,10 +1,6 @@
-// components/account/transactions/TransactionCard.tsx
 import React from "react";
+import Image from "next/image";
 import { TransactionItem } from "@/types/api";
-import {
-  IoArrowDownCircleOutline,
-  IoArrowUpCircleOutline,
-} from "react-icons/io5";
 import { IoIosCopy } from "react-icons/io";
 
 const STATUS_STYLE: Record<TransactionItem["status"], string> = {
@@ -18,15 +14,19 @@ const TransactionCard = ({ tx }: { tx: TransactionItem }) => {
 
   return (
     <div className="bg-white rounded-md p-3 flex items-center gap-3">
-      <div
-        className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${
-          isDeposit ? "bg-green-100" : "bg-red-100"
-        }`}
-      >
-        {isDeposit ? (
-          <IoArrowDownCircleOutline className="w-5 h-5 text-green-600" />
+      <div className="shrink-0 w-10 h-10 rounded-full bg-[#F2F2F2] flex items-center justify-center overflow-hidden border border-gray-100">
+        {tx.walletImage ? (
+          <Image
+            src={tx.walletImage}
+            alt={tx.walletName ?? tx.kind}
+            width={28}
+            height={28}
+            className="object-contain w-7 h-7"
+          />
         ) : (
-          <IoArrowUpCircleOutline className="w-5 h-5 text-red-500" />
+          <span className="text-[10px] text-gray-400 font-semibold">
+            {isDeposit ? "IN" : "OUT"}
+          </span>
         )}
       </div>
 
