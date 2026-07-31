@@ -4,30 +4,30 @@ import React, { useState, useEffect } from "react";
 import { FaArrowLeft, FaRegCalendarAlt, FaCheck } from "react-icons/fa";
 import { IoChevronUp, IoChevronDown } from "react-icons/io5";
 
+interface Filters {
+  startDate: string;
+  endDate: string;
+  category: string;
+  status: string;
+  outcome: string;
+}
+
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  filters: {
-    startDate: string;
-    endDate: string;
-    category: string;
-    status: string;
-  };
-  onApplyFilters: (newFilters: {
-    startDate: string;
-    endDate: string;
-    category: string;
-    status: string;
-  }) => void;
+  filters: Filters;
+  onApplyFilters: (newFilters: Filters) => void;
   onResetFilters: () => void;
 }
 
+// Matches BettingCategory enum exactly.
 const CATEGORIES = [
   { id: "SPORTS", label: "Sports" },
-  { id: "LIVE", label: "Live" },
+  { id: "LIVE_CASINO", label: "Live Casino" },
   { id: "SLOT", label: "Slot" },
   { id: "POKER", label: "Poker" },
   { id: "FISH", label: "Fish" },
+  { id: "OTHER", label: "Other" },
 ];
 
 const STATUSES = [
@@ -36,6 +36,13 @@ const STATUSES = [
   { id: "SETTLED", label: "Settled" },
   { id: "CANCELED", label: "Canceled" },
   { id: "VOID", label: "Void" },
+];
+
+const OUTCOMES = [
+  { id: "ALL", label: "All Outcomes", dot: "bg-gray-400" },
+  { id: "WON", label: "Won", dot: "bg-green-500" },
+  { id: "LOST", label: "Lost", dot: "bg-red-500" },
+  { id: "DRAW", label: "Draw", dot: "bg-amber-500" },
 ];
 
 export default function BetHistoryFilterModal({
@@ -48,20 +55,21 @@ export default function BetHistoryFilterModal({
   const [endDate, setEndDate] = useState(filters.endDate || "2026-07-27");
   const [category, setCategory] = useState(filters.category || "ALL");
   const [status, setStatus] = useState(filters.status || "ALL");
+  const [outcome, setOutcome] = useState(filters.outcome || "ALL");
 
-  // Sync state if props change
   useEffect(() => {
     if (filters.startDate) setStartDate(filters.startDate);
     if (filters.endDate) setEndDate(filters.endDate);
     if (filters.category) setCategory(filters.category);
     if (filters.status) setStatus(filters.status);
+    if (filters.outcome) setOutcome(filters.outcome);
   }, [filters]);
 
-  // Accordion sections toggle states
   const [openSections, setOpenSections] = useState({
     period: true,
     betType: false,
     betStatus: false,
+    outcome: true,
     gameType: true,
   });
 
@@ -70,7 +78,7 @@ export default function BetHistoryFilterModal({
   };
 
   const handleApply = () => {
-    onApplyFilters({ startDate, endDate, category, status });
+    onApplyFilters({ startDate, endDate, category, status, outcome });
     onClose();
   };
 
@@ -86,19 +94,16 @@ export default function BetHistoryFilterModal({
           : "opacity-0 pointer-events-none"
       }`}
     >
-      {/* Dimmed Background Overlay */}
       <div
         onClick={onClose}
         className="absolute inset-0 bg-black/50 transition-opacity duration-300"
       />
 
-      {/* Sliding Filter Modal Container */}
       <div
         className={`relative w-full h-full max-w-lg mx-auto bg-[#F2F2F4] flex flex-col justify-between font-sans transition-transform duration-300 ease-in-out transform ${
           isOpen ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        {/* Dark Header */}
         <header className="top-0 left-0 sticky flex px-3 items-center gap-3 bg-[#333333] text-white h-14 z-10 shadow-md">
           <button
             onClick={onClose}
@@ -111,7 +116,6 @@ export default function BetHistoryFilterModal({
           </h2>
         </header>
 
-        {/* Accordion Body */}
         <div className="p-3 flex-1 space-y-3 overflow-y-auto">
           {/* 1. Period bets placed */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
@@ -130,12 +134,10 @@ export default function BetHistoryFilterModal({
 
             {openSections.period && (
               <div className="px-4 pb-4 space-y-3 pt-1 border-t border-gray-100">
-                {/* Info banner */}
                 <div className="bg-[#F8F8F8] text-gray-700 text-xs py-2.5 px-3 rounded-lg">
                   Maximum period: 31 days.
                 </div>
 
-                {/* Start Date */}
                 <div className="relative border border-gray-300 rounded-xl px-3 py-2 focus-within:border-gray-800 transition-colors">
                   <label className="block text-[10px] text-gray-400 font-medium">
                     Start date
@@ -151,7 +153,6 @@ export default function BetHistoryFilterModal({
                   </div>
                 </div>
 
-                {/* Expiration Date */}
                 <div className="relative border border-gray-300 rounded-xl px-3 py-2 focus-within:border-gray-800 transition-colors">
                   <label className="block text-[10px] text-gray-400 font-medium">
                     Expiration date
@@ -170,7 +171,7 @@ export default function BetHistoryFilterModal({
             )}
           </div>
 
-          {/* 2. Bet type */}
+          {/* 2. Bet type (placeholder, unchanged) */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
             <button
               type="button"
@@ -186,7 +187,49 @@ export default function BetHistoryFilterModal({
             </button>
           </div>
 
-          {/* 3. Bet status */}
+          {/* 3. Outcome — Won / Lost / Draw */}
+          <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+            <button
+              type="button"
+              onClick={() => toggleSection("outcome")}
+              className="w-full flex items-center justify-between p-4 text-left font-bold text-gray-800 text-[15px]"
+            >
+              <span>Outcome</span>
+              {openSections.outcome ? (
+                <IoChevronUp className="w-5 h-5 text-gray-700" />
+              ) : (
+                <IoChevronDown className="w-5 h-5 text-gray-700" />
+              )}
+            </button>
+
+            {openSections.outcome && (
+              <div className="px-4 pb-4 space-y-3 pt-2 border-t border-gray-100">
+                {OUTCOMES.map((o) => (
+                  <label
+                    key={o.id}
+                    onClick={() => setOutcome(o.id)}
+                    className="flex items-center gap-3 cursor-pointer py-1"
+                  >
+                    <div
+                      className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                        outcome === o.id
+                          ? "bg-black border-black text-white"
+                          : "border-gray-400 bg-white"
+                      }`}
+                    >
+                      {outcome === o.id && <FaCheck className="w-3 h-3" />}
+                    </div>
+                    <span className={`w-2 h-2 rounded-full ${o.dot}`} />
+                    <span className="text-sm font-medium text-gray-800">
+                      {o.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 4. Bet status */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
             <button
               type="button"
@@ -227,7 +270,7 @@ export default function BetHistoryFilterModal({
             )}
           </div>
 
-          {/* 4. Game type / Category */}
+          {/* 5. Game type / Category */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
             <button
               type="button"
@@ -272,7 +315,6 @@ export default function BetHistoryFilterModal({
           </div>
         </div>
 
-        {/* Footer Controls */}
         <div className="p-3 bg-white border-t border-gray-200 flex items-center gap-3">
           <button
             onClick={handleCancel}
