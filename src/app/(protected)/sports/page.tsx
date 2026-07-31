@@ -9,8 +9,8 @@ import { useSearchParams } from "next/navigation";
 
 export default function GamePage() {
   const searchParams = useSearchParams();
-
   const { gameUrl, loading, error, fetchGame } = useOpenGame();
+
   useEffect(() => {
     fetchGame();
   }, [fetchGame]);
@@ -21,11 +21,9 @@ export default function GamePage() {
     type === "live" || type === "line" ? type : "",
   );
 
-  console.log({ iframeUrl });
-
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black">
+      <div className="fixed inset-0 flex items-center justify-center bg-black text-white">
         Loading...
       </div>
     );
@@ -40,23 +38,19 @@ export default function GamePage() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      {/* 1. Header sits naturally at the top without overlapping */}
+    <div className="flex flex-col h-screen overflow-hidden bg-black">
       <Header />
 
-      {/* 2. Main container takes up all remaining space between Header and TabBar */}
       <main className="flex-1 w-full relative">
         <iframe
           src={iframeUrl}
           className="w-full h-full border-0"
           allowFullScreen
           title="Game"
-          allow="fullscreen, autoplay"
-          referrerPolicy="origin"
+          allow="fullscreen; autoplay; clipboard-write; encrypted-media"
         />
       </main>
 
-      {/* 3. TabBar sits at the bottom */}
       <TabBar />
     </div>
   );
