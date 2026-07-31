@@ -102,7 +102,13 @@ export function getSportsUrl(url: string, type?: string | null) {
 
   const parsed = new URL(url);
 
-  // Default to "live"
+  // If type is "slip", completely replace the path with /en/user/coupon
+  if (type === "slip") {
+    parsed.pathname = "/en/user/coupon";
+    return parsed.toString();
+  }
+
+  // Fallback for live/line behavior
   const page = type === "line" ? "line" : "live";
 
   parsed.pathname = parsed.pathname

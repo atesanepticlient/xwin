@@ -3,7 +3,7 @@
 import React from "react";
 import { IoMdHome } from "react-icons/io";
 import { FaDollarSign, FaTrophy } from "react-icons/fa";
-import { IoMenuSharp} from "react-icons/io5";
+import { IoMenuSharp, IoTicket } from "react-icons/io5";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -24,9 +24,9 @@ const baseNavItems = [
     icon: FaTrophy,
   },
   {
-    label: "Casino",
-    href: "/casino",
-    icon: PiPokerChipFill,
+    label: "Bet Slip",
+    href: "/sports?type=slip",
+    icon: IoTicket,
   },
   {
     label: "Menu",
@@ -89,11 +89,11 @@ const TabBar = () => {
             >
               <div
                 className={cn(
-                  "w-10 h-10 !aspect-square rounded-full bg-black/10 flex items-center justify-center transition-transform active:scale-95 group-hover:bg-gray-200",
+                  "w-10 h-10 !aspect-square rounded-full bg-[#333] text-white flex items-center justify-center transition-transform active:scale-95 group-hover:bg-[#222]",
                   isActive && "bg-black/20",
                 )}
               >
-                <Icon className="w-5 h-5 text-black" />
+                <Icon className="w-5 h-5 text-white" />
               </div>
               <span
                 className={cn(

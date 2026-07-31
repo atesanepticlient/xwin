@@ -45,12 +45,13 @@ export default function GamePage() {
   };
 
   const type = searchParams.get("type");
-  // Uses your EXACT original getSportsUrl logic outputting https://sportshub-custom001.network/...
-  const iframeUrl = getSportsUrl(
-    gameUrl,
-    type === "live" || type === "line" ? type : "",
-  );
 
+  // Pass all supported types: "live", "line", or "slip"
+  const validTypes = ["live", "line", "slip"];
+  const selectedType = validTypes.includes(type || "") ? type : "";
+
+  const iframeUrl = getSportsUrl(gameUrl, selectedType);
+  console.log({ iframeUrl });
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black text-white">
@@ -100,11 +101,6 @@ export default function GamePage() {
           referrerPolicy="no-referrer-when-downgrade"
         />
       </main>
-
-      {/* Target the wrapper specifically on this page so it occupies layout flow instead of floating over the iframe */}
-      <div className="shrink-0 [&>div]:relative [&>div]:bottom-auto [&>div]:left-0 [&>div]:translate-x-0">
-        <TabBar />
-      </div>
     </div>
   );
 }
