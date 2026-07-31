@@ -3,6 +3,9 @@ import { db } from "@/lib/db";
 import { CasinoBetStatus, BettingCategory, Prisma } from "@prisma/client";
 import { findCurrentUser } from "@/data/user";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type Outcome = "WON" | "LOST" | "DRAW" | null;
 
 const getOutcome = (
@@ -27,9 +30,9 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const tab = searchParams.get("tab") || "website"; // "website" | "unsettled"
-    const startDate = searchParams.get("startDate");
-    const endDate = searchParams.get("endDate");
+    const tab = searchParams.get("tab") || "website";
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
     const category = searchParams.get("category");
     const status = searchParams.get("status");
     const outcomeFilter = (searchParams.get("outcome") || "ALL") as
@@ -39,12 +42,29 @@ export async function GET(request: Request) {
       | "DRAW";
     const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
+    // Default window widened to 90 days so we stop silently excluding
+    // data that's older than a week. If startDate/endDate are sent but
+    // unparseable, fall back instead of passing Invalid Date to Prisma
+    // (which can silently produce zero matches).
     const now = new Date();
     const defaultStart = new Date();
-    defaultStart.setDate(now.getDate() - 7);
+    defaultStart.setDate(now.getDate() - 90);
 
-    const fromDate = startDate ? new Date(startDate) : defaultStart;
-    const toDate = endDate ? new Date(endDate) : now;
+    let fromDate = defaultStart;
+    if (startDateParam) {
+      const parsed = new Date(startDateParam);
+      if (!isNaN(parsed.getTime())) fromDate = parsed;
+    }
+
+    let toDate = now;
+    if (endDateParam) {
+      const parsed = new Date(endDateParam);
+      if (!isNaN(parsed.getTime())) {
+        // include the entire end day, not just 00:00:00
+        parsed.setHours(23, 59, 59, 999);
+        toDate = parsed;
+      }
+    }
 
     const where: Prisma.BettingRecordWhereInput = {
       userId: user.id,
@@ -66,13 +86,9 @@ export async function GET(request: Request) {
 
     const rawBets = await db.bettingRecord.findMany({
       where,
-      orderBy: {
-        createdAt: sortOrder,
-      },
+      orderBy: { createdAt: sortOrder },
     });
 
-    // Convert Decimal -> number and compute outcome per row (return vs. stake,
-    // not a pre-signed net value — see getOutcome above).
     let data = rawBets.map((b) => {
       const betAmount = Number(b.betAmount);
       const profitNLoss = b.profitNLoss != null ? Number(b.profitNLoss) : null;
@@ -95,9 +111,6 @@ export async function GET(request: Request) {
       };
     });
 
-    // Outcome filter applied in-memory since it depends on comparing two
-    // columns (profitNLoss vs betAmount) — not expressible in a Prisma
-    // `where` without raw SQL. Bounded by the date-range query above.
     if (outcomeFilter !== "ALL") {
       data = data.filter((b) => b.outcome === outcomeFilter);
     }
@@ -116,6 +129,20 @@ export async function GET(request: Request) {
       { totalStaked: 0, netProfitLoss: 0, wins: 0, losses: 0, draws: 0 },
     );
 
+    // Debug trail — visible in your server terminal (not sent to browser)
+    // so you can see exactly what was queried without guessing.
+    console.log("[bet-history]", {
+      userId: user.id,
+      tab,
+      status,
+      category,
+      outcomeFilter,
+      fromDate,
+      toDate,
+      rawCount: rawBets.length,
+      filteredCount: data.length,
+    });
+
     return NextResponse.json({
       success: true,
       data,
@@ -129,7 +156,12 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error fetching bet history:", error);
     return NextResponse.json(
-      { error: "Failed to fetch bet history" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch bet history",
+      },
       { status: 500 },
     );
   }

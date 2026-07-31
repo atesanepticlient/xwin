@@ -40,17 +40,24 @@ export default function GamePage() {
   }
 
   return (
-    <>
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* 1. Header sits naturally at the top without overlapping */}
       <Header />
 
-      <iframe
-        src={iframeUrl}
-        className="fixed inset-0 h-screen w-screen border-0"
-        allowFullScreen
-        title="Game"
-      />
+      {/* 2. Main container takes up all remaining space between Header and TabBar */}
+      <main className="flex-1 w-full relative">
+        <iframe
+          src={iframeUrl}
+          className="w-full h-full border-0"
+          allowFullScreen
+          title="Game"
+          allow="fullscreen, autoplay"
+          referrerPolicy="origin"
+        />
+      </main>
 
+      {/* 3. TabBar sits at the bottom */}
       <TabBar />
-    </>
+    </div>
   );
 }
