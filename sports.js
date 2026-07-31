@@ -9,14 +9,9 @@ const API_URL = "https://client-api.gregmorn.org/games/openGame";
 const USER_SECRET = "u[@9w+5Y_>&8";
 
 const body = {
-  currency: "BDT",
-  demo: "0",
-  exitUrl: "https://example.com/exit",
-  gameId: process.env.GREGMORN_1XID,
-  language: "en",
-  player_login: "john_doe",
-  user_id: "6712031e-2632-4b4c-9226-8e19215a4ebb",
-  callbackUrl: "https://example.com/callback",
+  cmd: "getBalance",
+  login: "alex_morozov_88",
+  sessionid: "7d3b9e2a-4f1c-8d06-a912-c3e5f7b29041",
 };
 
 // ==========================

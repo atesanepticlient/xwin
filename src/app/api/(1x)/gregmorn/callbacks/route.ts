@@ -4,9 +4,9 @@ import crypto from "crypto";
 import { db } from "@/lib/db";
 import { Decimal } from "@prisma/client/runtime/library";
 
-const USER_SECRET = process.env.GREGMORN_USER_SECRET || "";
+const USER_SECRET = process.env.GREGMORN_SECRET || "";
 
-// Helper to standardise logging and response creation
+// Helper to standardize logging and response creation
 function createAndLogResponse(body: Record<string, any>, status = 200) {
   console.log(
     `[API RESPONSE] Status: ${status} | Payload:`,
@@ -21,7 +21,7 @@ function verifySignature(
 ): boolean {
   if (!signatureHeader || !USER_SECRET) {
     console.warn(
-      "[AUTH] Verification failed: Missing signature header or USER_SECRET env variable.",
+      "[AUTH] Verification failed: Missing x-signature header or GREGMORN_USER_SECRET env variable.",
     );
     return false;
   }
@@ -32,8 +32,8 @@ function verifySignature(
     .digest("hex");
 
   const isValid = crypto.timingSafeEqual(
-    Buffer.from(signatureHeader, "utf8"),
-    Buffer.from(expectedSignature, "utf8"),
+    Buffer.from(signatureHeader.trim().toLowerCase(), "utf8"),
+    Buffer.from(expectedSignature.toLowerCase(), "utf8"),
   );
 
   if (!isValid) {
@@ -45,14 +45,15 @@ function verifySignature(
   return isValid;
 }
 
-// Helper to safely extract roundId from the provider's info JSON string
-function parseRoundId(infoStr?: string): string | null {
-  if (!infoStr) return null;
+// Helper to safely extract roundId from the provider's info string or object
+function parseRoundId(info: any): string | null {
+  if (!info) return null;
+  if (typeof info === "object") return info.roundId || info.round_id || null;
   try {
-    const parsed = typeof infoStr === "string" ? JSON.parse(infoStr) : infoStr;
+    const parsed = JSON.parse(info);
     return parsed.roundId || parsed.round_id || null;
   } catch (err) {
-    console.warn("[PARSER] Failed to parse 'info' JSON string:", infoStr, err);
+    console.warn("[PARSER] Failed to parse 'info' JSON string:", info, err);
     return null;
   }
 }
@@ -72,10 +73,8 @@ async function handleWebhook(
   try {
     const signature =
       req.headers.get("x-signature") ||
+      req.headers.get("X-Signature") ||
       req.nextUrl.searchParams.get("signature");
-
-    console.log(`[REQUEST HEADERS/QUERY] signature: ${signature}`);
-    console.log(`[PAYLOAD DATA]`, payload);
 
     if (!verifySignature(rawTextToSign, signature)) {
       console.error("[AUTH ERROR] Invalid HMAC signature.");
@@ -101,10 +100,6 @@ async function handleWebhook(
       round_finished,
     } = payload;
 
-    console.log(
-      `[PARSED PAYLOAD] Command: '${cmd}' | Login: '${login}' | TxID: '${transactionId}' | SessionID: '${sessionid}'`,
-    );
-
     if (!["getBalance", "writeBet", "rollback"].includes(cmd)) {
       console.error(`[COMMAND ERROR] Unknown or unsupported command: '${cmd}'`);
       return createAndLogResponse(
@@ -120,7 +115,6 @@ async function handleWebhook(
     }
 
     // 1. Fetch User and Wallet
-    console.log(`[DB SEARCH] Fetching user for playerId: '${login}'`);
     const user = await db.users.findFirst({
       where: { playerId: login },
       include: { wallet: true },
@@ -145,10 +139,6 @@ async function handleWebhook(
     const userCurrency = user.wallet.currencyCode || "BDT";
     const userBalance = new Decimal(user.wallet.balance);
 
-    console.log(
-      `[USER FOUND] User ID: ${user.id} | Current Balance: ${userBalance.toString()} ${userCurrency}`,
-    );
-
     // --- COMMAND: getBalance ---
     if (cmd === "getBalance") {
       console.log(
@@ -163,29 +153,23 @@ async function handleWebhook(
       });
     }
 
+    // Safe handling of string or number bet/win types from SL-Games & X-Games
     const bet =
       payload.bet !== undefined ? new Decimal(payload.bet) : new Decimal(0);
     const win =
       payload.win !== undefined ? new Decimal(payload.win) : new Decimal(0);
     const roundId = parseRoundId(info);
 
-    console.log(
-      `[TRANSACTION DATA] Bet: ${bet.toString()} | Win: ${win.toString()} | Round ID: ${roundId}`,
-    );
-
     // --- COMMAND: writeBet ---
     if (cmd === "writeBet") {
-      console.log(
-        `[CMD: writeBet] Checking idempotency for transactionId: '${transactionId}'`,
-      );
-
+      // Idempotency Check: Return HTTP 200 with current balance if duplicate transactionId
       const existingTx = await db.bettingRecordSports.findUnique({
         where: { transactionId },
       });
 
       if (existingTx) {
         console.warn(
-          `[IDEMPOTENCY] Duplicate transaction detected for transactionId: '${transactionId}'. Skipping process.`,
+          `[IDEMPOTENCY] Duplicate transaction detected for transactionId: '${transactionId}'. Returning current balance.`,
         );
         return createAndLogResponse({
           status: "success",
@@ -196,6 +180,7 @@ async function handleWebhook(
         });
       }
 
+      // Check Insufficient Balance
       if (bet.gt(userBalance)) {
         console.error(
           `[BALANCE ERROR] Insufficient balance. Bet: ${bet.toString()}, Available: ${userBalance.toString()}`,
@@ -219,15 +204,8 @@ async function handleWebhook(
       if (bet.gt(0) && win.gt(0)) txType = "BET_WIN";
       else if (win.gt(0)) txType = "WIN";
 
-      console.log(
-        `[CMD: writeBet] Calculated Net Change: ${netAmount.toString()} | New Balance: ${newBalance.toString()} | TxType: ${txType}`,
-      );
-
       await db.$transaction(async (tx) => {
         if (sessionid) {
-          console.log(
-            `[DB TRANSACTION] Upserting SportsGameSession: '${sessionid}'`,
-          );
           await tx.sportsGameSession.upsert({
             where: { sessionId: sessionid },
             update: { gameId: gameId || undefined },
@@ -240,17 +218,13 @@ async function handleWebhook(
           });
         }
 
-        console.log(
-          `[DB TRANSACTION] Updating balance for User ID: ${user.id} -> ${newBalance.toString()}`,
-        );
+        // Update Wallet Balance
         await tx.wallet.update({
           where: { userId: user.id },
           data: { balance: newBalance },
         });
 
-        console.log(
-          `[DB TRANSACTION] Creating BettingRecordSports for TxID: '${transactionId}'`,
-        );
+        // Save Transaction Record
         await tx.bettingRecordSports.create({
           data: {
             transactionId,
@@ -270,7 +244,6 @@ async function handleWebhook(
         });
       });
 
-      console.log(`[CMD: writeBet] Transaction processed successfully.`);
       return createAndLogResponse({
         status: "success",
         error: "",
@@ -282,17 +255,14 @@ async function handleWebhook(
 
     // --- COMMAND: rollback ---
     if (cmd === "rollback") {
-      console.log(
-        `[CMD: rollback] Fetching transaction record for rollback TxID: '${transactionId}'`,
-      );
-
       const existingTx = await db.bettingRecordSports.findUnique({
         where: { transactionId },
       });
 
+      // If missing or already cancelled, return current balance cleanly
       if (!existingTx || existingTx.status === "CANCELLED") {
         console.warn(
-          `[CMD: rollback] Transaction '${transactionId}' ${!existingTx ? "not found" : "already CANCELLED"}. No changes made.`,
+          `[CMD: rollback] Transaction '${transactionId}' ${!existingTx ? "not found" : "already CANCELLED"}. Skipping.`,
         );
         return createAndLogResponse({
           status: "success",
@@ -303,21 +273,16 @@ async function handleWebhook(
         });
       }
 
+      // Refund the original bet amount
       const refundedBalance = userBalance.add(existingTx.betAmount);
-      console.log(
-        `[CMD: rollback] Refunding bet amount: ${existingTx.betAmount.toString()} | New Balance: ${refundedBalance.toString()}`,
-      );
 
       await db.$transaction(async (tx) => {
-        console.log(`[DB TRANSACTION] Refunding user wallet ID: ${user.id}`);
         await tx.wallet.update({
           where: { userId: user.id },
           data: { balance: refundedBalance },
         });
 
-        console.log(
-          `[DB TRANSACTION] Updating transaction '${transactionId}' status to CANCELLED`,
-        );
+        // Mark transaction as CANCELLED
         await tx.bettingRecordSports.update({
           where: { transactionId },
           data: {
@@ -325,35 +290,12 @@ async function handleWebhook(
             roundFinished: true,
           },
         });
-
-        const auditTxId = `rb_${transactionId}`;
-        console.log(
-          `[DB TRANSACTION] Creating rollback audit record with TxID: '${auditTxId}'`,
-        );
-        await tx.bettingRecordSports.create({
-          data: {
-            transactionId: auditTxId,
-            sessionId: sessionid || null,
-            userId: user.id,
-            gameId: gameId || existingTx.gameId,
-            roundId: roundId || existingTx.roundId,
-            txType: "ROLLBACK",
-            betAmount: existingTx.betAmount,
-            winAmount: new Decimal(0),
-            netAmount: existingTx.betAmount,
-            status: "SETTLED",
-            roundFinished: true,
-            rawInfo:
-              typeof info === "string" ? info : JSON.stringify(info || {}),
-          },
-        });
       });
 
-      console.log(`[CMD: rollback] Rollback completed successfully.`);
       return createAndLogResponse({
         status: "success",
         error: "",
-        login: refundedBalance.toNumber(),
+        login: user.playerId,
         balance: refundedBalance.toNumber(),
         currency: userCurrency,
       });
@@ -391,7 +333,6 @@ export const GET = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
   const payload: Record<string, any> = {};
 
-  // Convert URL SearchParams into standard payload object
   searchParams.forEach((value, key) => {
     if (key !== "signature") {
       if (value === "true") payload[key] = true;
@@ -400,7 +341,6 @@ export const GET = async (req: NextRequest) => {
     }
   });
 
-  // Re-build canonical query string for HMAC verification if needed
   const rawTextToSign = Array.from(searchParams.entries())
     .filter(([key]) => key !== "signature")
     .sort(([a], [b]) => a.localeCompare(b))
