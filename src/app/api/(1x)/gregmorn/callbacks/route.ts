@@ -16,7 +16,7 @@ function createAndLogResponse(body: Record<string, any>, status = 200) {
 }
 
 function verifySignature(
-  rawBodyText: string,
+  rawTextToSign: string,
   signatureHeader: string | null,
 ): boolean {
   if (!signatureHeader || !USER_SECRET) {
@@ -28,7 +28,7 @@ function verifySignature(
 
   const expectedSignature = crypto
     .createHmac("sha256", USER_SECRET)
-    .update(Buffer.from(rawBodyText, "utf8"))
+    .update(Buffer.from(rawTextToSign, "utf8"))
     .digest("hex");
 
   const isValid = crypto.timingSafeEqual(
@@ -49,7 +49,7 @@ function verifySignature(
 function parseRoundId(infoStr?: string): string | null {
   if (!infoStr) return null;
   try {
-    const parsed = JSON.parse(infoStr);
+    const parsed = typeof infoStr === "string" ? JSON.parse(infoStr) : infoStr;
     return parsed.roundId || parsed.round_id || null;
   } catch (err) {
     console.warn("[PARSER] Failed to parse 'info' JSON string:", infoStr, err);
@@ -57,18 +57,27 @@ function parseRoundId(infoStr?: string): string | null {
   }
 }
 
-export const POST = async (req: NextRequest) => {
+// Shared Webhook Business Logic
+async function handleWebhook(
+  req: NextRequest,
+  payload: Record<string, any>,
+  rawTextToSign: string,
+  method: string,
+) {
   const reqTime = new Date().toISOString();
-  console.log(`\n=== [POST /api/webhook] Request Received at ${reqTime} ===`);
+  console.log(
+    `\n=== [${method} /api/webhook] Request Received at ${reqTime} ===`,
+  );
 
   try {
-    const rawBodyText = await req.text();
-    const signature = req.headers.get("x-signature");
+    const signature =
+      req.headers.get("x-signature") ||
+      req.nextUrl.searchParams.get("signature");
 
-    console.log(`[REQUEST HEADERS] x-signature: ${signature}`);
-    console.log(`[RAW BODY]`, rawBodyText);
+    console.log(`[REQUEST HEADERS/QUERY] signature: ${signature}`);
+    console.log(`[PAYLOAD DATA]`, payload);
 
-    if (!verifySignature(rawBodyText, signature)) {
+    if (!verifySignature(rawTextToSign, signature)) {
       console.error("[AUTH ERROR] Invalid HMAC signature.");
       return createAndLogResponse(
         {
@@ -76,13 +85,12 @@ export const POST = async (req: NextRequest) => {
           error: "invalid_signature",
           balance: 0,
           currency: "BDT",
-          login: "",
+          login: payload.login || "",
         },
         400,
       );
     }
 
-    const payload = JSON.parse(rawBodyText);
     const {
       cmd,
       login,
@@ -171,7 +179,6 @@ export const POST = async (req: NextRequest) => {
         `[CMD: writeBet] Checking idempotency for transactionId: '${transactionId}'`,
       );
 
-      // Idempotency Check: Return existing balance if duplicate transactionId
       const existingTx = await db.bettingRecordSports.findUnique({
         where: { transactionId },
       });
@@ -189,7 +196,6 @@ export const POST = async (req: NextRequest) => {
         });
       }
 
-      // Check Insufficient Funds
       if (bet.gt(userBalance)) {
         console.error(
           `[BALANCE ERROR] Insufficient balance. Bet: ${bet.toString()}, Available: ${userBalance.toString()}`,
@@ -206,11 +212,9 @@ export const POST = async (req: NextRequest) => {
         );
       }
 
-      // Calculate Net Balance Change
       const netAmount = win.sub(bet);
       const newBalance = userBalance.add(netAmount);
 
-      // Determine Transaction Type
       let txType: "BET" | "WIN" | "BET_WIN" = "BET";
       if (bet.gt(0) && win.gt(0)) txType = "BET_WIN";
       else if (win.gt(0)) txType = "WIN";
@@ -220,7 +224,6 @@ export const POST = async (req: NextRequest) => {
       );
 
       await db.$transaction(async (tx) => {
-        // Ensure GameSession exists or create it
         if (sessionid) {
           console.log(
             `[DB TRANSACTION] Upserting SportsGameSession: '${sessionid}'`,
@@ -237,7 +240,6 @@ export const POST = async (req: NextRequest) => {
           });
         }
 
-        // Update Wallet Balance
         console.log(
           `[DB TRANSACTION] Updating balance for User ID: ${user.id} -> ${newBalance.toString()}`,
         );
@@ -246,7 +248,6 @@ export const POST = async (req: NextRequest) => {
           data: { balance: newBalance },
         });
 
-        // Create Betting Record
         console.log(
           `[DB TRANSACTION] Creating BettingRecordSports for TxID: '${transactionId}'`,
         );
@@ -289,7 +290,6 @@ export const POST = async (req: NextRequest) => {
         where: { transactionId },
       });
 
-      // If missing or already cancelled, safely return current balance
       if (!existingTx || existingTx.status === "CANCELLED") {
         console.warn(
           `[CMD: rollback] Transaction '${transactionId}' ${!existingTx ? "not found" : "already CANCELLED"}. No changes made.`,
@@ -303,7 +303,6 @@ export const POST = async (req: NextRequest) => {
         });
       }
 
-      // Refund the original bet amount
       const refundedBalance = userBalance.add(existingTx.betAmount);
       console.log(
         `[CMD: rollback] Refunding bet amount: ${existingTx.betAmount.toString()} | New Balance: ${refundedBalance.toString()}`,
@@ -316,7 +315,6 @@ export const POST = async (req: NextRequest) => {
           data: { balance: refundedBalance },
         });
 
-        // Mark existing record as CANCELLED and log rollback details
         console.log(
           `[DB TRANSACTION] Updating transaction '${transactionId}' status to CANCELLED`,
         );
@@ -328,7 +326,6 @@ export const POST = async (req: NextRequest) => {
           },
         });
 
-        // Optionally create an audit trail entry for rollback
         const auditTxId = `rb_${transactionId}`;
         console.log(
           `[DB TRANSACTION] Creating rollback audit record with TxID: '${auditTxId}'`,
@@ -356,7 +353,7 @@ export const POST = async (req: NextRequest) => {
       return createAndLogResponse({
         status: "success",
         error: "",
-        login: user.playerId,
+        login: refundedBalance.toNumber(),
         balance: refundedBalance.toNumber(),
         currency: userCurrency,
       });
@@ -374,4 +371,41 @@ export const POST = async (req: NextRequest) => {
       400,
     );
   }
+}
+
+// POST Route Export
+export const POST = async (req: NextRequest) => {
+  const rawBodyText = await req.text();
+  let payload = {};
+  try {
+    payload = JSON.parse(rawBodyText || "{}");
+  } catch {
+    console.error("[PARSER ERROR] Failed to parse JSON body");
+  }
+
+  return handleWebhook(req, payload, rawBodyText, "POST");
+};
+
+// GET Route Export
+export const GET = async (req: NextRequest) => {
+  const searchParams = req.nextUrl.searchParams;
+  const payload: Record<string, any> = {};
+
+  // Convert URL SearchParams into standard payload object
+  searchParams.forEach((value, key) => {
+    if (key !== "signature") {
+      if (value === "true") payload[key] = true;
+      else if (value === "false") payload[key] = false;
+      else payload[key] = value;
+    }
+  });
+
+  // Re-build canonical query string for HMAC verification if needed
+  const rawTextToSign = Array.from(searchParams.entries())
+    .filter(([key]) => key !== "signature")
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}=${v}`)
+    .join("&");
+
+  return handleWebhook(req, payload, rawTextToSign, "GET");
 };

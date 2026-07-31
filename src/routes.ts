@@ -12,7 +12,6 @@ export const authRoutes = ["/register", "/login", "/forgot-password"];
  */
 export const publicRoutes = [
   "/",
-  "/sports",
   "/bet-slip",
   "/api/asiaapi",
   "/api/game/32328e87f8592ed205bbaa065dbacce4",
