@@ -27,7 +27,7 @@ export async function POST() {
       language: "en",
       player_login: userLoginId,
       user_id: "6712031e-2632-4b4c-9226-8e19215a4ebb",
-      callbackUrl: "https://example.com/callback",
+      callbackUrl: "https://www.winparibet.com/api/gregmorn/callbacks",
       //   ip: userIp,
     };
 
