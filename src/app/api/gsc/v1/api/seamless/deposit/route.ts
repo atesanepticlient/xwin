@@ -17,7 +17,14 @@ import {
 import { accpectedCurrency, generateGSCPlatformSignature } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import pMap from "p-map";
-
+function toBaseAmount(amount: number, ratio: number): number {
+  return amount * ratio;
+}
+function getCurrencyRatio(currency: string): number {
+  if (/2$/.test(currency)) return 1000;
+  if (/3$/.test(currency)) return 100;
+  return 1;
+}
 export const POST = async (req: NextRequest) => {
   try {
     // ── 1. Parse body ──────────────────────────────────────────────────────────
@@ -187,6 +194,8 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    const ratio = getCurrencyRatio(currency);
+
     // ── 4. Env vars ────────────────────────────────────────────────────────────
     const MEMBER_OP_CODE = process.env.GSC_OPERATOR_CODE!;
     const SECRET_KEY = process.env.GSC_SECRET_KEY!;
@@ -288,7 +297,7 @@ export const POST = async (req: NextRequest) => {
           await pMap(transactions, async (tx: any) => {
             const action = tx.action?.toUpperCase();
             console.log({ tx: transactions, action });
-
+            const baseAmount = toBaseAmount(Number(tx.amount), ratio);
             if (action === "BET") {
               const result = await placeBet({
                 wagerCode: tx.wager_code,

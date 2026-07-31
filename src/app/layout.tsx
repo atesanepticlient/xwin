@@ -7,6 +7,8 @@ import { Suspense } from "react";
 import StoreProvider from "./StoreProvider";
 import GamesLoader from "./GamesLoader";
 import Intro from "./intro";
+import InternetStatus from "@/components/InternetStatus";
+import { InternetProvider } from "./internet-provider";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -47,7 +49,10 @@ export default async function RootLayout({
         <Suspense>
           <SessionProvider session={session}>
             <StoreProvider>
-              {children}
+              <InternetProvider>
+                <InternetStatus />
+                {children}
+              </InternetProvider>
               <Intro />
               <GamesLoader />
             </StoreProvider>
