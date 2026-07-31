@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import Header from "@/components/landing/headers/Header";
 import TabBar from "@/components/landing/TabBar";
 import { useOpenGame } from "@/store/useStore";
@@ -9,13 +9,43 @@ import { useSearchParams } from "next/navigation";
 
 export default function GamePage() {
   const searchParams = useSearchParams();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [needsCookiePermission, setNeedsCookiePermission] = useState(false);
+
   const { gameUrl, loading, error, fetchGame } = useOpenGame();
 
   useEffect(() => {
     fetchGame();
   }, [fetchGame]);
 
+  // Check if third-party cookies/storage are restricted on this device (iOS/Android)
+  useEffect(() => {
+    if (typeof document !== "undefined" && "hasStorageAccess" in document) {
+      document.hasStorageAccess().then((hasAccess) => {
+        if (!hasAccess) {
+          setNeedsCookiePermission(true);
+        }
+      });
+    }
+  }, []);
+
+  const handleGrantAccess = async () => {
+    if (typeof document !== "undefined" && "requestStorageAccess" in document) {
+      try {
+        await document.requestStorageAccess();
+        setNeedsCookiePermission(false);
+        // Reload iframe to send stored cookies
+        if (iframeRef.current) {
+          iframeRef.current.src = iframeRef.current.src;
+        }
+      } catch (err) {
+        console.error("Storage access permission denied:", err);
+      }
+    }
+  };
+
   const type = searchParams.get("type");
+  // Uses your EXACT original getSportsUrl logic outputting https://sportshub-custom001.network/...
   const iframeUrl = getSportsUrl(
     gameUrl,
     type === "live" || type === "line" ? type : "",
@@ -42,12 +72,32 @@ export default function GamePage() {
       <Header />
 
       <main className="flex-1 w-full relative">
+        {/* Mobile Safari/Chrome Cookie Overlay */}
+        {needsCookiePermission && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90 p-6 text-center text-white">
+            <p className="mb-4 text-sm font-medium">
+              Mobile browsers require permission to enable session cookies for
+              the sports provider.
+            </p>
+            <button
+              onClick={handleGrantAccess}
+              className="px-5 py-2.5 bg-yellow-500 text-black font-semibold rounded-lg shadow hover:bg-yellow-400 transition"
+            >
+              Allow Cookies & Start Game
+            </button>
+          </div>
+        )}
+
         <iframe
+          ref={iframeRef}
           src={iframeUrl}
           className="w-full h-full border-0"
           allowFullScreen
           title="Game"
-          allow="fullscreen; autoplay; clipboard-write; encrypted-media"
+          /* Crucial permissions for iOS Safari & Android Chrome */
+          allow="fullscreen; autoplay; clipboard-write; encrypted-media; storage-access"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-storage-access-by-user-activation"
+          referrerPolicy="no-referrer-when-downgrade"
         />
       </main>
 

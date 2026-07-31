@@ -96,16 +96,15 @@ export const generateGuestName = () => {
   const n = randomInt(100000, 999999);
   return { firstName: "Guest", lastName: `${n}` };
 };
+
 export function getSportsUrl(url: string, type?: string | null) {
   if (!url) return url;
 
-  // 1. Create a URL object from the incoming game URL
   const parsed = new URL(url);
 
-  // 2. Default to "live" if type isn't specified or matched
+  // Default to "live"
   const page = type === "line" ? "line" : "live";
 
-  // 3. Replace the URL path segments for live/line
   parsed.pathname = parsed.pathname
     .split("/")
     .map((segment) =>
@@ -113,13 +112,5 @@ export function getSportsUrl(url: string, type?: string | null) {
     )
     .join("/");
 
-  // 4. Replace the external domain with the local Next.js rewrite proxy route
-  const targetDomain = "https://sportshub-custom001.network";
-  const updatedUrlString = parsed.toString();
-
-  if (updatedUrlString.startsWith(targetDomain)) {
-    return updatedUrlString.replace(targetDomain, "/game-proxy");
-  }
-
-  return updatedUrlString;
+  return parsed.toString();
 }
