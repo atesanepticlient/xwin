@@ -71,7 +71,7 @@ export default function GamePage() {
     <div className="flex flex-col h-screen overflow-hidden bg-black">
       <Header />
 
-      <main className="flex-1 w-full relative">
+      <main className="flex-1 w-full relative min-h-0">
         {/* Mobile Safari/Chrome Cookie Overlay */}
         {needsCookiePermission && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90 p-6 text-center text-white">
@@ -91,7 +91,7 @@ export default function GamePage() {
         <iframe
           ref={iframeRef}
           src={iframeUrl}
-          className="w-full h-full border-0"
+          className="w-full h-full border-0 block"
           allowFullScreen
           title="Game"
           /* Crucial permissions for iOS Safari & Android Chrome */
@@ -101,7 +101,10 @@ export default function GamePage() {
         />
       </main>
 
-      <TabBar />
+      {/* Target the wrapper specifically on this page so it occupies layout flow instead of floating over the iframe */}
+      <div className="shrink-0 [&>div]:relative [&>div]:bottom-auto [&>div]:left-0 [&>div]:translate-x-0">
+        <TabBar />
+      </div>
     </div>
   );
 }
