@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { HiBars3 } from "react-icons/hi2";
 import { IoFunnel, IoSwapVertical } from "react-icons/io5";
 import BetHistoryFilterModal from "@/components/account/BetHistoryFilterModal";
+import { cn } from "@/lib/utils";
 
 interface Bet {
   id: string;
@@ -12,21 +13,33 @@ interface Bet {
   name: string | null;
   category: string;
   betAmount: number;
-  profit: number | null;
-  loss: number | null;
+  profileNLoss: number | null;
   status: string;
   orderNo: string | null;
 }
+
+interface Summary {
+  totalStaked: number;
+  netProfitLoss: number;
+  wins: number;
+  losses: number;
+  evens: number;
+}
+
+const OUTCOME_OPTIONS = ["ALL", "WON", "LOST", "EVEN"] as const;
+type Outcome = (typeof OUTCOME_OPTIONS)[number];
 
 export default function BetHistoryPage() {
   const [activeTab, setActiveTab] = useState<"website" | "unsettled">(
     "website",
   );
   const [bets, setBets] = useState<Bet[]>([]);
+  const [summary, setSummary] = useState<Summary | null>(null);
   const [currency, setCurrency] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [outcome, setOutcome] = useState<Outcome>("ALL");
 
   const [dateRange, setDateRange] = useState({
     from: "21/07/2026",
@@ -40,7 +53,6 @@ export default function BetHistoryPage() {
     status: "ALL",
   });
 
-  // Toggle list sorting between latest and oldest
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"));
   };
@@ -52,6 +64,7 @@ export default function BetHistoryPage() {
         const queryParams = new URLSearchParams({
           tab: activeTab,
           sortOrder,
+          outcome,
           ...(filters.startDate && { startDate: filters.startDate }),
           ...(filters.endDate && { endDate: filters.endDate }),
           ...(filters.category !== "ALL" && { category: filters.category }),
@@ -65,6 +78,7 @@ export default function BetHistoryPage() {
 
         if (json.success) {
           setBets(json.data);
+          setSummary(json.summary ?? null);
           if (json.dateRange) {
             setDateRange(json.dateRange);
           }
@@ -80,7 +94,7 @@ export default function BetHistoryPage() {
     };
 
     fetchBetHistory();
-  }, [activeTab, sortOrder, filters]);
+  }, [activeTab, sortOrder, outcome, filters]);
 
   return (
     <>
@@ -130,6 +144,70 @@ export default function BetHistoryPage() {
             </button>
           </div>
 
+          {/* Win/Loss Outcome Pills — hidden on unsettled tab, nothing is settled there */}
+          {activeTab === "website" && (
+            <div className="flex gap-2 overflow-x-auto">
+              {OUTCOME_OPTIONS.map((o) => (
+                <button
+                  key={o}
+                  onClick={() => setOutcome(o)}
+                  className={cn(
+                    "px-3 py-1.5 text-xs rounded-full border whitespace-nowrap transition-colors",
+                    outcome === o
+                      ? o === "WON"
+                        ? "bg-green-600 text-white border-green-600"
+                        : o === "LOST"
+                          ? "bg-red-500 text-white border-red-500"
+                          : "bg-black text-white border-black"
+                      : "bg-white text-gray-600 border-gray-200",
+                  )}
+                >
+                  {o === "ALL"
+                    ? "All"
+                    : o === "WON"
+                      ? "Won"
+                      : o === "LOST"
+                        ? "Lost"
+                        : "Even"}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Summary strip */}
+          {summary && !loading && bets.length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-white rounded-xl p-2.5 shadow-sm">
+                <p className="text-[10px] text-gray-400">Staked</p>
+                <p className="text-sm font-semibold text-gray-900">
+                  {summary.totalStaked.toFixed(2)}
+                </p>
+              </div>
+              <div className="bg-white rounded-xl p-2.5 shadow-sm">
+                <p className="text-[10px] text-gray-400">Net P/L</p>
+                <p
+                  className={cn(
+                    "text-sm font-semibold",
+                    summary.netProfitLoss > 0
+                      ? "text-green-600"
+                      : summary.netProfitLoss < 0
+                        ? "text-red-500"
+                        : "text-gray-900",
+                  )}
+                >
+                  {summary.netProfitLoss > 0 ? "+" : ""}
+                  {summary.netProfitLoss.toFixed(2)}
+                </p>
+              </div>
+              <div className="bg-white rounded-xl p-2.5 shadow-sm">
+                <p className="text-[10px] text-gray-400">W / L</p>
+                <p className="text-sm font-semibold text-gray-900">
+                  {summary.wins} / {summary.losses}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Main Content Area */}
           <div className="bg-white rounded-2xl min-h-[65vh] p-4 flex flex-col items-center justify-center text-center shadow-sm">
             {loading ? (
@@ -145,7 +223,6 @@ export default function BetHistoryPage() {
                 </p>
               </div>
             ) : (
-              /* Render list of bets */
               <div className="w-full space-y-2.5 text-left">
                 {bets.map((bet) => (
                   <div
@@ -159,12 +236,41 @@ export default function BetHistoryPage() {
                       <p className="text-xs text-gray-400">
                         {new Date(bet.createdAt).toLocaleString()}
                       </p>
+                      {bet.orderNo && (
+                        <p className="text-[10px] text-gray-300 mt-0.5">
+                          #{bet.orderNo}
+                        </p>
+                      )}
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-sm text-gray-900">
-                        ${Number(bet.betAmount).toFixed(2)}
+                        Stake: {bet.betAmount.toFixed(2)}
                       </p>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
+                      {bet.profileNLoss != null && bet.status === "SETTLED" ? (
+                        <p
+                          className={cn(
+                            "text-sm font-semibold",
+                            bet.profileNLoss > 0
+                              ? "text-green-600"
+                              : bet.profileNLoss < 0
+                                ? "text-red-500"
+                                : "text-gray-500",
+                          )}
+                        >
+                          {bet.profileNLoss > 0 ? "+" : ""}
+                          {bet.profileNLoss.toFixed(2)}
+                        </p>
+                      ) : null}
+                      <span
+                        className={cn(
+                          "text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider inline-block mt-0.5",
+                          bet.status === "RUNNING"
+                            ? "bg-amber-100 text-amber-700"
+                            : bet.status === "SETTLED"
+                              ? "bg-gray-100 text-gray-600"
+                              : "bg-red-100 text-red-600",
+                        )}
+                      >
                         {bet.status}
                       </span>
                     </div>
@@ -189,7 +295,6 @@ export default function BetHistoryPage() {
             </p>
           </div>
 
-          {/* Filter Modal Trigger Button */}
           <button
             onClick={() => setIsFilterOpen(true)}
             className="bg-[#EAEAEA] hover:bg-gray-200 rounded-xl h-12 w-12 flex items-center justify-center text-gray-800 transition-colors relative"
@@ -202,7 +307,6 @@ export default function BetHistoryPage() {
             )}
           </button>
 
-          {/* Sort Order Toggle Button */}
           <button
             onClick={toggleSortOrder}
             className={`rounded-xl h-12 w-12 flex items-center justify-center transition-colors ${
@@ -217,7 +321,6 @@ export default function BetHistoryPage() {
         </div>
       </div>
 
-      {/* Full-Page Filter Modal */}
       <BetHistoryFilterModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}

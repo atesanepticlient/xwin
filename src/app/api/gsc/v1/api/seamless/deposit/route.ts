@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getGameNameByCode } from "@/lib/games";
 import {
   adjustment,
   betPreserve,
@@ -296,29 +297,31 @@ export const POST = async (req: NextRequest) => {
         const txExecutions = (
           await pMap(transactions, async (tx: any) => {
             const action = tx.action?.toUpperCase();
-            console.log({ tx: transactions, action });
             const baseAmount = toBaseAmount(Number(tx.amount), ratio);
+            const baseBetAmount = toBaseAmount(Number(tx.bet_amount), ratio);
+
             if (action === "BET") {
+              const gameName = getGameNameByCode(tx.game_code);
               const result = await placeBet({
                 wagerCode: tx.wager_code,
                 id: tx.id,
-                amount: tx.amount,
+                amount: baseAmount,
                 roundId: tx.round_id,
-                name: tx.game_code,
+                name: gameName,
                 category: itemGameType,
                 userId: user.id,
               });
               return result;
             } else if (action === "TIP") {
               const result = await getTip({
-                amount: tx.amount,
+                amount: baseAmount,
                 userId: user.id,
               });
               return result;
             } else if (action === "ROLLBACK") {
               const result = await rollback({
                 id: tx.id,
-                amount: tx.amount,
+                amount: baseAmount,
                 userId: user.id,
                 betAmount: tx.bet_amount,
               });
@@ -326,26 +329,26 @@ export const POST = async (req: NextRequest) => {
             } else if (action === "ADJUSTMENT") {
               const result = await adjustment({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
               });
               return result;
             } else if (action == "BET_PRESERVE") {
               const result = await betPreserve({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
               });
               return result;
             } else if (action == "PRESERVE_REFUND") {
               const result = await betPreserveRefund({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
               });
               return result;
             } else if (action == "SETTLED") {
               const result = await settled({
                 userId: user.id,
-                amount: tx.amount,
-                betAmount: tx.bet_amount,
+                amount: baseAmount,
+                betAmount: baseBetAmount,
                 id: tx.id,
                 roundId: tx.round_id,
               });
@@ -353,31 +356,31 @@ export const POST = async (req: NextRequest) => {
             } else if (action == "JACKPOT") {
               const result = await jackPot({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
               });
               return result;
             } else if (action == "BONUS") {
               const result = await bonus({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
               });
               return result;
             } else if (action == "PROMO") {
               const result = await promo({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
               });
               return result;
             } else if (action == "LEADERBOARD") {
               const result = await leaderboardReward({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
               });
               return result;
             } else if (action == "CANCEL") {
               const result = await cancelBet({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
                 id: tx.id,
                 roundId: tx.round_id,
               });
@@ -385,7 +388,7 @@ export const POST = async (req: NextRequest) => {
             } else if (action == "FREEBET") {
               const result = await freeBet({
                 userId: user.id,
-                amount: tx.amount,
+                amount: baseAmount,
               });
               return result;
             }

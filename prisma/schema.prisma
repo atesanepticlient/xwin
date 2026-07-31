@@ -105,8 +105,7 @@ model BettingRecord {
   name       String?
   category   BettingCategory?  @default(SLOT)
   betAmount  Decimal
-  profit     Decimal?
-  loss       Decimal?
+  profitNLoss Decimal?
   status     CasinoBetStatus       @default(RUNNING)
   orderNo    String?
   wagerCode  String?

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getGameNameByCode } from "@/lib/games";
 import {
   adjustment,
   betPreserve,
@@ -303,14 +304,16 @@ export const POST = async (req: NextRequest) => {
             const action = tx.action?.toUpperCase();
             const baseAmount = toBaseAmount(Number(tx.amount), ratio);
             console.log({ tx: transactions, action, baseAmount });
+
             if (action === "BET") {
               console.log({ amount: baseAmount });
+              const gameName = getGameNameByCode(tx.game_code);
               const result = await placeBet({
                 wagerCode: tx.wager_code,
                 id: tx.id,
                 amount: baseAmount,
                 roundId: tx.round_id,
-                name: tx.game_code,
+                name: gameName,
                 category: itemGameType,
                 userId: user.id,
               });

@@ -31,3 +31,10 @@ export const fetchGames = (type: GameTypes, currecny: Currency) => {
 
   return games;
 };
+
+export const getGameNameByCode = (code: string) => {
+  const games = availableGames.list;
+
+  const game = games.find((game: any) => game.game_code == code);
+  return game.game_name;
+};

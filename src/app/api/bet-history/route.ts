@@ -19,9 +19,9 @@ export async function GET(request: Request) {
     const endDate = searchParams.get("endDate");
     const category = searchParams.get("category");
     const status = searchParams.get("status");
+    const outcome = searchParams.get("outcome"); // "ALL" | "WON" | "LOST" | "EVEN"
     const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
-    // Default 7-day range if no custom dates specified
     const now = new Date();
     const defaultStart = new Date();
     defaultStart.setDate(now.getDate() - 7);
@@ -29,7 +29,6 @@ export async function GET(request: Request) {
     const fromDate = startDate ? new Date(startDate) : defaultStart;
     const toDate = endDate ? new Date(endDate) : now;
 
-    // Build Prisma query condition dynamically
     const where: Prisma.BettingRecordWhereInput = {
       userId: user.id,
       createdAt: {
@@ -38,16 +37,24 @@ export async function GET(request: Request) {
       },
     };
 
-    // Tab-level restriction overrides status filter if set to "unsettled"
     if (tab === "unsettled") {
       where.status = CasinoBetStatus.RUNNING;
     } else if (status && status !== "ALL") {
       where.status = status as CasinoBetStatus;
     }
 
-    // Category filtering
     if (category && category !== "ALL") {
       where.category = category as BettingCategory;
+    }
+
+    // Outcome filter: profileNLoss is the net return from the bet.
+    // Positive = won, negative = lost, exactly zero = push/breakeven.
+    if (outcome === "WON") {
+      where.profileNLoss = { gt: 0 };
+    } else if (outcome === "LOST") {
+      where.profileNLoss = { lt: 0 };
+    } else if (outcome === "EVEN") {
+      where.profileNLoss = { equals: 0 };
     }
 
     const bets = await db.bettingRecord.findMany({
@@ -57,9 +64,41 @@ export async function GET(request: Request) {
       },
     });
 
+    // Prisma Decimal doesn't serialize to a plain number automatically in
+    // a shape the frontend can rely on — convert explicitly so the client
+    // gets real numbers, not Decimal-string objects.
+    const data = bets.map((b) => ({
+      id: b.id,
+      createdAt: b.createdAt,
+      name: b.name,
+      category: b.category,
+      betAmount: Number(b.betAmount),
+      profileNLoss: b.profileNLoss != null ? Number(b.profileNLoss) : null,
+      status: b.status,
+      orderNo: b.orderNo,
+    }));
+
+    // Aggregate summary for the current filtered range — total staked,
+    // net profit/loss, win count vs loss count. Lets the UI show a
+    // quick "you're up/down X" without a second round trip.
+    const totals = data.reduce(
+      (acc, b) => {
+        acc.totalStaked += b.betAmount;
+        if (b.profileNLoss != null) {
+          acc.netProfitLoss += b.profileNLoss;
+          if (b.profileNLoss > 0) acc.wins += 1;
+          else if (b.profileNLoss < 0) acc.losses += 1;
+          else acc.evens += 1;
+        }
+        return acc;
+      },
+      { totalStaked: 0, netProfitLoss: 0, wins: 0, losses: 0, evens: 0 },
+    );
+
     return NextResponse.json({
       success: true,
-      data: bets,
+      data,
+      summary: totals,
       currency: user.wallet?.currencyCode ?? "SGD",
       dateRange: {
         from: fromDate.toLocaleDateString("en-GB"),

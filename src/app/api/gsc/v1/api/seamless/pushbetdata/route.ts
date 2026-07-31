@@ -2,6 +2,21 @@ import { db } from "@/lib/db";
 
 import { generateGSCPlatformSignature } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
+function toBaseAmount(amount: number, ratio: number): number {
+  return amount * ratio;
+}
+function getCurrencyRatio(currency: string): number {
+  if (/2$/.test(currency)) return 1000;
+  if (/3$/.test(currency)) return 100;
+  return 1;
+}
+
+function getBaseAmount(currency: string, amount: number): number {
+  const ratio = getCurrencyRatio(currency);
+  const baseAmount = toBaseAmount(Number(amount), ratio);
+
+  return baseAmount;
+}
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -166,8 +181,7 @@ export const POST = async (req: NextRequest) => {
             },
             data: {
               status: "SETTLED",
-              profit: wager.prize_amount > 0 ? wager.prize_amount : 0,
-              loss: wager.prize_amount > 0 ? 0 : wager.bet_amount,
+              profileNLoss: wager.prize_amount,
             },
           }),
         ),
@@ -179,9 +193,7 @@ export const POST = async (req: NextRequest) => {
               roundId: wager.round_id,
             },
             data: {
-              profit: {
-                increment: wager.prize_amount,
-              },
+              profileNLoss: getBaseAmount(wager.currency, wager.prize_amount),
             },
           }),
         ),
@@ -189,7 +201,7 @@ export const POST = async (req: NextRequest) => {
         ...voidBets.map((wager) =>
           tx.bettingRecord.updateMany({
             where: {
-              wagerCode: wager.wager_code,
+              profileNLoss: getBaseAmount(wager.currency, wager.prize_amount),
             },
             data: {
               status: "VOID",
