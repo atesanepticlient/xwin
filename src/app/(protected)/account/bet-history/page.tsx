@@ -13,7 +13,7 @@ interface Bet {
   name: string | null;
   category: string;
   betAmount: number;
-  profileNLoss: number | null;
+  profitNLoss: number | null;
   status: string;
   orderNo: string | null;
 }
@@ -75,7 +75,7 @@ export default function BetHistoryPage() {
           `/api/bet-history?${queryParams.toString()}`,
         );
         const json = await response.json();
-
+        console.log({ json });
         if (json.success) {
           setBets(json.data);
           setSummary(json.summary ?? null);
@@ -246,19 +246,19 @@ export default function BetHistoryPage() {
                       <p className="font-medium text-sm text-gray-900">
                         Stake: {bet.betAmount.toFixed(2)}
                       </p>
-                      {bet.profileNLoss != null && bet.status === "SETTLED" ? (
+                      {bet.profitNLoss != null && bet.status === "SETTLED" ? (
                         <p
                           className={cn(
                             "text-sm font-semibold",
-                            bet.profileNLoss > 0
+                            bet.profitNLoss > 0
                               ? "text-green-600"
-                              : bet.profileNLoss < 0
+                              : bet.profitNLoss < 0
                                 ? "text-red-500"
                                 : "text-gray-500",
                           )}
                         >
-                          {bet.profileNLoss > 0 ? "+" : ""}
-                          {bet.profileNLoss.toFixed(2)}
+                          {bet.profitNLoss > 0 ? "+" : ""}
+                          {bet.profitNLoss.toFixed(2)}
                         </p>
                       ) : null}
                       <span

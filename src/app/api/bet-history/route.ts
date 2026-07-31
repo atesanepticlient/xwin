@@ -50,11 +50,11 @@ export async function GET(request: Request) {
     // Outcome filter: profileNLoss is the net return from the bet.
     // Positive = won, negative = lost, exactly zero = push/breakeven.
     if (outcome === "WON") {
-      where.profileNLoss = { gt: 0 };
+      where.profitNLoss = { gt: 0 };
     } else if (outcome === "LOST") {
-      where.profileNLoss = { lt: 0 };
+      where.profitNLoss = { lt: 0 };
     } else if (outcome === "EVEN") {
-      where.profileNLoss = { equals: 0 };
+      where.profitNLoss = { equals: 0 };
     }
 
     const bets = await db.bettingRecord.findMany({
@@ -73,7 +73,7 @@ export async function GET(request: Request) {
       name: b.name,
       category: b.category,
       betAmount: Number(b.betAmount),
-      profileNLoss: b.profileNLoss != null ? Number(b.profileNLoss) : null,
+      profitNLoss: b.profitNLoss != null ? Number(b.profitNLoss) : null,
       status: b.status,
       orderNo: b.orderNo,
     }));
@@ -84,10 +84,10 @@ export async function GET(request: Request) {
     const totals = data.reduce(
       (acc, b) => {
         acc.totalStaked += b.betAmount;
-        if (b.profileNLoss != null) {
-          acc.netProfitLoss += b.profileNLoss;
-          if (b.profileNLoss > 0) acc.wins += 1;
-          else if (b.profileNLoss < 0) acc.losses += 1;
+        if (b.profitNLoss != null) {
+          acc.netProfitLoss += b.profitNLoss;
+          if (b.profitNLoss > 0) acc.wins += 1;
+          else if (b.profitNLoss < 0) acc.losses += 1;
           else acc.evens += 1;
         }
         return acc;
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
       success: true,
       data,
       summary: totals,
-      currency: user.wallet?.currencyCode ?? "SGD",
+      currency: user.wallet?.currencyCode ?? "BDT",
       dateRange: {
         from: fromDate.toLocaleDateString("en-GB"),
         to: toDate.toLocaleDateString("en-GB"),

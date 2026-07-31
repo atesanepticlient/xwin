@@ -181,7 +181,7 @@ export const POST = async (req: NextRequest) => {
             },
             data: {
               status: "SETTLED",
-              profileNLoss: wager.prize_amount,
+              profitNLoss: wager.prize_amount,
             },
           }),
         ),
@@ -193,7 +193,7 @@ export const POST = async (req: NextRequest) => {
               roundId: wager.round_id,
             },
             data: {
-              profileNLoss: getBaseAmount(wager.currency, wager.prize_amount),
+              profitNLoss: getBaseAmount(wager.currency, wager.prize_amount),
             },
           }),
         ),
@@ -201,7 +201,7 @@ export const POST = async (req: NextRequest) => {
         ...voidBets.map((wager) =>
           tx.bettingRecord.updateMany({
             where: {
-              profileNLoss: getBaseAmount(wager.currency, wager.prize_amount),
+              profitNLoss: getBaseAmount(wager.currency, wager.prize_amount),
             },
             data: {
               status: "VOID",

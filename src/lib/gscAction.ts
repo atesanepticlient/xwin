@@ -73,7 +73,7 @@ export const rollback = async ({
         // only used to decide increment vs decrement, never passed through
         // directly, so a mis-signed `amount` can't flip the direction.
         updateWallet.balance = { increment: absAmount };
-        updateBettingRecord.profileNLoss = amount;
+        updateBettingRecord.profitNLoss = amount;
       } else {
         updateWallet.balance = { decrement: absAmount };
       }
@@ -509,7 +509,7 @@ export const settled = async ({
           status: "SETTLED",
           // Profit/loss reporting keeps the signed amount so a loss (0
           // prize) still nets out correctly against betAmount.
-          profileNLoss: amount,
+          profitNLoss: amount,
         },
       });
     } catch {
