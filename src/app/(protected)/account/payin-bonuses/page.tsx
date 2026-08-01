@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { Dices, X } from "lucide-react";
 import PageHeader from "@/components/page-header";
 
-// Soccer ball SVG
 const SoccerBallIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -31,15 +30,21 @@ interface PayinBonus {
   userId: string;
 }
 
+interface BonusSetting {
+  firstPayinUpTo?: number | string;
+  inviationCodeUpTo?: number | string;
+}
+
 export default function PayinBonusSelectionPage() {
   const [bonuses, setBonuses] = useState<PayinBonus[]>([]);
+  const [setting, setSetting] = useState<BonusSetting | null>(null);
+  const [currency, setCurrency] = useState<string>("USD");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const isDirtyRef = useRef(false);
 
-  // Helper check for disabled state
   const isBonusDisabled = useCallback((bonus: PayinBonus) => {
     const isExpired = bonus.expiry
       ? new Date(bonus.expiry) < new Date()
@@ -60,9 +65,10 @@ export default function PayinBonusSelectionPage() {
         const data = await res.json();
         if (data.bonuses) {
           setBonuses(data.bonuses);
+          if (data.setting) setSetting(data.setting);
+          if (data.currency) setCurrency(data.currency);
 
           if (isInitial || !isDirtyRef.current) {
-            // Find an active bonus that is NOT disabled
             const active = data.bonuses.find(
               (b: PayinBonus) => b.isActive && !isBonusDisabled(b),
             );
@@ -115,19 +121,48 @@ export default function PayinBonusSelectionPage() {
     fetchBonuses(true);
   };
 
+  // Strict mapping driven directly by `PayinBonusType` enum
   const getBonusContent = (bonus: PayinBonus) => {
-    if (bonus.type === "FIRST_PAYIN") {
-      return {
-        title: "First Deposit bonus",
-        description: `First deposit bonus up to 100 USD`,
-        Icon: SoccerBallIcon,
-      };
+    const rawVal = Number(bonus.percentage) || 0;
+    // Format raw decimal ratio (e.g. 0.5 -> 50%)
+    const formattedPercent = rawVal <= 1 && rawVal > 0 ? rawVal * 100 : rawVal;
+
+    switch (bonus.type) {
+      case "FIRST_PAYIN": {
+        const upTo = setting?.firstPayinUpTo
+          ? Number(setting.firstPayinUpTo)
+          : null;
+
+        return {
+          title: "First Deposit Bonus",
+          description: `${formattedPercent}% First deposit bonus${
+            upTo ? ` up to ${upTo} ${currency}` : ""
+          }`,
+          Icon: SoccerBallIcon,
+        };
+      }
+
+      case "INVITATION": {
+        const upTo = setting?.inviationCodeUpTo
+          ? Number(setting.inviationCodeUpTo)
+          : null;
+
+        return {
+          title: "Invitation Code Bonus",
+          description: `${formattedPercent}% Invitation deposit bonus${
+            upTo ? ` up to ${upTo} ${currency}` : ""
+          }`,
+          Icon: Dices,
+        };
+      }
+
+      default:
+        return {
+          title: "Deposit Bonus",
+          description: `${formattedPercent}% bonus`,
+          Icon: SoccerBallIcon,
+        };
     }
-    return {
-      title: "Casino + XPARI Games",
-      description: `Welcome package up to 50 USD + 150 FS`,
-      Icon: Dices,
-    };
   };
 
   if (loading) {
@@ -146,7 +181,6 @@ export default function PayinBonusSelectionPage() {
 
       <div className="bg-white rounded-xl p-3 shadow-sm border border-neutral-100">
         <div className="space-y-3">
-          {/* Dynamic Database Bonus Options */}
           {bonuses.map((bonus) => {
             const isDisabled = isBonusDisabled(bonus);
             const isSelected = selectedId === bonus.id && !isDisabled;
@@ -171,7 +205,6 @@ export default function PayinBonusSelectionPage() {
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  {/* Circular Icon Wrapper */}
                   <div
                     className={`w-12 h-12 rounded-full border flex items-center justify-center shrink-0 ${
                       isDisabled
@@ -184,7 +217,6 @@ export default function PayinBonusSelectionPage() {
                     <Icon className="w-7 h-7 stroke-[1.5]" />
                   </div>
 
-                  {/* Vertical Divider Line & Text */}
                   <div
                     className={`border-l pl-3 my-0.5 ${
                       isDisabled
@@ -202,7 +234,6 @@ export default function PayinBonusSelectionPage() {
                       >
                         {title}
                       </h4>
-                      {/* Disabled Badges */}
                       {isClaimed && (
                         <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-1.5 py-0.5 rounded">
                           Claimed
@@ -228,7 +259,6 @@ export default function PayinBonusSelectionPage() {
                   </div>
                 </div>
 
-                {/* Custom Radio Circle */}
                 <div className="pr-1">
                   <div
                     className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
@@ -248,7 +278,7 @@ export default function PayinBonusSelectionPage() {
             );
           })}
 
-          {/* Reject / Opt-Out Option */}
+          {/* Reject / No Bonus Option */}
           <div
             onClick={() => handleSelect(null)}
             className={`flex items-center justify-between px-3.5 py-2 rounded-xl border transition-all cursor-pointer ${
@@ -294,7 +324,6 @@ export default function PayinBonusSelectionPage() {
               </div>
             </div>
 
-            {/* Custom Radio Circle */}
             <div className="pr-1">
               <div
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
@@ -311,16 +340,12 @@ export default function PayinBonusSelectionPage() {
           </div>
         </div>
 
-        {/* Bullet Points */}
         <ul className="mt-6 space-y-2.5 text-[11px] text-neutral-700 leading-relaxed px-1">
           <li className="flex gap-2 items-start">
             <span className="text-neutral-800 text-xs font-bold">•</span>
             <span>
               Bettors are entitled to participate in the company’s other bonus
-              offers, regardless of the chosen bonus type (i.e. casino or
-              sport). This does not include offers on a deposit which involve
-              the wagering of bonus funds by placing bets of a certain type i.e.
-              bets on sports events or slots.
+              offers, regardless of the chosen bonus type.
             </span>
           </li>
           <li className="flex gap-2 items-start">
@@ -333,7 +358,6 @@ export default function PayinBonusSelectionPage() {
         </ul>
       </div>
 
-      {/* Sticky Bottom Actions */}
       <div className="fixed bottom-0 left-0 w-full flex items-center gap-3 bg-white py-2 px-3 border-t shadow-[0_-4px_12px_rgba(0,0,0,0.08)] z-10">
         <button
           type="button"

@@ -2,6 +2,7 @@ import { currencies } from "@/data/currency";
 import { findUserPlayerId } from "@/data/user";
 import { db } from "./db";
 import { randomBytes, randomInt } from "crypto";
+import { Prisma } from "@prisma/client";
 export const playerIdGenerate = async () => {
   let id;
   let hasUser = true;
@@ -119,4 +120,18 @@ export function getSportsUrl(url: string, type?: string | null) {
     .join("/");
 
   return parsed.toString();
+}
+export function calculateBonus(
+  amount: number,
+  percentage: number | Prisma.Decimal,
+  upTo: number | Prisma.Decimal,
+): number {
+  const percent = Number(percentage);
+  const maxBonus = Number(upTo);
+
+  // Calculate bonus
+  const bonus = amount * percent;
+
+  // Don't exceed the maximum bonus
+  return Math.min(bonus, maxBonus);
 }

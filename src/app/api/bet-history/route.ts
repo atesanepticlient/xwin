@@ -13,7 +13,7 @@ const getOutcome = (
   betAmount: number,
   profitNLoss: number | null,
 ): Outcome => {
-  if (status !== "SETTLED" || profitNLoss == null) return null;
+  if (status !== CasinoBetStatus.SETTLED || profitNLoss == null) return null;
   if (profitNLoss > betAmount) return "WON";
   if (profitNLoss === betAmount) return "DRAW";
   return "LOST";
@@ -42,10 +42,7 @@ export async function GET(request: Request) {
       | "DRAW";
     const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
-    // Default window widened to 90 days so we stop silently excluding
-    // data that's older than a week. If startDate/endDate are sent but
-    // unparseable, fall back instead of passing Invalid Date to Prisma
-    // (which can silently produce zero matches).
+    // Set dynamic default date range (Last 90 Days)
     const now = new Date();
     const defaultStart = new Date();
     defaultStart.setDate(now.getDate() - 90);
@@ -60,7 +57,6 @@ export async function GET(request: Request) {
     if (endDateParam) {
       const parsed = new Date(endDateParam);
       if (!isNaN(parsed.getTime())) {
-        // include the entire end day, not just 00:00:00
         parsed.setHours(23, 59, 59, 999);
         toDate = parsed;
       }
@@ -93,6 +89,8 @@ export async function GET(request: Request) {
       const betAmount = Number(b.betAmount);
       const profitNLoss = b.profitNLoss != null ? Number(b.profitNLoss) : null;
       const outcome = getOutcome(b.status, betAmount, profitNLoss);
+
+      // Calculate net return (Payout - Bet Amount)
       const net = profitNLoss != null ? profitNLoss - betAmount : null;
 
       return {
@@ -111,10 +109,12 @@ export async function GET(request: Request) {
       };
     });
 
+    // Apply the Outcome filter after outcome evaluation
     if (outcomeFilter !== "ALL") {
       data = data.filter((b) => b.outcome === outcomeFilter);
     }
 
+    // Calculate Summary Stats
     const summary = data.reduce(
       (acc, b) => {
         acc.totalStaked += b.betAmount;
@@ -129,28 +129,14 @@ export async function GET(request: Request) {
       { totalStaked: 0, netProfitLoss: 0, wins: 0, losses: 0, draws: 0 },
     );
 
-    // Debug trail — visible in your server terminal (not sent to browser)
-    // so you can see exactly what was queried without guessing.
-    console.log("[bet-history]", {
-      userId: user.id,
-      tab,
-      status,
-      category,
-      outcomeFilter,
-      fromDate,
-      toDate,
-      rawCount: rawBets.length,
-      filteredCount: data.length,
-    });
-
     return NextResponse.json({
       success: true,
       data,
       summary,
       currency: user.wallet?.currencyCode ?? "SGD",
       dateRange: {
-        from: fromDate.toLocaleDateString("en-GB"),
-        to: toDate.toLocaleDateString("en-GB"),
+        from: fromDate.toISOString().split("T")[0],
+        to: toDate.toISOString().split("T")[0],
       },
     });
   } catch (error) {

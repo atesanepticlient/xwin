@@ -12,11 +12,16 @@ const InternetContext = createContext<InternetContextType>({
 });
 
 export function InternetProvider({ children }: { children: React.ReactNode }) {
-  const [isOnline, setIsOnline] = useState(true);
+  // Lazy initializer runs synchronously on the client during the first
+  // render — before any child component function is ever invoked. This
+  // matters: it lets InternetGate (below) decide not to render {children}
+  // at all on an offline first load, instead of mounting the app for one
+  // tick and firing off auth/data fetches before we get a chance to react.
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator !== "undefined" ? navigator.onLine : true,
+  );
 
   useEffect(() => {
-    setIsOnline(navigator.onLine);
-
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 

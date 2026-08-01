@@ -20,8 +20,8 @@ interface FilterModalProps {
   onResetFilters: () => void;
 }
 
-// Matches BettingCategory enum exactly.
 const CATEGORIES = [
+  { id: "ALL", label: "All Categories" },
   { id: "SPORTS", label: "Sports" },
   { id: "LIVE_CASINO", label: "Live Casino" },
   { id: "SLOT", label: "Slot" },
@@ -50,26 +50,34 @@ export default function BetHistoryFilterModal({
   onClose,
   filters,
   onApplyFilters,
+  onResetFilters,
 }: FilterModalProps) {
-  const [startDate, setStartDate] = useState(filters.startDate || "2026-07-21");
-  const [endDate, setEndDate] = useState(filters.endDate || "2026-07-27");
+  // Compute standard 30-day default dates dynamically
+  const defaultEndDate = new Date().toISOString().split("T")[0];
+  const defaultStartDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0];
+
+  const [startDate, setStartDate] = useState(
+    filters.startDate || defaultStartDate,
+  );
+  const [endDate, setEndDate] = useState(filters.endDate || defaultEndDate);
   const [category, setCategory] = useState(filters.category || "ALL");
   const [status, setStatus] = useState(filters.status || "ALL");
   const [outcome, setOutcome] = useState(filters.outcome || "ALL");
 
   useEffect(() => {
-    if (filters.startDate) setStartDate(filters.startDate);
-    if (filters.endDate) setEndDate(filters.endDate);
-    if (filters.category) setCategory(filters.category);
-    if (filters.status) setStatus(filters.status);
-    if (filters.outcome) setOutcome(filters.outcome);
+    setStartDate(filters.startDate || defaultStartDate);
+    setEndDate(filters.endDate || defaultEndDate);
+    setCategory(filters.category || "ALL");
+    setStatus(filters.status || "ALL");
+    setOutcome(filters.outcome || "ALL");
   }, [filters]);
 
   const [openSections, setOpenSections] = useState({
     period: true,
-    betType: false,
-    betStatus: false,
     outcome: true,
+    betStatus: false,
     gameType: true,
   });
 
@@ -79,10 +87,6 @@ export default function BetHistoryFilterModal({
 
   const handleApply = () => {
     onApplyFilters({ startDate, endDate, category, status, outcome });
-    onClose();
-  };
-
-  const handleCancel = () => {
     onClose();
   };
 
@@ -104,20 +108,28 @@ export default function BetHistoryFilterModal({
           isOpen ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <header className="top-0 left-0 sticky flex px-3 items-center gap-3 bg-[#333333] text-white h-14 z-10 shadow-md">
+        <header className="top-0 left-0 sticky flex px-3 items-center justify-between bg-[#333333] text-white h-14 z-10 shadow-md">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#444444] hover:bg-[#555555] text-white transition-colors"
+            >
+              <FaArrowLeft className="w-4 h-4" />
+            </button>
+            <h2 className="text-base font-bold uppercase tracking-wider">
+              FILTERS
+            </h2>
+          </div>
           <button
-            onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#444444] hover:bg-[#555555] text-white transition-colors"
+            onClick={onResetFilters}
+            className="text-xs text-gray-300 hover:text-white underline font-medium"
           >
-            <FaArrowLeft className="w-4 h-4" />
+            Reset
           </button>
-          <h2 className="text-base font-bold uppercase tracking-wider">
-            FILTERS
-          </h2>
         </header>
 
         <div className="p-3 flex-1 space-y-3 overflow-y-auto">
-          {/* 1. Period bets placed */}
+          {/* Period Filter */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
             <button
               type="button"
@@ -134,11 +146,7 @@ export default function BetHistoryFilterModal({
 
             {openSections.period && (
               <div className="px-4 pb-4 space-y-3 pt-1 border-t border-gray-100">
-                <div className="bg-[#F8F8F8] text-gray-700 text-xs py-2.5 px-3 rounded-lg">
-                  Maximum period: 31 days.
-                </div>
-
-                <div className="relative border border-gray-300 rounded-xl px-3 py-2 focus-within:border-gray-800 transition-colors">
+                <div className="relative border border-gray-300 rounded-xl px-3 py-2">
                   <label className="block text-[10px] text-gray-400 font-medium">
                     Start date
                   </label>
@@ -153,9 +161,9 @@ export default function BetHistoryFilterModal({
                   </div>
                 </div>
 
-                <div className="relative border border-gray-300 rounded-xl px-3 py-2 focus-within:border-gray-800 transition-colors">
+                <div className="relative border border-gray-300 rounded-xl px-3 py-2">
                   <label className="block text-[10px] text-gray-400 font-medium">
-                    Expiration date
+                    End date
                   </label>
                   <div className="flex items-center justify-between">
                     <input
@@ -171,23 +179,7 @@ export default function BetHistoryFilterModal({
             )}
           </div>
 
-          {/* 2. Bet type (placeholder, unchanged) */}
-          <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
-            <button
-              type="button"
-              onClick={() => toggleSection("betType")}
-              className="w-full flex items-center justify-between p-4 text-left font-bold text-gray-800 text-[15px]"
-            >
-              <span>Bet type</span>
-              {openSections.betType ? (
-                <IoChevronUp className="w-5 h-5 text-gray-700" />
-              ) : (
-                <IoChevronDown className="w-5 h-5 text-gray-700" />
-              )}
-            </button>
-          </div>
-
-          {/* 3. Outcome — Won / Lost / Draw */}
+          {/* Outcome Filter */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
             <button
               type="button"
@@ -229,48 +221,7 @@ export default function BetHistoryFilterModal({
             )}
           </div>
 
-          {/* 4. Bet status */}
-          <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
-            <button
-              type="button"
-              onClick={() => toggleSection("betStatus")}
-              className="w-full flex items-center justify-between p-4 text-left font-bold text-gray-800 text-[15px]"
-            >
-              <span>Bet status</span>
-              {openSections.betStatus ? (
-                <IoChevronUp className="w-5 h-5 text-gray-700" />
-              ) : (
-                <IoChevronDown className="w-5 h-5 text-gray-700" />
-              )}
-            </button>
-
-            {openSections.betStatus && (
-              <div className="px-4 pb-4 space-y-3 pt-2 border-t border-gray-100">
-                {STATUSES.map((st) => (
-                  <label
-                    key={st.id}
-                    onClick={() => setStatus(st.id)}
-                    className="flex items-center gap-3 cursor-pointer py-1"
-                  >
-                    <div
-                      className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-                        status === st.id
-                          ? "bg-black border-black text-white"
-                          : "border-gray-400 bg-white"
-                      }`}
-                    >
-                      {status === st.id && <FaCheck className="w-3 h-3" />}
-                    </div>
-                    <span className="text-sm font-medium text-gray-800">
-                      {st.label}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 5. Game type / Category */}
+          {/* Game Type Filter */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
             <button
               type="button"
@@ -287,29 +238,26 @@ export default function BetHistoryFilterModal({
 
             {openSections.gameType && (
               <div className="px-4 pb-4 space-y-3 pt-2 border-t border-gray-100">
-                {CATEGORIES.map((cat) => {
-                  const isChecked = category === cat.id;
-                  return (
-                    <label
-                      key={cat.id}
-                      onClick={() => setCategory(cat.id)}
-                      className="flex items-center gap-3 cursor-pointer py-1"
+                {CATEGORIES.map((cat) => (
+                  <label
+                    key={cat.id}
+                    onClick={() => setCategory(cat.id)}
+                    className="flex items-center gap-3 cursor-pointer py-1"
+                  >
+                    <div
+                      className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                        category === cat.id
+                          ? "bg-[#333333] border-[#333333] text-white"
+                          : "border-gray-400 bg-white"
+                      }`}
                     >
-                      <div
-                        className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-                          isChecked
-                            ? "bg-[#333333] border-[#333333] text-white"
-                            : "border-gray-400 bg-white"
-                        }`}
-                      >
-                        {isChecked && <FaCheck className="w-3 h-3" />}
-                      </div>
-                      <span className="text-sm font-medium text-gray-800">
-                        {cat.label}
-                      </span>
-                    </label>
-                  );
-                })}
+                      {category === cat.id && <FaCheck className="w-3 h-3" />}
+                    </div>
+                    <span className="text-sm font-medium text-gray-800">
+                      {cat.label}
+                    </span>
+                  </label>
+                ))}
               </div>
             )}
           </div>
@@ -317,7 +265,7 @@ export default function BetHistoryFilterModal({
 
         <div className="p-3 bg-white border-t border-gray-200 flex items-center gap-3">
           <button
-            onClick={handleCancel}
+            onClick={onClose}
             className="flex-1 py-3 text-sm font-bold uppercase rounded-xl bg-[#EBEBEB] hover:bg-gray-200 text-gray-800 transition-colors"
           >
             CANCEL

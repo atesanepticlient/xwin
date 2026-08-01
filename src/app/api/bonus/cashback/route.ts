@@ -10,12 +10,21 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const cashbacks = await db.cashback.findMany({
-      where: { userId: user.id },
-      orderBy: { id: "desc" },
-    });
+    const [cashbacks, wallet] = await Promise.all([
+      db.cashback.findMany({
+        where: { userId: user.id },
+        orderBy: { id: "desc" },
+      }),
+      db.wallet.findUnique({
+        where: { userId: user.id },
+        select: { currencyCode: true },
+      }),
+    ]);
 
-    return NextResponse.json({ cashbacks });
+    return NextResponse.json({
+      cashbacks,
+      currencyCode: wallet?.currencyCode ?? null,
+    });
   } catch (error) {
     console.error("Fetch Cashback Error:", error);
     return NextResponse.json(
@@ -87,6 +96,8 @@ export async function POST(req: Request) {
     }
 
     // 3. Process the claim atomically inside a transaction
+    let currencyCode: string | null = null;
+
     await db.$transaction(async (tx) => {
       // Mark as claimed
       await tx.cashback.update({
@@ -95,25 +106,30 @@ export async function POST(req: Request) {
       });
 
       // Credit the bonus wallet
-      await tx.wallet.update({
+      const wallet = await tx.wallet.update({
         where: { userId: user.id },
-
         data: {
           balance: { increment: claimAmount },
           //   turnOver: { increment: claimAmount * 1 },
         },
       });
 
+      currencyCode = wallet.currencyCode;
+
       // Notify user
       await tx.message.create({
         data: {
-          title: `You have successfully claimed ${claimAmount} BDT cashback!`,
+          title: `You have successfully claimed ${claimAmount} ${wallet.currencyCode} cashback!`,
           user: { connect: { id: user.id } },
         },
       });
     });
 
-    return NextResponse.json({ success: true, claimedId: cashbackId });
+    return NextResponse.json({
+      success: true,
+      claimedId: cashbackId,
+      currencyCode,
+    });
   } catch (error) {
     console.error("Claim Cashback Error:", error);
     return NextResponse.json(

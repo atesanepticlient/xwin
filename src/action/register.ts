@@ -168,45 +168,36 @@ async function createUserAndApplyBonus(args: {
         percentage: firstPayinBonusPercentage,
         type: "FIRST_PAYIN",
         expiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        isActive: false,
       },
     });
   }
 
   if (promo) {
     const promoUser = await db.users.findFirst({
-      where: { referId: promo },
+      where: { referId: promo, wallet: { currencyCode: currencyCode } },
       include: { referral: true },
     });
 
     if (promoUser) {
       // 1. Link referral relationships
-      await db.$transaction([
-        db.referral.update({
-          where: { userId: promoUser.id },
-          data: { referredUsers: { connect: { id: newUser.id } } },
-        }),
-        db.users.update({
-          where: { id: newUser.id },
-          data: { referral: { connect: { id: promoUser.referral!.id } } },
-        }),
-      ]);
+      await db.users.update({
+        where: {
+          id: newUser.id,
+        },
+        data: {
+          referredBy: {
+            connect: {
+              id: promoUser.referral!.id,
+            },
+          },
+        },
+      });
 
       // 2. Fetch bonus setting to get default amount if needed
       const bonusSetting = await db.bonusSetting.findFirst();
 
-      // 3. Create unclaimed, unclaimable cashback for the referrer
-      await db.cashback.create({
-        data: {
-          userId: promoUser.id,
-          type: "INVITATION",
-          amount: bonusSetting?.inviationCode ?? null, // Can be null or updated later
-          expiry: null, // Admin will set expiry later when making claimable: true
-          hasClaimed: false,
-          claimable: false, // Initially false until activated
-        },
-      });
-
-      // 4. Send message notification
+      // 3. Send message notification
       await db.message.create({
         data: {
           title: "You earned an Invitation Cashback! Check your bonus page.",
@@ -214,14 +205,15 @@ async function createUserAndApplyBonus(args: {
         },
       });
 
-      const inviteBonusPercentage = bonusSetting?.inviationCode;
-      // 5. Send bonus for new user
+      const referPayingBonusPercentage = bonusSetting?.referPayin;
+      // 4. Send bonus for new user
       await db.payinBonus.create({
         data: {
           user: { connect: { id: newUser.id } },
-          percentage: inviteBonusPercentage,
+          percentage: referPayingBonusPercentage,
           type: "INVITATION",
           expiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          isActive: false,
         },
       });
     }

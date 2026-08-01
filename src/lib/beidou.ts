@@ -25,7 +25,7 @@ export interface CreatePaymentParams {
   bnkCode?: string;
   payType: string | number;
   remark?: string;
-    transAmt: string | number;
+  transAmt: string | number;
 }
 
 export const CONFIG: BeiDouConfig = {
@@ -79,4 +79,42 @@ export async function postJson<T = Record<string, unknown>>(
     throw new Error(`BeiDou error [${data.code}] on ${path}: ${data.msg}`);
   }
   return data;
+}
+
+export function verifySignature(
+  searchParams: URLSearchParams,
+  secretKey: string,
+): boolean {
+  const params: Record<string, string> = {};
+
+  // Extract all query params (including empty ones like remark="")
+  searchParams.forEach((value, key) => {
+    params[key] = value;
+  });
+
+  const receivedSign = params["sign"] || "";
+
+  // 1. Sort all keys alphabetically in ASCII order, excluding ONLY 'sign'
+  const sortedKeys = Object.keys(params)
+    .filter((key) => key !== "sign")
+    .sort();
+
+  // 2. Build string: "key1=val1&key2=val2&...&"
+  let stringA = "";
+  for (const key of sortedKeys) {
+    const value = params[key] ?? "";
+    stringA += `${key}=${value}&`;
+  }
+
+  // 3. Append secret key (resulting in "key1=val1&key2=val2&SECRET_KEY")
+  const stringToSign = `${stringA}${secretKey}`;
+
+  // 4. Compute MD5 hash (lowercase)
+  const calculatedSign = crypto
+    .createHash("md5")
+    .update(stringToSign, "utf8")
+    .digest("hex")
+    .toLowerCase();
+
+  return calculatedSign === receivedSign.toLowerCase();
 }

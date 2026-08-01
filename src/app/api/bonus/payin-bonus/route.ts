@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { findCurrentUser } from "@/data/user";
 
-// GET: Fetch user bonuses
+// GET: Fetch user bonuses alongside global setting limits
 export async function GET() {
   try {
     const user = await findCurrentUser();
@@ -10,13 +10,23 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const bonuses = await db.payinBonus.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "asc" },
-    });
+    // Fetch user bonuses & system settings concurrently
+    const [bonuses, bonusSetting] = await Promise.all([
+      db.payinBonus.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "asc" },
+      }),
+      db.bonusSetting.findUnique({
+        where: { id: "global" },
+      }),
+    ]);
 
-    return NextResponse.json({ bonuses });
-  } catch {
+    return NextResponse.json({
+      bonuses,
+      setting: bonusSetting,
+      currency: user?.wallet?.currencyCode || "BDT", // Fallback to user currency if present
+    });
+  } catch (error) {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
@@ -33,9 +43,8 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { selectedBonusId } = body; // string or null
+    const { selectedBonusId } = body;
 
-    // Prevent selecting an expired or claimed bonus on backend
     if (selectedBonusId) {
       const targetBonus = await db.payinBonus.findUnique({
         where: { id: selectedBonusId, userId: user.id },
@@ -60,15 +69,12 @@ export async function POST(req: Request) {
       }
     }
 
-    // Run atomically inside a transaction to ensure only ONE option is active
     await db.$transaction(async (tx) => {
-      // 1. Deactivate all existing bonuses for this user
       await tx.payinBonus.updateMany({
         where: { userId: user.id },
         data: { isActive: false },
       });
 
-      // 2. If a valid, non-disabled bonus was selected, activate it
       if (selectedBonusId) {
         await tx.payinBonus.update({
           where: { id: selectedBonusId, userId: user.id },
@@ -78,7 +84,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, activeBonusId: selectedBonusId });
-  } catch {
+  } catch (error) {
     return NextResponse.json(
       { error: "Failed to update bonus state" },
       { status: 500 },

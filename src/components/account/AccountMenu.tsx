@@ -85,7 +85,7 @@ const AccountMenu = () => {
         <ul>
           <AccountMenuItem
             label="Invite friends"
-            href="/account/invite-friends"
+            href="/invite-friend"
             icon={<MdOutlineGroup className="w-5 h-5" />}
           />
         </ul>

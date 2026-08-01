@@ -36,7 +36,9 @@ type Props = {
 };
 
 const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
-  const r = useSearchParams().get("r") || "";
+  const searchParams = useSearchParams();
+  // Read both "ref" and "r" query parameters
+  const promoCode = searchParams.get("ref") || searchParams.get("r") || "";
 
   const [tab, setTab] = useState<Tab>("email");
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -58,21 +60,9 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
   };
   const initial = resolveInitial();
 
-  // ---------------------------------------------------------------------
-  // Build Options & Enforce Black Icons + Proper Icon Mapping
-  // Moved above the useForm() calls so we can compute a REAL default
-  // bonusType (matching an actual option value) before the forms are
-  // initialized, instead of hardcoding "FIRST_PAYIN" as a literal.
-  // ---------------------------------------------------------------------
   const getBonusOptions = (curr: string) => {
     const rawOptions = buildBonusOptions(firstDepositBonus, curr);
 
-    // Classify ANY raw string coming from buildBonusOptions (e.g. "sports",
-    // "casino", "invitation", "reject", ...) into one of the two values the
-    // BonusTypeEnum / zod schema actually accepts: "FIRST_PAYIN" | "NO_BONUS".
-    // buildBonusOptions' value/id/label fields are display-oriented and are
-    // NOT guaranteed to already be valid enum values, so we must normalize
-    // them before they ever reach react-hook-form / zod.
     const normalizeToEnumValue = (val: string): "FIRST_PAYIN" | "NO_BONUS" => {
       const v = String(val || "").toUpperCase();
       if (
@@ -83,8 +73,6 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
       ) {
         return "NO_BONUS";
       }
-      // Everything else (sports, casino, invitation, first_payin, ...)
-      // is treated as the "take a bonus" path.
       return "FIRST_PAYIN";
     };
 
@@ -104,7 +92,7 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
         const rawVal = String(opt.value ?? opt.id ?? "FIRST_PAYIN");
         const value = normalizeToEnumValue(rawVal);
         return {
-          value, // guaranteed to be "FIRST_PAYIN" | "NO_BONUS"
+          value,
           label: opt.label ?? opt.title ?? "Sports Bonus",
           subLabel: opt.subLabel ?? opt.description ?? "",
           icon: getIcon(value, rawVal),
@@ -112,9 +100,6 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
       });
     }
 
-    // NOTE: fallback values are constrained to match BonusTypeEnum
-    // ("FIRST_PAYIN" | "NO_BONUS") so the zod resolver never rejects
-    // a value the UI itself offered.
     return [
       {
         value: "FIRST_PAYIN",
@@ -131,8 +116,6 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
     ];
   };
 
-  // Compute the initial bonus options from the *initial* currency so we
-  // have a real, valid default value to seed the forms with.
   const initialBonusOptions = getBonusOptions(initial.currencyCode);
   const initialDefaultBonusValue =
     initialBonusOptions[0]?.value || "FIRST_PAYIN";
@@ -142,7 +125,7 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
       email: "",
       country: initial.country,
       password: "",
-      promo: r,
+      promo: promoCode,
       confirmPassword: "",
       currencyCode: initial.currencyCode,
       bonusType: initialDefaultBonusValue,
@@ -154,18 +137,19 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
     defaultValues: {
       country: initial.country,
       currencyCode: initial.currencyCode,
-      promo: r,
+      promo: promoCode,
       bonusType: initialDefaultBonusValue,
     },
     resolver: zodResolver(oneClickSchema),
   });
 
+  // Sync query ref parameter to forms whenever it changes
   useEffect(() => {
-    if (r) {
-      form.setValue("promo", r);
-      oneClickForm.setValue("promo", r);
+    if (promoCode) {
+      form.setValue("promo", promoCode);
+      oneClickForm.setValue("promo", promoCode);
     }
-  }, [r]);
+  }, [promoCode, form, oneClickForm]);
 
   const currencyCode = form.watch("currencyCode");
   const oneClickCurrencyCode = oneClickForm.watch("currencyCode");
@@ -173,21 +157,17 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
   const bonusOptions = getBonusOptions(currencyCode);
   const oneClickBonusOptions = getBonusOptions(oneClickCurrencyCode);
 
-  // Guarantee the default value matches an actual value present in options
   const defaultBonusValue = bonusOptions[0]?.value || "FIRST_PAYIN";
   const defaultOneClickBonusValue =
     oneClickBonusOptions[0]?.value || "FIRST_PAYIN";
 
-  // If the currency changes and the currently selected bonusType no longer
-  // exists in the new options list, snap it back to a valid option instead
-  // of silently leaving a "selected" value that isn't actually renderable.
   useEffect(() => {
     const current = form.getValues("bonusType");
     const stillValid = bonusOptions.some((o) => o.value === current);
     if (!current || !stillValid) {
       form.setValue("bonusType", defaultBonusValue);
     }
-  }, [currencyCode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currencyCode]);
 
   useEffect(() => {
     const current = oneClickForm.getValues("bonusType");
@@ -195,7 +175,7 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
     if (!current || !stillValid) {
       oneClickForm.setValue("bonusType", defaultOneClickBonusValue);
     }
-  }, [oneClickCurrencyCode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [oneClickCurrencyCode]);
 
   const syncCurrencyToCountry = (
     countryCode: string,
@@ -278,7 +258,6 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
 
   return (
     <div className="w-full md:w-[400px] md:mx-auto h-screen ">
-      {/* Tabs */}
       <div className="grid grid-cols-2 gap-3 mb-2">
         <button
           type="button"
@@ -310,7 +289,6 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
 
       {tab === "email" ? (
         <>
-          {/* Stepper */}
           <div className="flex items-center justify-center gap-2 mb-2">
             {[1, 2, 3].map((n) => (
               <React.Fragment key={n}>
@@ -327,9 +305,7 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
                 </div>
                 {n < 3 && (
                   <div
-                    className={`w-16 h-[2px] ${
-                      n < step ? "bg-[#a02020]" : "bg-[#d9d9d9]"
-                    }`}
+                    className={`w-16 h-[2px] ${n < step ? "bg-[#a02020]" : "bg-[#d9d9d9]"}`}
                   />
                 )}
               </React.Fragment>
@@ -449,7 +425,7 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
                             <IconSelect
                               value={field.value}
                               onChange={field.onChange}
-                              disabled={pending}
+                              disabled={true}
                               options={CURRENCIES.map((c) => ({
                                 value: c.code,
                                 label: c.code,
@@ -580,7 +556,6 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
 
                     <div className="my-3" />
 
-                    {/* BONUS TYPE SELECT */}
                     <FormField
                       name="bonusType"
                       control={form.control}
@@ -651,7 +626,6 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
           </div>
         </>
       ) : (
-        /* One-click Tab */
         <div className="bg-white p-3 rounded-md">
           <Form {...oneClickForm}>
             <form onSubmit={oneClickForm.handleSubmit(handleOneClick)}>
@@ -695,7 +669,7 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
                       <IconSelect
                         value={field.value}
                         onChange={field.onChange}
-                        disabled={pending}
+                        disabled={true}
                         options={CURRENCIES.map((c) => ({
                           value: c.code,
                           label: c.code,
@@ -740,7 +714,6 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
 
               <div className="my-3" />
 
-              {/* ONE-CLICK BONUS TYPE SELECT */}
               <FormField
                 name="bonusType"
                 control={oneClickForm.control}
