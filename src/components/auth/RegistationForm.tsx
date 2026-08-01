@@ -590,8 +590,8 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
                       >
                         {pending ? (
                           <FlipText
-                            text="WinrxBet"
-                            className="font-bold text-white"
+                            text="WinpariBet"
+                            className="font-bold text-white text-xs"
                           />
                         ) : (
                           "Register"
@@ -748,8 +748,8 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
                 >
                   {pending ? (
                     <FlipText
-                      text="WinrxBet"
-                      className="font-bold text-white"
+                      text="WinpariBet"
+                      className="font-bold text-white text-xs"
                     />
                   ) : (
                     "Register"

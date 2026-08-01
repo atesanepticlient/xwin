@@ -15,7 +15,7 @@ const Slider = ({
   sliders: { image: string; link: string }[];
 }) => {
   return (
-    <div className="mb-3 md:mb-5 lg:mb-8 px-3">
+    <div className="mb-3 md:mb-5 lg:mb-8 ">
       <Swiper
         spaceBetween={10}
         slidesPerView={"auto"}
@@ -35,7 +35,7 @@ const Slider = ({
             >
               <img
                 src={slider.image}
-                className="w-full aspect-[16/8] object-cover select-none rounded-lg"
+                className="w-full aspect-[16/7] object-cover select-none rounded-lg"
                 alt="Slider image"
               />
             </a>

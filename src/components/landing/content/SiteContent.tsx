@@ -18,7 +18,7 @@ const SiteContent = () => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8 mt-6 md:mt-8   px-5 md:px-8 py-6 md:py-8 shadow-sm">
       <div>
-        <SiteContentTitle title="WinrxBet" />
+        <SiteContentTitle title="WinpariBet" />
 
         <ul className="flex flex-col mt-4 md:mt-6">
           <li>

@@ -8,6 +8,8 @@ import { DashboardWrapper } from "@/components/category/matches";
 import HomeSlots from "@/components/casino/home-slots.games";
 import HomeLive from "@/components/casino/home-live";
 import FeaturesHighlight from "@/components/features-highlight";
+import Intro from "./intro";
+import AppBanner from "@/components/app-banner";
 
 export default function Home() {
   // const matchesData = [
@@ -108,6 +110,7 @@ export default function Home() {
         <HomeLive />
         <Footer />
       </main>
+      
       <TabBar />
     </div>
   );

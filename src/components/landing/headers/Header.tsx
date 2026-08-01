@@ -113,6 +113,7 @@ const Header = () => {
             <Image
               src={logo}
               alt="LivvBet"
+              placeholder="blur"
               className="w-[110px] md:w-[120px] lg:w-[140px] "
             />
           </Link>
@@ -120,7 +121,7 @@ const Header = () => {
           <CountryFlag />
         </div>
 
-        <nav className="hidden md:block py-1 bg-[#FFCE00]">
+        <nav className="hidden md:block py-1 bg-[#90B800]">
           <Menubar>
             <MenubarMenu>
               <MenubarTrigger>
@@ -179,10 +180,10 @@ const Header = () => {
               </MenubarTrigger>
               <MenubarContent>
                 <MenubarItem>
-                  <Link href="/casino/slots">SLOT</Link>
+                  <Link href="/casino">SLOT</Link>
                 </MenubarItem>
                 <MenubarItem>
-                  <Link href="/casino/popular">POPULAR</Link>
+                  <Link href="/casino">POPULAR</Link>
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
@@ -217,7 +218,10 @@ const Header = () => {
                   Deposit
                 </Link>
               </PrimaryButton> */}
-              <Link href={"/account"} className="bg-[#3a3a3a] hover:bg-[#4f4f4f] w-7 flex items-center justify-center aspect-square rounded-sm">
+              <Link
+                href={"/account"}
+                className="bg-[#3a3a3a] hover:bg-[#4f4f4f] w-7 flex items-center justify-center aspect-square rounded-sm"
+              >
                 <FaUser className="w-4 h-4 !text-white  rounded-md" />
               </Link>
             </div>

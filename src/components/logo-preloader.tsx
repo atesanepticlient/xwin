@@ -12,7 +12,7 @@ export default function TextPreloader({
   className = "",
   style = {},
 }: TextPreloaderProps) {
-  const textWinrx = "Winrx".split("");
+  const textWinrx = "Winpari".split("");
   const textBet = "Bet".split("");
 
   // Clamp size to the 1-10 range just in case
@@ -39,7 +39,7 @@ export default function TextPreloader({
     >
       <h1
         className="txt font-russo"
-        aria-label="WinrxBet"
+        aria-label="WinpariBet"
         style={
           {
             "--font-size": `${fontSize}rem`,

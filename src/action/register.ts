@@ -148,7 +148,7 @@ async function createUserAndApplyBonus(args: {
         create: {
           title: "Your account was created",
           description:
-            "You successfuly created an account on winrxbet. Now you can make deposit using our Payment System",
+            "You successfuly created an account on WinpariBet. Now you can make deposit using our Payment System",
         },
       },
     },

@@ -6,12 +6,27 @@ import { findCurrentUser } from "@/data/user";
 import DpWdTab from "@/components/payment/dp-wd-tab";
 import PageHeader from "@/components/page-header";
 import AccountId from "@/components/account-id";
+import Link from "next/link";
+import { RiFileHistoryFill } from "react-icons/ri";
+import SupportCards from "@/components/payment/SupportCards";
 const WithdrawPage = async () => {
   const user = await findCurrentUser();
   return (
     <div className="bg-slate-50   md:px-4 md:py-5">
       <main>
-        <PageHeader title="Withdraw found" />
+        <PageHeader
+          title="Withdraw found"
+          rightAction={
+            <>
+              <Link
+                href={"/account/transaction"}
+                className="w-8 h-8 flex items-center justify-center rounded-md cursor-pointer text-white bg-[#4f4f4f]"
+              >
+                <RiFileHistoryFill />
+              </Link>
+            </>
+          }
+        />
         <DpWdTab />
         <div className="p-2 px-3 rounded-md bg-white">
           <div>
@@ -22,7 +37,7 @@ const WithdrawPage = async () => {
           </div>
           <PaymentFilterButton />
         </div>
-
+        <SupportCards />
         <PaymentWapper type="withdraw">
           <Payment />
         </PaymentWapper>

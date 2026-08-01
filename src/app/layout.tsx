@@ -9,6 +9,8 @@ import GamesLoader from "./GamesLoader";
 import Intro from "./intro";
 import { InternetProvider } from "./internet-provider";
 import InternetGate from "@/components/InternetGate";
+import AuthGuard from "./AuthGuard";
+import { SessionWatcher } from "./session-watcher";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -29,10 +31,9 @@ const russoOne = Russo_One({
 });
 
 export const metadata: Metadata = {
-  title: "WinrxBet",
-  icons: "/assets/svg/android-chrome-192x192.png",
+  title: "WinpariBet",
   description:
-    "WinrxBet Company Trusted Online Betting Site in Bangladesh, Join 1xbet companl for the ultimate betting experience! Enjoy sports betting, casino games, live dealers, Aviator crash game, and more. Get the best odds and exciting bonuses. Sign up now!",
+    "WinpariBet Company Trusted Online Betting Site in Bangladesh, Join 1xbet companl for the ultimate betting experience! Enjoy sports betting, casino games, live dealers, Aviator crash game, and more. Get the best odds and exciting bonuses. Sign up now!",
 };
 
 export default async function RootLayout({
@@ -51,7 +52,7 @@ export default async function RootLayout({
             <StoreProvider>
               <InternetProvider>
                 <InternetGate>
-                  {/* <SessionWatcher /> */}
+                  <SessionWatcher />
                   {children}
                 </InternetGate>
               </InternetProvider>

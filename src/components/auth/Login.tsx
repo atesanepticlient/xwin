@@ -6,7 +6,9 @@ const Login = () => {
   return (
     <div>
       <FormLoader label="login">
-        <LoginForm />
+       <div className="max-h-[400px]">
+         <LoginForm />
+       </div>
       </FormLoader>
     </div>
   );

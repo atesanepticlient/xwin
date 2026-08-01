@@ -7,6 +7,7 @@ import {
   IoTicket,
   IoClose,
   IoRadioOutline,
+  IoPhonePortraitOutline,
 } from "react-icons/io5";
 import { RiUserFill, RiMenu2Line } from "react-icons/ri";
 import { PiPokerChipFill } from "react-icons/pi";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import useCurrentUser from "@/hook/useCurrentUser";
 import { MdSportsBasketball } from "react-icons/md";
+import AppBanner from "../app-banner";
 
 interface SubMenuItem {
   label: string;
@@ -117,12 +119,25 @@ const TabBar = () => {
   const pathname = usePathname();
   const user = useCurrentUser();
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [showAppBanner, setShowAppBanner] = useState<boolean>(true);
 
   // Track context intent when navigating on ambiguous routes like '/'
   const [selectedContext, setSelectedContext] = useState<"sports" | "casino">(
     "sports",
   );
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // ⏱️ Auto-hide AppBanner after 2 minutes
+  useEffect(() => {
+    const timer = setTimeout(
+      () => {
+        setShowAppBanner(false);
+      },
+      2 * 60 * 1000,
+    ); // 2 minutes in milliseconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Synchronize state when pathname changes to explicit routes
   useEffect(() => {
@@ -173,7 +188,6 @@ const TabBar = () => {
   const middleIndex = isOdd ? Math.floor(navItems.length / 2) : -1;
 
   const handleTabClick = (e: React.MouseEvent, item: NavItem) => {
-    // Explicitly update selection context
     if (item.id === "sports") setSelectedContext("sports");
     if (item.id === "casino") setSelectedContext("casino");
 
@@ -194,115 +208,126 @@ const TabBar = () => {
   return (
     <div
       ref={containerRef}
-      style={{
-        boxShadow: "0px -10px 25px -5px rgba(0, 0, 0, 0.15)",
-      }}
-      className="bg-white md:hidden fixed z-[500000000] left-1/2 -translate-x-1/2 bottom-0 md:bottom-3 w-full md:w-[600px] h-[65px] md:h-[70px] md:rounded-full flex py-1 md:py-2"
+      className="md:hidden fixed z-[500000000] left-0 bottom-0 w-full flex flex-col items-center pointer-events-none"
     >
-      {navItems.map((item, index) => {
-        const isActive = isTabActive(item);
-        const Icon = item.icon;
-        const isMiddle = index === middleIndex;
-        const isMenuOpen = activeMenuId === item.id;
+      {/* 🟢 TOP APP BANNER - Auto hides after 2 minutes */}
+      {showAppBanner && (
+        <div className="pointer-events-auto w-full">
+          <AppBanner onClose={() => setShowAppBanner(false)} />
+        </div>
+      )}
 
-        return (
-          <div key={item.id} className="relative flex-1 flex justify-center">
-            {/* Popover Menu with Bottom-to-Top Animation */}
-            {isMenuOpen && item.submenu && (
-              <div
-                className={cn(
-                  "absolute bottom-0 w-[95%] bg-white rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.25)] border border-gray-100 flex flex-col items-center py-4 z-50",
-                  "transition-all duration-300 ease-out transform",
-                  "animate-in fade-in slide-in-from-bottom-6 duration-300",
-                )}
-              >
-                <div className="flex flex-col items-center w-full gap-5">
-                  {item.submenu.map((sub, idx) => (
-                    <Link
-                      key={idx}
-                      href={sub.href}
-                      onClick={() => handleSubmenuClick(item.id)}
-                      className="flex flex-col items-center justify-center text-center group px-2"
-                    >
-                      <div className="mb-1 flex items-center justify-center">
-                        {sub.icon}
-                      </div>
-                      <span className="text-[12px] font-medium leading-tight text-gray-800 group-hover:text-black max-w-[80px]">
-                        {sub.label}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
+      {/* 🔵 MAIN TAB BAR */}
+      <div
+        style={{
+          boxShadow: "0px -10px 25px -5px rgba(0, 0, 0, 0.15)",
+        }}
+        className="pointer-events-auto bg-white w-full h-[65px] flex py-1"
+      >
+        {navItems.map((item, index) => {
+          const isActive = isTabActive(item);
+          const Icon = item.icon;
+          const isMiddle = index === middleIndex;
+          const isMenuOpen = activeMenuId === item.id;
 
-                {/* Close Button */}
-                <button
-                  onClick={() => setActiveMenuId(null)}
-                  className="mt-6 p-1 text-gray-500 hover:text-gray-900 transition-colors"
-                  aria-label="Close menu"
-                >
-                  <IoClose className="w-7 h-7 text-gray-600" />
-                </button>
-              </div>
-            )}
-
-            {/* Middle Floating Button Style */}
-            {isMiddle ? (
-              <Link
-                href={item.href}
-                onClick={(e) => handleTabClick(e, item)}
-                className="relative w-full flex justify-center items-center flex-col group"
-              >
+          return (
+            <div key={item.id} className="relative flex-1 flex justify-center">
+              {/* Popover Menu */}
+              {isMenuOpen && item.submenu && (
                 <div
                   className={cn(
-                    "w-10 h-10 !aspect-square rounded-full bg-[#333] text-white flex items-center justify-center transition-transform active:scale-95 group-hover:bg-[#222]",
-                    (isActive || isMenuOpen) && "bg-black/20",
+                    "absolute bottom-[75px] w-[95%] bg-white rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.25)] border border-gray-100 flex flex-col items-center py-4 z-50",
+                    "transition-all duration-300 ease-out transform",
+                    "animate-in fade-in slide-in-from-bottom-6 duration-300",
                   )}
                 >
-                  <Icon className="w-5 h-5 text-white" />
+                  <div className="flex flex-col items-center w-full gap-5">
+                    {item.submenu.map((sub, idx) => (
+                      <Link
+                        key={idx}
+                        href={sub.href}
+                        onClick={() => handleSubmenuClick(item.id)}
+                        className="flex flex-col items-center justify-center text-center group px-2"
+                      >
+                        <div className="mb-1 flex items-center justify-center">
+                          {sub.icon}
+                        </div>
+                        <span className="text-[12px] font-medium leading-tight text-gray-800 group-hover:text-black max-w-[80px]">
+                          {sub.label}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setActiveMenuId(null)}
+                    className="mt-6 p-1 text-gray-500 hover:text-gray-900 transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <IoClose className="w-7 h-7 text-gray-600" />
+                  </button>
                 </div>
-                <span
-                  className={cn(
-                    "text-xs text-black mt-1",
-                    isActive || isMenuOpen ? "font-bold" : "font-medium",
-                  )}
-                >
-                  {item.label}
-                </span>
-              </Link>
-            ) : (
-              /* Standard Tab Style */
-              <Link
-                href={item.href}
-                onClick={(e) => handleTabClick(e, item)}
-                className="w-full flex justify-center items-center flex-col tab-menu"
-              >
-                <Icon
-                  className={cn(
-                    "w-6 h-6 text-black transition-opacity duration-200",
-                    isActive || isMenuOpen ? "opacity-100" : "opacity-60",
-                  )}
-                />
+              )}
 
-                <span
-                  className={cn(
-                    "text-xs text-black transition-opacity duration-200",
-                    isActive || isMenuOpen
-                      ? "font-bold opacity-100"
-                      : "font-medium opacity-60",
-                  )}
+              {/* Middle Floating Button Style */}
+              {isMiddle ? (
+                <Link
+                  href={item.href}
+                  onClick={(e) => handleTabClick(e, item)}
+                  className="relative w-full flex justify-center items-center flex-col group"
                 >
-                  {item.label}
-                </span>
+                  <div
+                    className={cn(
+                      "w-10 h-10 !aspect-square rounded-full bg-[#333] text-white flex items-center justify-center transition-transform active:scale-95 group-hover:bg-[#222]",
+                      (isActive || isMenuOpen) && "bg-black/20",
+                    )}
+                  >
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <span
+                    className={cn(
+                      "text-xs text-black mt-1",
+                      isActive || isMenuOpen ? "font-bold" : "font-medium",
+                    )}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              ) : (
+                /* Standard Tab Style */
+                <Link
+                  href={item.href}
+                  onClick={(e) => handleTabClick(e, item)}
+                  className="w-full flex justify-center items-center flex-col tab-menu"
+                >
+                  <Icon
+                    className={cn(
+                      "w-6 h-6 text-black transition-opacity duration-200",
+                      isActive || isMenuOpen ? "opacity-100" : "opacity-60",
+                    )}
+                  />
 
-                {/* Bottom active indicator bar */}
-                {isActive && !isMenuOpen && (
-                  <span className="absolute bottom-0 w-12 h-1 bg-[#7EC151] rounded-t-full transition-all duration-300" />
-                )}
-              </Link>
-            )}
-          </div>
-        );
-      })}
+                  <span
+                    className={cn(
+                      "text-xs text-black transition-opacity duration-200",
+                      isActive || isMenuOpen
+                        ? "font-bold opacity-100"
+                        : "font-medium opacity-60",
+                    )}
+                  >
+                    {item.label}
+                  </span>
+
+                  {/* Bottom active indicator bar */}
+                  {isActive && !isMenuOpen && (
+                    <span className="absolute bottom-0 w-12 h-1 bg-[#7EC151] rounded-t-full transition-all duration-300" />
+                  )}
+                </Link>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

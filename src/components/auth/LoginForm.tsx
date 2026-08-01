@@ -111,7 +111,7 @@ const LoginForm = () => {
     }`;
 
   return (
-    <div className="w-full md:w-[400px] md:mx-auto h-screen">
+    <div className="w-full md:w-[400px] md:mx-auto h-screen ">
       {/* Tabs */}
       <div className="grid grid-cols-2 gap-3 mb-2">
         <button
@@ -375,7 +375,10 @@ const RememberMeAndSubmit = ({
     <div className="mt-6">
       <PrimaryButton type="submit" className="w-full py-3" disabled={pending}>
         {pending ? (
-          <FlipText text="WinrxBet" className="font-bold text-white" />
+          <FlipText
+            text="WinpariBet"
+            className="font-bold text-white text-xs"
+          />
         ) : (
           "LOG IN"
         )}

@@ -15,6 +15,12 @@ import {
 import AccountMenuItem from "./AccountMenuItem";
 import { signOut } from "next-auth/react";
 const AccountMenu = () => {
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+
+    window.location.href = "/";
+  };
+
   return (
     <div className="space-y-3">
       {/* ACCOUNT */}
@@ -97,7 +103,7 @@ const AccountMenu = () => {
           <AccountMenuItem
             label="Log out"
             icon={<MdOutlineExitToApp className="w-5 h-5" />}
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => handleLogout()}
           />
         </ul>
       </div>

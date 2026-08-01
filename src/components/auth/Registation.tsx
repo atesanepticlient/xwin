@@ -5,12 +5,10 @@ import RegistationForm from "./RegistationForm";
 const Registation = () => {
   return (
     <div className="md:w-[600px] mx-auto bg-white rounded-md">
-      <FormLoader
-        label="Registation"
-   
-        
-      >
-        <RegistationForm />
+      <FormLoader label="Registation">
+        <div className="max-h-[600px]">
+          <RegistationForm />
+        </div>
       </FormLoader>
     </div>
   );

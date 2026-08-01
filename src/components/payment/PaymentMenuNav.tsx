@@ -29,8 +29,9 @@ export const PaymentMethodNavSm = ({
       <Sheet>
         <SheetTrigger asChild>{children}</SheetTrigger>
         <SheetContent
+          hideClose={true}
           side={"left"}
-          className="!border-none !w-full bg-primary/15"
+          className=" !border-none !w-full bg-primary/15 [&>button:last-child]:hidden"
         >
           <SheetHeader>
             <SheetTitle></SheetTitle>

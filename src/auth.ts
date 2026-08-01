@@ -18,11 +18,23 @@ export const { signIn, signOut, auth, handlers } = NextAuth({
       if (!token.sub) return token;
 
       const user = await findUserById(token.sub);
-      if (user) {
-        token.role = user.role;
-        // Attach current tokenVersion from DB to the JWT
-        token.tokenVersion = user.tokenVersion ?? 0;
+      if (!user) return {};
+
+      // Existing JWT version doesn't match DB -> invalidate
+      if (
+        token.tokenVersion !== undefined &&
+        token.tokenVersion !== user.tokenVersion
+      ) {
+        return {};
       }
+
+      // Only set it when the token is first created
+      if (token.tokenVersion === undefined) {
+        token.tokenVersion = user.tokenVersion;
+      }
+
+      token.role = user.role;
+
       return token;
     },
 

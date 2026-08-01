@@ -30,32 +30,32 @@ const About = () => {
       >
         <div className="p-4 md:p-6">
           <h4 className="text-white text-lg md:text-2xl font-semibold">
-            WinrxBet Betting Company – Online Sports Betting
+            WinpariBet Betting Company – Online Sports Betting
           </h4>
 
           <div className="my-3 md:my-4">
             <h5 className="text-white text-sm md:text-lg uppercase font-semibold mb-2 md:mb-3">
-              WinrxBet — WHAT WOULD YOU LIKE TO KNOW?
+              WinpariBet — WHAT WOULD YOU LIKE TO KNOW?
             </h5>
             <p className="text-xs md:text-sm text-white">
-              WinrxBet was founded in 2007 and in recent years has become one of
-              the world&apos;s leading betting companies. This is proven by the
-              succession of prestigious awards and prizes the company has won
-              and been nominated for, namely at the SBC Awards, Global Gaming
-              Awards, and International Gaming Awards. WinrxBet Betting Company
-              is an active sponsor of the top football tournaments – official
-              presenting partner of Italy&apos;s Serie A, media partner of
-              Spain&apos;s La Liga, and it is the official sponsor of a number
-              of big international tournaments such as the Africa Cup of
-              Nations. Since 2019, WinrxBet has been the official betting partner
-              of FC Barcelona. WinrxBet is a company that works with only the
-              best.
+              WinpariBet was founded in 2007 and in recent years has become one
+              of the world&apos;s leading betting companies. This is proven by
+              the succession of prestigious awards and prizes the company has
+              won and been nominated for, namely at the SBC Awards, Global
+              Gaming Awards, and International Gaming Awards. WinpariBet Betting
+              Company is an active sponsor of the top football tournaments –
+              official presenting partner of Italy&apos;s Serie A, media partner
+              of Spain&apos;s La Liga, and it is the official sponsor of a
+              number of big international tournaments such as the Africa Cup of
+              Nations. Since 2019, WinpariBet has been the official betting
+              partner of FC Barcelona. WinpariBet is a company that works with
+              only the best.
             </p>
           </div>
 
           <div className="my-3 md:my-4">
             <h5 className="text-white text-sm md:text-lg uppercase font-semibold mb-2 md:mb-3">
-              💰HOW CAN YOU EARN MONEY WITH WinrxBet? PREDICTIONS ON SPORTS
+              💰HOW CAN YOU EARN MONEY WITH WinpariBet? PREDICTIONS ON SPORTS
               EVENTS
             </h5>
             <p className="text-xs md:text-sm text-white">
@@ -64,38 +64,38 @@ const About = () => {
               reliable statistics, customers can turn their predictions into
               money. They can easily weigh up the probability of one outcome or
               another, make their predictions, and create a bet slip.
-              What&apos;s more, the WinrxBet website offers customers the chance
-              to create a winning combination and share their bet slip with
-              their friends. WinrxBet Betting Company holds a Bet Slip Battle
-              every month, giving players the opportunity to get an additional
-              bonus.
+              What&apos;s more, the WinpariBet website offers customers the
+              chance to create a winning combination and share their bet slip
+              with their friends. WinpariBet Betting Company holds a Bet Slip
+              Battle every month, giving players the opportunity to get an
+              additional bonus.
             </p>
           </div>
 
           <div className="my-3 md:my-4">
             <h5 className="text-white text-sm md:text-lg uppercase font-semibold mb-2 md:mb-3">
-              ⚽WHICH SPORTS AND EVENTS ARE OFFERED FOR BETTING BY WinrxBet?
+              ⚽WHICH SPORTS AND EVENTS ARE OFFERED FOR BETTING BY WinpariBet?
             </h5>
             <p className="text-xs md:text-sm text-white">
               Customers can place pre-match bets on a range of events: from the
               most popular sports to darts and trotting. The most popular bets
-              to place are on football, UFC and esports – events that WinrxBet
+              to place are on football, UFC and esports – events that WinpariBet
               has helped to develop for many years already. On a daily basis,
               fans all over the world can bet on 1000+ events from a selection
               of over 90 sports. As one of the biggest betting companies,
-             WinrxBet gives everyone a chance to earn money. With WinrxBet,
+              WinpariBet gives everyone a chance to earn money. With WinpariBet,
               bettors can also place bets on events in show business, cinema,
               TV, economics, politics and other aspects of life that we talk
               about. So, if you keep up with &quot;What? Where? When?&quot;,
               know which film will get an Oscar this year, and you&apos;re
-              confident about the weather forecast – WinrxBet provides everyone
-              with the chance to earn money.
+              confident about the weather forecast – WinpariBet provides
+              everyone with the chance to earn money.
             </p>
           </div>
 
           <div className="my-3 md:my-4">
             <h5 className="text-white text-sm md:text-lg uppercase font-semibold mb-2 md:mb-3">
-              🏆WHAT DOES WinrxBet BETTING COMPANY GUARANTEE?
+              🏆WHAT DOES WinpariBet BETTING COMPANY GUARANTEE?
             </h5>
             <ul>
               <li className="text-xs md:text-sm text-white">
@@ -120,16 +120,16 @@ const About = () => {
 
           <div className="my-3 md:my-4">
             <h5 className="text-white text-sm md:text-lg uppercase font-semibold mb-2 md:mb-3">
-              🏆WinrxBet – EVERYTHING YOU NEED FOR VICTORY!
+              🏆WinpariBet – EVERYTHING YOU NEED FOR VICTORY!
             </h5>
             <p className="text-xs md:text-sm text-white">
               Online sports bets and live bets are the most popular among
-              WinrxBet customers, but bettors in several countries can also bet
-              offline in betting shops. WinrxBet is a reliable bookmaker which
-              awards its customers by offering fantastic bonuses and exciting
-              promotions. If you&apos;re looking for a top bookmaker that you
-              can trust, WinrxBet is the one for you. The time has come for new
-              wins with WinrxBet!
+              WinpariBet customers, but bettors in several countries can also
+              bet offline in betting shops. WinpariBet is a reliable bookmaker
+              which awards its customers by offering fantastic bonuses and
+              exciting promotions. If you&apos;re looking for a top bookmaker
+              that you can trust, WinpariBet is the one for you. The time has
+              come for new wins with WinpariBet!
             </p>
           </div>
         </div>

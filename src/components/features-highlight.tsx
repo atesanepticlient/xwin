@@ -35,13 +35,14 @@ const FeaturesHighlight = () => {
     <div className="px-2 py-1.5 flex flex-nowrap overflow-x-auto  hide-scrollbar gap-1.5  w-full md:hidden">
       {features.map((f, i) => (
         <Link
-        href={f.redirect}
+          href={f.redirect}
           className="rounded-md bg-white p-1.5  w-[110px] min-w-[110px] shadow "
           key={i}
         >
           <Image
             alt={f.name}
             src={f.image}
+            placeholder="blur"
             className="w-full aspect-square rounded-md"
           />
 

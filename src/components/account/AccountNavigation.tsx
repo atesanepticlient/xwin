@@ -28,7 +28,7 @@ const AccountMenuItem = ({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between px-3 py-3 hover:bg-[#243344] transition-colors group"
+      className="flex items-center justify-between px-3 py-3 hover:bg-[#2c2c2c] transition-colors group"
     >
       <div className="flex items-center gap-3">
         <div className="w-5 h-5 flex items-center justify-center">{icon}</div>
@@ -43,7 +43,7 @@ const AccountMenuItem = ({
             {badge}
           </span>
         )}
-        <MdChevronRight className="w-5 h-5 text-[#526D85] group-hover:text-white transition-colors" />
+        <MdChevronRight className="w-5 h-5 text-[#ddd] group-hover:text-white transition-colors" />
       </div>
     </Link>
   );
@@ -51,22 +51,22 @@ const AccountMenuItem = ({
 
 const AccountNavigation = () => {
   return (
-    <div className="flex flex-col gap-3 bg-[#151E28] p-3 text-white font-sans">
+    <div className="flex flex-col gap-3 bg-[#292929] p-3 text-white font-sans min-h-[83.8vh]">
       {/* 1xBet Style User ID & Balance Card */}
-      <div className="rounded-lg border border-[#2B3C4E] bg-[#1C2836] p-3 shadow-md">
-        <div className="flex items-center justify-between border-b border-[#2B3C4E] pb-2.5 mb-2.5">
+      <div className="rounded-lg border border-[#181818] bg-[#212121] p-3 shadow-md">
+        <div className="flex items-center justify-between border-b border-[#303031] pb-2.5 mb-2.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#26374A] flex items-center justify-center text-[#7C97B1]">
+            <div className="w-8 h-8 rounded-full bg-[#434344] flex items-center justify-center text-white">
               <FaUserCircle className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-[#8BA1B7] font-medium">Account ID</p>
+              <p className="text-xs text-[#ddd] font-medium">Account ID</p>
               <p className="text-sm font-bold text-white tracking-wide">
                 ID: 84920184
               </p>
             </div>
           </div>
-          <span className="bg-[#26A17B]/20 text-[#26A17B] border border-[#26A17B]/40 text-[10px] font-bold px-2 py-0.5 rounded">
+          <span className="bg-[#26A17B]/20 bg-blue-700 text-white border-s border-e-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">
             VERIFIED
           </span>
         </div>
@@ -85,16 +85,16 @@ const AccountNavigation = () => {
           </Link>
           <Link
             href="/account/withdraw"
-            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded bg-[#213040] hover:bg-[#2B3C4E] border border-[#354B62] text-white text-xs font-bold uppercase transition-colors"
+            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded bg-[#181818] hover:bg-[#212121] border border-[#303030] text-white text-xs font-bold uppercase transition-colors"
           >
-            <PiHandWithdrawFill className="w-4 h-4 text-[#8BA1B7]" />
+            <PiHandWithdrawFill className="w-4 h-4 text-white" />
             Withdraw
           </Link>
         </div>
       </div>
 
       {/* VIP Rank Progress */}
-      <div className="rounded-lg border border-[#2B3C4E] bg-[#1C2836] px-3 py-2.5">
+      {/* <div className="rounded-lg border border-[#181818] bg-[#212121] px-3 py-2.5">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
             <FaCrown className="w-3.5 h-3.5 text-[#F5A623]" />
@@ -109,52 +109,52 @@ const AccountNavigation = () => {
         <div className="h-2 w-full rounded-full bg-[#121921] overflow-hidden p-0.5 border border-[#2B3C4E]">
           <div className="h-full w-[65%] rounded-full bg-gradient-to-r from-[#F5A623] to-[#F7C168]" />
         </div>
-      </div>
+      </div> */}
 
       {/* Account Section */}
-      <div className="bg-[#1C2836] rounded-lg border border-[#2B3C4E] overflow-hidden">
-        <div className="px-3 py-2 bg-[#213040] border-b border-[#2B3C4E]">
-          <span className="text-[10px] font-black text-[#8BA1B7] uppercase tracking-widest">
+      <div className="border-[#181818] bg-[#212121] rounded-lg border  overflow-hidden">
+        <div className="px-3 py-2 bg-[#2E2E2E] border-b border-[#454545]">
+          <span className="text-[10px] font-black text-white  uppercase tracking-widest">
             Personal Info
           </span>
         </div>
-        <div className="divide-y divide-[#2B3C4E]/60">
+        <div className="divide-y divide-[#454545]/60">
           <AccountMenuItem
             label="Personal Profile"
             href="/account/profile"
-            icon={<FaUserCircle className="w-4 h-4 text-[#7C97B1]" />}
+            icon={<FaUserCircle className="w-4 h-4 text-white" />}
           />
           <AccountMenuItem
             label="Security & Password"
             href="/account/security"
-            icon={<MdSecurity className="w-4 h-4 text-[#7C97B1]" />}
+            icon={<MdSecurity className="w-4 h-4 text-white" />}
           />
           <AccountMenuItem
             label="Messages"
             href="/account/messages"
-            icon={<FaMessage className="w-3.5 h-3.5 text-[#7C97B1]" />}
+            icon={<FaMessage className="w-3.5 h-3.5 text-white" />}
             badge={3}
           />
         </div>
       </div>
 
       {/* Finance Section */}
-      <div className="bg-[#1C2836] rounded-lg border border-[#2B3C4E] overflow-hidden">
-        <div className="px-3 py-2 bg-[#213040] border-b border-[#2B3C4E]">
-          <span className="text-[10px] font-black text-[#8BA1B7] uppercase tracking-widest">
+      <div className="border-[#181818] bg-[#212121] rounded-lg border  overflow-hidden">
+        <div className="px-3 py-2 bg-[#2E2E2E] border-b border-[#454545]">
+          <span className="text-[10px] font-black text-white uppercase tracking-widest">
             Finances & History
           </span>
         </div>
-        <div className="divide-y divide-[#2B3C4E]/60">
+        <div className="divide-y divide-[#454545]/60">
           <AccountMenuItem
             label="Transaction History"
             href="/account/transaction"
-            icon={<GrTransaction className="w-4 h-4 text-[#7C97B1]" />}
+            icon={<GrTransaction className="w-4 h-4 text-white" />}
           />
           <AccountMenuItem
             label="Invite Friends"
             href="/invite-friend"
-            icon={<FaGift className="w-4 h-4 text-[#7C97B1]" />}
+            icon={<FaGift className="w-4 h-4 text-white" />}
           />
         </div>
       </div>
@@ -162,7 +162,7 @@ const AccountNavigation = () => {
       {/* Logout Action */}
       <div className="pt-1">
         <LogoutModal>
-          <button className="w-full rounded-lg bg-[#213040] hover:bg-[#2B3C4E] border border-[#354B62] py-2.5 text-center flex items-center justify-center gap-2 text-xs font-bold text-[#FF5B5C] uppercase tracking-wider transition-all">
+          <button className="w-full rounded-lg bg-[#181818] hover:bg-[#212121] border border-[#303030] py-2.5 text-center flex items-center justify-center gap-2 text-xs font-bold text-[#FF5B5C] uppercase tracking-wider transition-all">
             <IoLogOut className="w-4 h-4" /> Log Out
           </button>
         </LogoutModal>

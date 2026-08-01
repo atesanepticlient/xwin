@@ -15,7 +15,7 @@ const SlotsLayout = ({ children }: { children: React.ReactNode }) => {
               <div className="hidden md:block md:w-[35%] ">
                 {/* <FilterCasino /> */}
               </div>
-              <div className="p-2.5 md:p-3 lg:p-5 w-full  casino">
+              <div className=" w-full  casino">
                 <div className="flex items-center justify-between">
                   {/* <SearchGame />
                 <FilterOpenButton /> */}

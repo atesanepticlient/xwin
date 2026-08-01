@@ -16,7 +16,7 @@ const Contact = () => {
           {contact?.facebook && (
             <a
               href={contact?.facebook}
-              className="p-1.5 rounded-full bg-[#FFB805] hover:bg-[#f3bd36]"
+              className="p-1.5 rounded-full bg-[#468432] hover:bg-[#3c7529]"
             >
               <FaFacebookF className="w-3 h-3 lg:h-4 lg:w-4 text-black" />
             </a>
@@ -25,7 +25,7 @@ const Contact = () => {
           {contact?.youtube && (
             <a
               href={contact?.youtube}
-              className="p-1.5 rounded-full bg-[#FFB805] hover:bg-[#f3bd36]"
+              className="p-1.5 rounded-full bg-[#468432] hover:bg-[#3c7529]"
             >
               <FaYoutube className="w-3 h-3 lg:h-4 lg:w-4 text-black" />
             </a>
@@ -34,7 +34,7 @@ const Contact = () => {
           {contact?.telegram && (
             <a
               href={contact?.telegram}
-              className="p-1.5 rounded-full bg-[#FFB805] hover:bg-[#f3bd36]"
+              className="p-1.5 rounded-full bg-[#468432] hover:bg-[#3c7529]"
             >
               <FaTelegramPlane className="w-3 h-3 lg:h-4 lg:w-4 text-black" />
             </a>
@@ -43,7 +43,7 @@ const Contact = () => {
           {contact?.twitter && (
             <a
               href={contact?.twitter}
-              className="p-1.5 rounded-full bg-[#FFB805] hover:bg-[#f3bd36]"
+              className="p-1.5 rounded-full bg-[#468432] hover:bg-[#3c7529]"
             >
               <BsTwitterX className="w-3 h-3 lg:h-4 lg:w-4 text-black" />
             </a>
