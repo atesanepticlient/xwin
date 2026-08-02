@@ -17,7 +17,7 @@ const CountryFlag = ({ country }: { country?: string }) => {
   const [countryCode, setCountryCode] = useState("");
 
   const { countryCode: countryCodeAuto } = useCountryCode();
-
+  console.log({ countryCode });
   useEffect(() => {
     if (country) {
       setCountryCode(country.toUpperCase());

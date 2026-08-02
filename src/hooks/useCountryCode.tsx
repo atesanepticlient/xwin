@@ -21,7 +21,6 @@ export default function useCountryCode(): CountryData {
         if (!res.ok) {
           throw new Error("Failed to fetch country");
         }
-
         const data = await res.json();
         setCountryCode(data.countryCode);
       } catch (err) {

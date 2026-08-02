@@ -35,7 +35,7 @@ export const publicRoutes = [
   "/api/gsc/v1/api/seamless/pushbetdata",
   "/api/daypay/collection",
   "/api/daypay/payment",
-  "/api/countryc-code",
+  "/api/country-code",
 ];
 
 /**
