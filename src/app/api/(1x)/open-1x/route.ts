@@ -19,8 +19,10 @@ export async function POST() {
 
     const userLoginId = user.playerId;
 
+    const userCorrency = user?.wallet?.currencyCode || "BDT";
+
     const body = {
-      currency: "BDT",
+      currency: userCorrency,
       demo: "0",
       exitUrl: process.env.CLINET_URL || "https://google.com",
       gameId: process.env.GREGMORN_1XID,

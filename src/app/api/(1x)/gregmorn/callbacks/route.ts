@@ -69,6 +69,24 @@ async function handleWebhook(
   console.log(
     `\n=== [${method} /api/webhook] Request Received at ${reqTime} ===`,
   );
+  const user = await db.users.findUnique({
+    where: { playerId: payload.login },
+    select: { wallet: true },
+  });
+
+  if (!user || !user.wallet || !user.wallet.currencyCode)
+    return createAndLogResponse(
+      {
+        status: "fail",
+        error: "user_not_found",
+        balance: 0,
+        currency: "",
+        login: payload.login || "",
+      },
+      400,
+    );
+
+  const currency = user.wallet.currencyCode;
 
   try {
     const signature =
@@ -83,7 +101,7 @@ async function handleWebhook(
           status: "fail",
           error: "invalid_signature",
           balance: 0,
-          currency: "BDT",
+          currency: currency,
           login: payload.login || "",
         },
         400,
@@ -100,6 +118,16 @@ async function handleWebhook(
       round_finished,
     } = payload;
 
+    console.log({
+      cmd,
+      login,
+      sessionid,
+      transactionId,
+      gameId,
+      info,
+      round_finished,
+    });
+
     if (!["getBalance", "writeBet", "rollback"].includes(cmd)) {
       console.error(`[COMMAND ERROR] Unknown or unsupported command: '${cmd}'`);
       return createAndLogResponse(
@@ -107,36 +135,13 @@ async function handleWebhook(
           status: "fail",
           error: "cmd_not_found",
           balance: 0,
-          currency: "BDT",
+          currency: currency,
           login: login || "",
         },
         400,
       );
     }
 
-    // 1. Fetch User and Wallet
-    const user = await db.users.findFirst({
-      where: { playerId: login },
-      include: { wallet: true },
-    });
-
-    if (!user || !user.wallet) {
-      console.error(
-        `[USER ERROR] User or wallet not found for login: '${login}'`,
-      );
-      return createAndLogResponse(
-        {
-          status: "fail",
-          error: "user_not_found",
-          balance: 0,
-          currency: "BDT",
-          login: login || "",
-        },
-        400,
-      );
-    }
-
-    const userCurrency = user.wallet.currencyCode || "BDT";
     const userBalance = new Decimal(user.wallet.balance);
 
     // --- COMMAND: getBalance ---
@@ -149,7 +154,7 @@ async function handleWebhook(
         error: "",
         login: user.playerId,
         balance: userBalance.toNumber(),
-        currency: userCurrency,
+        currency: currency,
       });
     }
 
@@ -176,7 +181,7 @@ async function handleWebhook(
           error: "",
           login: user.playerId,
           balance: userBalance.toNumber(),
-          currency: userCurrency,
+          currency: currency,
         });
       }
 
@@ -191,7 +196,7 @@ async function handleWebhook(
             error: "insufficient_balance",
             login: user.playerId,
             balance: userBalance.toNumber(),
-            currency: userCurrency,
+            currency: currency,
           },
           400,
         );
@@ -204,52 +209,91 @@ async function handleWebhook(
       if (bet.gt(0) && win.gt(0)) txType = "BET_WIN";
       else if (win.gt(0)) txType = "WIN";
 
-      await db.$transaction(async (tx) => {
-        if (sessionid) {
-          await tx.sportsGameSession.upsert({
-            where: { sessionId: sessionid },
-            update: { gameId: gameId || undefined },
-            create: {
-              sessionId: sessionid,
+      await db.$transaction(
+        async (tx: {
+          sportsGameSession: {
+            upsert: (arg0: {
+              where: { sessionId: any };
+              update: { gameId: any };
+              create: {
+                sessionId: any;
+                userId: any;
+                gameId: any;
+                currency: any;
+              };
+            }) => any;
+          };
+          wallet: {
+            update: (arg0: {
+              where: { userId: any };
+              data: { balance: Decimal };
+            }) => any;
+          };
+          bettingRecordSports: {
+            create: (arg0: {
+              data: {
+                transactionId: any;
+                sessionId: any;
+                userId: any;
+                gameId: any;
+                roundId: string | null;
+                txType: "BET" | "WIN" | "BET_WIN";
+                betAmount: Decimal;
+                winAmount: Decimal;
+                netAmount: Decimal;
+                status: string;
+                roundFinished: boolean;
+                rawInfo: string;
+              };
+            }) => any;
+          };
+        }) => {
+          if (sessionid) {
+            await tx.sportsGameSession.upsert({
+              where: { sessionId: sessionid },
+              update: { gameId: gameId || undefined },
+              create: {
+                sessionId: sessionid,
+                userId: user.id,
+                gameId: gameId || null,
+                currency: currency,
+              },
+            });
+          }
+
+          // Update Wallet Balance
+          await tx.wallet.update({
+            where: { userId: user.id },
+            data: { balance: newBalance },
+          });
+
+          // Save Transaction Record
+          await tx.bettingRecordSports.create({
+            data: {
+              transactionId,
+              sessionId: sessionid || null,
               userId: user.id,
               gameId: gameId || null,
-              currency: userCurrency,
+              roundId,
+              txType,
+              betAmount: bet,
+              winAmount: win,
+              netAmount,
+              status: round_finished ? "SETTLED" : "RUNNING",
+              roundFinished: Boolean(round_finished),
+              rawInfo:
+                typeof info === "string" ? info : JSON.stringify(info || {}),
             },
           });
-        }
-
-        // Update Wallet Balance
-        await tx.wallet.update({
-          where: { userId: user.id },
-          data: { balance: newBalance },
-        });
-
-        // Save Transaction Record
-        await tx.bettingRecordSports.create({
-          data: {
-            transactionId,
-            sessionId: sessionid || null,
-            userId: user.id,
-            gameId: gameId || null,
-            roundId,
-            txType,
-            betAmount: bet,
-            winAmount: win,
-            netAmount,
-            status: round_finished ? "SETTLED" : "RUNNING",
-            roundFinished: Boolean(round_finished),
-            rawInfo:
-              typeof info === "string" ? info : JSON.stringify(info || {}),
-          },
-        });
-      });
+        },
+      );
 
       return createAndLogResponse({
         status: "success",
         error: "",
         login: user.playerId,
         balance: newBalance.toNumber(),
-        currency: userCurrency,
+        currency: currency,
       });
     }
 
@@ -269,35 +313,50 @@ async function handleWebhook(
           error: "",
           login: user.playerId,
           balance: userBalance.toNumber(),
-          currency: userCurrency,
+          currency: currency,
         });
       }
 
       // Refund the original bet amount
       const refundedBalance = userBalance.add(existingTx.betAmount);
 
-      await db.$transaction(async (tx) => {
-        await tx.wallet.update({
-          where: { userId: user.id },
-          data: { balance: refundedBalance },
-        });
+      await db.$transaction(
+        async (tx: {
+          wallet: {
+            update: (arg0: {
+              where: { userId: any };
+              data: { balance: Decimal };
+            }) => any;
+          };
+          bettingRecordSports: {
+            update: (arg0: {
+              where: { transactionId: any };
+              data: { status: string; roundFinished: boolean };
+            }) => any;
+          };
+        }) => {
+          await tx.wallet.update({
+            where: { userId: user.id },
+            data: { balance: refundedBalance },
+          });
 
-        // Mark transaction as CANCELLED
-        await tx.bettingRecordSports.update({
-          where: { transactionId },
-          data: {
-            status: "CANCELLED",
-            roundFinished: true,
-          },
-        });
-      });
+          // Mark transaction as CANCELLED
+          await tx.bettingRecordSports.update({
+            where: { transactionId },
+            data: {
+              status: "CANCELLED",
+              roundFinished: true,
+            },
+          });
+        },
+      );
 
       return createAndLogResponse({
         status: "success",
         error: "",
         login: user.playerId,
         balance: refundedBalance.toNumber(),
-        currency: userCurrency,
+        currency: currency,
       });
     }
   } catch (error: any) {
@@ -307,7 +366,7 @@ async function handleWebhook(
         status: "fail",
         error: error.message || "unexpected_error",
         balance: 0,
-        currency: "BDT",
+        currency: currency,
         login: "",
       },
       400,
