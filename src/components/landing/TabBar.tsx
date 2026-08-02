@@ -18,6 +18,12 @@ import useCurrentUser from "@/hook/useCurrentUser";
 import { MdSportsBasketball } from "react-icons/md";
 import AppBanner from "../app-banner";
 
+// ---- App banner global timing config ----
+const APP_BANNER_DURATION_MS = 30 * 1000; // 30s total, globally
+const LS_DOWNLOADED_KEY = "app-downloaded";
+const LS_DISMISSED_KEY = "app-banner-dismissed";
+const LS_START_TIME_KEY = "app-banner-start-time";
+
 interface SubMenuItem {
   label: string;
   href: string;
@@ -115,11 +121,19 @@ const depositItem: NavItem = {
   icon: FaDollarSign,
 };
 
-const TabBar = () => {
+interface TabBarProps {
+  /** Master on/off switch for the app banner. Default: true */
+  showAppBanner?: boolean;
+}
+
+const TabBar = ({ showAppBanner: showAppBannerProp = true }: TabBarProps) => {
   const pathname = usePathname();
   const user = useCurrentUser();
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-  const [showAppBanner, setShowAppBanner] = useState<boolean>(true);
+
+  // Whether the banner is currently rendered on screen
+  const [isBannerVisible, setIsBannerVisible] = useState<boolean>(false);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track context intent when navigating on ambiguous routes like '/'
   const [selectedContext, setSelectedContext] = useState<"sports" | "casino">(
@@ -127,17 +141,81 @@ const TabBar = () => {
   );
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ⏱️ Auto-hide AppBanner after 2 minutes
+  // 🟢 Global, one-time, 30s app banner logic.
+  // Uses a single start-timestamp in localStorage so the countdown is
+  // continuous across page navigations/remounts and page refreshes.
   useEffect(() => {
-    const timer = setTimeout(
-      () => {
-        setShowAppBanner(false);
-      },
-      2 * 60 * 1000,
-    ); // 2 minutes in milliseconds
+    // Prop override always wins
+    if (!showAppBannerProp) {
+      setIsBannerVisible(false);
+      return;
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
+    if (typeof window === "undefined") return;
+
+    try {
+      const alreadyDownloaded =
+        window.localStorage.getItem(LS_DOWNLOADED_KEY) === "true";
+      const alreadyDismissed =
+        window.localStorage.getItem(LS_DISMISSED_KEY) === "true";
+
+      if (alreadyDownloaded || alreadyDismissed) {
+        setIsBannerVisible(false);
+        return;
+      }
+
+      let startTime = Number(window.localStorage.getItem(LS_START_TIME_KEY));
+
+      if (!startTime) {
+        startTime = Date.now();
+        window.localStorage.setItem(LS_START_TIME_KEY, String(startTime));
+      }
+
+      const elapsed = Date.now() - startTime;
+      const remaining = APP_BANNER_DURATION_MS - elapsed;
+
+      if (remaining <= 0) {
+        // Global window already used up — never show again
+        window.localStorage.setItem(LS_DISMISSED_KEY, "true");
+        setIsBannerVisible(false);
+        return;
+      }
+
+      setIsBannerVisible(true);
+
+      hideTimerRef.current = setTimeout(() => {
+        setIsBannerVisible(false);
+        window.localStorage.setItem(LS_DISMISSED_KEY, "true");
+      }, remaining);
+    } catch {
+      // localStorage unavailable (e.g. privacy mode) — just don't show
+      setIsBannerVisible(false);
+    }
+
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
+    // Re-evaluate whenever the prop changes; pathname changes intentionally
+    // do NOT reset the timer, that's the whole point.
+  }, [showAppBannerProp]);
+
+  const handleBannerClose = () => {
+    setIsBannerVisible(false);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    try {
+      window.localStorage.setItem(LS_DISMISSED_KEY, "true");
+    } catch {}
+  };
+
+  const handleBannerDownload = () => {
+    setIsBannerVisible(false);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    try {
+      window.localStorage.setItem(LS_DOWNLOADED_KEY, "true");
+      window.localStorage.setItem(LS_DISMISSED_KEY, "true");
+    } catch {}
+    // TODO: trigger actual app download / redirect here
+  };
 
   // Synchronize state when pathname changes to explicit routes
   useEffect(() => {
@@ -210,10 +288,13 @@ const TabBar = () => {
       ref={containerRef}
       className="md:hidden fixed z-[500000000] left-0 bottom-0 w-full flex flex-col items-center pointer-events-none"
     >
-      {/* 🟢 TOP APP BANNER - Auto hides after 2 minutes */}
-      {showAppBanner && (
+      {/* 🟢 TOP APP BANNER - global 30s, one-time */}
+      {isBannerVisible && (
         <div className="pointer-events-auto w-full">
-          <AppBanner onClose={() => setShowAppBanner(false)} />
+          <AppBanner
+            onClose={handleBannerClose}
+            onDownload={handleBannerDownload}
+          />
         </div>
       )}
 

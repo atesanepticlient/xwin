@@ -102,7 +102,11 @@ export const LogoutModalContent = ({
           disabled={pending}
           className="flex-1 !bg-[#212121] text-white"
         >
-          {pending ? <FlipText text="Logout..." className="text-xs"/> : "Logout"}
+          {pending ? (
+            <FlipText text="Logout..." className="text-xs" />
+          ) : (
+            "Logout"
+          )}
         </SecondaryButton>
 
         <SecondaryButton

@@ -37,7 +37,7 @@ import Inbox from "./inbox";
 import User from "./user";
 import Logout from "./logout";
 import LogoutModal from "@/components/LogoutModal";
-
+import { signOut } from "next-auth/react";
 import Contact from "./contact";
 import CountryFlag from "./country-flag";
 // import Balance from "./balance";
@@ -47,6 +47,12 @@ import CountryFlag from "./country-flag";
 
 const Header = () => {
   const user = useCurrentUser();
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+
+    window.location.href = "/";
+  };
 
   return (
     <header className="w-full  z-[1000] sticky top-0 left-0  flex flex-col items-center justify-between ">
@@ -75,7 +81,7 @@ const Header = () => {
                 <Balance />
                 <Inbox />
                 <User />
-                <LogoutModal>
+                <LogoutModal onLogout={handleLogout}>
                   <Logout />
                 </LogoutModal>
               </>
@@ -118,7 +124,7 @@ const Header = () => {
             />
           </Link>
 
-          <CountryFlag />
+          <CountryFlag country={user?.country} />
         </div>
 
         <nav className="hidden md:block py-1 bg-[#90B800]">

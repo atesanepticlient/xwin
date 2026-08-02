@@ -6,7 +6,7 @@ const Registation = () => {
   return (
     <div className="md:w-[600px] mx-auto bg-white rounded-md">
       <FormLoader label="Registation">
-        <div className="max-h-[600px]">
+        <div className="min-h-[500px] h-[500px] max-h-[600px] overflow-y-auto">
           <RegistationForm />
         </div>
       </FormLoader>

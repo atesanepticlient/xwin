@@ -1,14 +1,12 @@
 import { X, Star, StarHalf, Download } from "lucide-react";
 import appLogo from "@/../public/web-app-manifest-192x192.png";
 import Image from "next/image";
-import { useState, useEffect } from "react";
 
 interface AppBannerProps {
   appName?: string;
   rating?: number;
   onClose?: () => void;
   onDownload?: () => void;
-  autoHideTime?: number; // in seconds
 }
 
 export default function AppBanner({
@@ -16,35 +14,10 @@ export default function AppBanner({
   rating = 4.5,
   onClose = () => {},
   onDownload = () => {},
-  autoHideTime = 120, // 2 minutes default
 }: AppBannerProps) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-  // ⏱️ Countdown timer state
-  const [timeLeft, setTimeLeft] = useState<number>(autoHideTime);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [autoHideTime]);
-
-  // Convert seconds to mm:ss format
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
 
   return (
     <div className="w-full border-y border-neutral-700 bg-[#2b2b2e] px-4 py-3">
@@ -102,3 +75,6 @@ export default function AppBanner({
     </div>
   );
 }
+// localStorage.setItem("app-downloaded", "true");
+// // or
+// localStorage.setItem("app-banner-dismissed", "true");
