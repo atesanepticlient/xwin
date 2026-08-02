@@ -75,6 +75,3 @@ export default function AppBanner({
     </div>
   );
 }
-// localStorage.setItem("app-downloaded", "true");
-// // or
-// localStorage.setItem("app-banner-dismissed", "true");

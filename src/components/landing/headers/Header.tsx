@@ -124,7 +124,7 @@ const Header = () => {
             />
           </Link>
 
-          <CountryFlag country={user?.country} />
+          <CountryFlag country={user?.country!} />
         </div>
 
         <nav className="hidden md:block py-1 bg-[#90B800]">
