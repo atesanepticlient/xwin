@@ -1,10 +1,11 @@
 // components/account/AccountHeader.tsx
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoCopyOutline, IoMailOutline, IoClose } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 import Link from "next/link";
 import useCurrentUser from "@/hook/useCurrentUser";
+import { useNotificationStore } from "@/store/useStore";
 
 interface AccountHeaderProps {
   onClose?: () => void;
@@ -16,8 +17,22 @@ const AccountHeader = ({ onClose }: AccountHeaderProps) => {
   const handleCopy = () => {
     if (user?.playerId) {
       navigator.clipboard.writeText(String(user.playerId));
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 1500);
     }
   };
+  const [copied, setCopied] = useState(false);
+
+  const { notifications, fetchNotifications } = useNotificationStore();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const hasUnseenMessage = Boolean(notifications?.unSeenMessage);
 
   return (
     <div className="bg-white rounded-md">
@@ -25,24 +40,35 @@ const AccountHeader = ({ onClose }: AccountHeaderProps) => {
         <div className="flex items-center gap-3">
           <FaUserCircle className="w-10 h-10 text-[#4a4a4a]" />
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-[#4a4a4a] font-medium">
-                Account No.{user?.playerId}
-              </span>
-              <button onClick={handleCopy} aria-label="Copy account number">
-                <IoCopyOutline className="w-4 h-4 text-[#4a4a4a]" />
-              </button>
-            </div>
-            <span className="block text-lg font-bold text-black">
-              {Number(user?.wallet?.balance ?? 0).toFixed(2)} {user?.wallet?.currencyCode}
+            <span
+              className="text-sm text-[#4a4a4a] font-medium cursor-pointer"
+              onClick={handleCopy}
+            >
+              Account No. <br />
+              {copied ? (
+                <span className="ml-2 text-xs text-green-600 font-semibold">
+                  Copied!
+                </span>
+              ) : (
+                user?.playerId
+              )}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-           <div className="w-px h-6 bg-gray-200" />
-          <Link href="/account/message" aria-label="Messages">
+          <div className="w-px h-6 bg-gray-200" />
+          <Link
+            href="/account/message"
+            aria-label="Messages"
+            className="relative flex items-center justify-center"
+          >
             <IoMailOutline className="w-5 h-5 text-[#4a4a4a]" />
+
+            {/* Static Notification Badge */}
+            {hasUnseenMessage && (
+              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
+            )}
           </Link>
           <div className="w-px h-6 bg-gray-200" />
           <button onClick={onClose} aria-label="Close">

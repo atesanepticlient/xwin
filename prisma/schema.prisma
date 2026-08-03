@@ -26,7 +26,7 @@ enum SignupMethod {
 
 model Users {
   id                  String   @id @default(cuid())
-  email               String   @unique
+  email               String?   
   phone               String?                     // <- was required, now optional
                                                     //    (one-click signups don't collect a phone)
   firstName           String?                     // <- made optional: one-click signups skip this
@@ -373,6 +373,11 @@ model CryptoWallet {
   @@index([currencyCode])
 }
 
+enum PaymentNotifyStatus {
+  UNSEEN
+  SEEN
+}
+
 model Deposit{
   id                  String @id @default(cuid())
   status              PaymentStatus @default(PENDING)
@@ -380,11 +385,15 @@ model Deposit{
   merchantId          String
   user                Users @relation(fields: [userId], references: [id])
   transactions        PaymentHistory?
-  createdAt           DateTime @default(now())
   ewalletId           String
   ewallet             DepositEWallet @relation(fields: [ewalletId], references: [id], onDelete: Cascade)
   amount              Decimal?
   payFrom             String?
+  userNotifyStatus    PaymentNotifyStatus @default(UNSEEN)
+
+
+  createdAt           DateTime @default(now())
+  // updatedAt           DateTime @updatedAt //active before go live
 }
 
 model APayDeposit {
@@ -399,15 +408,19 @@ model APayDeposit {
 model Withdraw{
   id                  String @id @default(cuid())
   status              PaymentStatus @default(PENDING)
-    merchantId          String
+  merchantId          String
   userId              String
   user                Users @relation(fields: [userId], references: [id])
-  createdAt           DateTime @default(now())
   transactions        PaymentHistory?
-paymentWalletNumber    String?
-amount                Decimal?
+  paymentWalletNumber    String?
+  amount                Decimal?
   withdrawEWalletID   String?
   withdrawEWallet     WithdrawEWallet? @relation(fields: [withdrawEWalletID], references: [id])
+  userNotifyStatus    PaymentNotifyStatus @default(UNSEEN)
+
+  createdAt           DateTime @default(now())
+  // updatedAt           DateTime @updatedAt //active before go live
+
 }
 model APayWithdraw {
   id                  String @id @default(cuid())

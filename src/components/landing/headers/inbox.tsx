@@ -23,6 +23,7 @@ import SweetToast from "@/components/ui/SweetToast";
 import { INTERNAL_SERVER_ERROR } from "@/error";
 import { ScaleLoader } from "react-spinners";
 import { Prisma } from "@prisma/client";
+import { useMarkNotificationsAsSeenMutation } from "@/lib/features/notificatinApiSlice";
 
 const Inbox = () => {
   const { data, isLoading } = useFetchMessagesQuery();
@@ -61,7 +62,8 @@ export const MessageBox = ({
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
 
   const [deleteApi, { isLoading: deleteLoading }] = useDeleteMessagesMutation();
-  const [seeApi] = useSeenMessagesMutation();
+
+  const [updateStatus] = useMarkNotificationsAsSeenMutation();
 
   const handleSelect = (id: string) => {
     setSelectedMessages((state) => {
@@ -102,14 +104,7 @@ export const MessageBox = ({
   };
 
   useEffect(() => {
-    seeApi()
-      .unwrap()
-      .then((res) => {
-        console.log("Seen ", res);
-      })
-      .catch((error) => {
-        console.log({ error });
-      });
+    updateStatus({ proccessQueue: ["MESSAGE"] });
   }, []);
 
   return (
@@ -120,10 +115,8 @@ export const MessageBox = ({
         </div>
       )}
 
-
       {messages!.length > 0 && (
         <div className="overflow-y-auto max-h-[250px]">
-        
           <ul className="flex flex-col gap-1">
             {messages?.map((message, i) => (
               <li key={i} className="  border-b border-b-[#F2F2F2]">

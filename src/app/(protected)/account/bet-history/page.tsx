@@ -3,7 +3,15 @@
 import PageHeader from "@/components/page-header";
 import React, { useState, useEffect } from "react";
 import { HiBars3 } from "react-icons/hi2";
-import { IoFunnel, IoSwapVertical } from "react-icons/io5";
+import {
+  IoFunnel,
+  IoSwapVertical,
+  IoCheckmarkCircle,
+  IoCloseCircle,
+  IoRemoveCircle,
+  IoArrowUndoCircle,
+  IoTimeOutline,
+} from "react-icons/io5";
 import BetHistoryFilterModal from "@/components/account/BetHistoryFilterModal";
 import { cn } from "@/lib/utils";
 
@@ -38,19 +46,6 @@ const DEFAULT_FILTERS = {
   outcome: "ALL",
 };
 
-const OUTCOME_BADGE: Record<string, string> = {
-  WON: "bg-green-100 text-green-700",
-  LOST: "bg-red-100 text-red-600",
-  DRAW: "bg-amber-100 text-amber-700",
-};
-
-const STATUS_BADGE: Record<string, string> = {
-  RUNNING: "bg-blue-100 text-blue-700",
-  SETTLED: "bg-gray-100 text-gray-600",
-  CANCELED: "bg-gray-200 text-gray-500",
-  VOID: "bg-gray-200 text-gray-500",
-};
-
 const CATEGORY_LABEL: Record<string, string> = {
   SPORTS: "Sports",
   LIVE_CASINO: "Live Casino",
@@ -59,6 +54,145 @@ const CATEGORY_LABEL: Record<string, string> = {
   FISH: "Fish",
   OTHER: "Other",
 };
+
+/**
+ * Visual language for the outcome row of each bet slip card, mirroring the
+ * reference design (icon + label on the left, colored amount on the right).
+ *
+ * RUNNING bets (unsettled) get their own "Pending" treatment since they
+ * don't have a resolved outcome yet.
+ */
+function getResultDisplay(bet: Bet) {
+  if (bet.status === "RUNNING") {
+    return {
+      label: "Pending",
+      icon: IoTimeOutline,
+      colorClass: "text-blue-600",
+      amountLabel: null as string | null,
+    };
+  }
+
+  if (bet.status === "CANCELED" || bet.status === "VOID") {
+    return {
+      label: "Refund",
+      icon: IoArrowUndoCircle,
+      colorClass: "text-gray-700",
+      amountLabel: `${bet.betAmount.toFixed(2)}`,
+    };
+  }
+
+  if (bet.outcome === "WON") {
+    return {
+      label: "Win",
+      icon: IoCheckmarkCircle,
+      colorClass: "text-green-600",
+      amountLabel: `${(bet.profitNLoss ?? 0).toFixed(2)}`,
+    };
+  }
+
+  if (bet.outcome === "DRAW") {
+    return {
+      label: "Draw",
+      icon: IoRemoveCircle,
+      colorClass: "text-amber-600",
+      amountLabel: `${(bet.profitNLoss ?? bet.betAmount).toFixed(2)}`,
+    };
+  }
+
+  if (bet.outcome === "LOST") {
+    return {
+      label: "Lose",
+      icon: IoCloseCircle,
+      colorClass: "text-red-500",
+      amountLabel: `${(bet.profitNLoss ?? 0).toFixed(2)}`,
+    };
+  }
+
+  // Fallback for SETTLED bets with no resolvable outcome
+  return {
+    label: bet.status,
+    icon: IoTimeOutline,
+    colorClass: "text-gray-500",
+    amountLabel: null,
+  };
+}
+
+function formatSlipDate(iso: string) {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString("en-GB"); // DD/MM/YYYY
+  const time = d.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return { date, time };
+}
+
+function BetSlipCard({ bet, currency }: { bet: Bet; currency: string }) {
+  const { date, time } = formatSlipDate(bet.createdAt);
+  const result = getResultDisplay(bet);
+  const ResultIcon = result.icon;
+
+  return (
+    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+       
+          <p className="text-xs text-gray-400 mt-0.5">
+            {date} ({time})
+          </p>
+        </div>
+      </div>
+
+      <div className="h-px bg-gray-100 my-3" />
+
+      {/* Category / event summary pill */}
+      <div className="bg-gray-50 rounded-xl px-3 py-2.5 flex items-center justify-between">
+        <span className="text-sm font-semibold text-gray-800">
+          {CATEGORY_LABEL[bet.category] || bet.category}
+          {bet.name ? `: ${bet.name}` : ""}
+        </span>
+        <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 font-medium uppercase shrink-0">
+          {bet.status.toLowerCase()}
+        </span>
+      </div>
+
+      {/* Details */}
+      <div className="mt-3 space-y-2 text-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-gray-400">Bet type</span>
+          <span className="text-gray-900 font-medium">Single bet</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-gray-400">Bet</span>
+          <span className="text-gray-900 font-medium">
+            {bet.betAmount.toFixed(2)} {currency}
+          </span>
+        </div>
+      </div>
+
+      {/* Outcome row */}
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+        <div
+          className={cn(
+            "flex items-center gap-1.5 font-semibold",
+            result.colorClass,
+          )}
+        >
+          <ResultIcon className="w-5 h-5" />
+          <span>{result.label}</span>
+        </div>
+        {result.amountLabel && (
+          <span className={cn("font-bold text-[15px]", result.colorClass)}>
+            {result.amountLabel} {currency}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function BetHistoryPage() {
   const [activeTab, setActiveTab] = useState<"website" | "unsettled">(
@@ -216,110 +350,32 @@ export default function BetHistoryPage() {
           )}
 
           {/* Main Content Area */}
-          <div className="bg-white rounded-2xl min-h-[65vh] p-4 flex flex-col items-center  text-center shadow-sm">
+          <div className="bg-transparent min-h-[65vh] flex flex-col items-center text-center">
             {loading ? (
               <div className="text-gray-400 text-sm mt-10">Loading bets...</div>
             ) : bets.length === 0 ? (
-              <div className="max-w-xs space-y-2 mt-10">
-                <h3 className="font-bold text-[17px] text-gray-900">
-                  Bets not found
-                </h3>
-                <p className="text-gray-500 text-[14px] leading-snug">
-                  No bets found between {dateRange.from} and {dateRange.to}. Try
-                  changing the time interval in the filter
-                </p>
+              <div className="bg-white rounded-2xl w-full p-4 shadow-sm">
+                <div className="max-w-xs mx-auto space-y-2 mt-10 mb-10">
+                  <h3 className="font-bold text-[17px] text-gray-900">
+                    {activeTab === "unsettled"
+                      ? "No unsettled bets"
+                      : "Bets not found"}
+                  </h3>
+                  <p className="text-gray-500 text-[14px] leading-snug">
+                    {activeTab === "unsettled"
+                      ? "You don't have any running bets right now."
+                      : `No bets found between ${dateRange.from} and ${dateRange.to}. Try changing the time interval in the filter`}
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="w-full space-y-2.5 text-left">
+              <div className="w-full space-y-3 text-left">
                 {bets.map((bet) => (
-                  <div
+                  <BetSlipCard
                     key={String(bet.id)}
-                    className="p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-sm text-gray-900 truncate">
-                            {bet.name ||
-                              CATEGORY_LABEL[bet.category] ||
-                              bet.category}
-                          </p>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium uppercase shrink-0">
-                            {CATEGORY_LABEL[bet.category] || bet.category}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {new Date(bet.createdAt).toLocaleString()}
-                        </p>
-                        {(bet.orderNo || bet.wagerCode) && (
-                          <p className="text-[10px] text-gray-300 mt-0.5 truncate">
-                            {bet.orderNo && <>Order: {bet.orderNo}</>}
-                            {bet.orderNo && bet.wagerCode && " • "}
-                            {bet.wagerCode && <>Wager: {bet.wagerCode}</>}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="text-right shrink-0 ml-2">
-                        <span
-                          className={cn(
-                            "text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider inline-block",
-                            STATUS_BADGE[bet.status] ??
-                              "bg-gray-100 text-gray-600",
-                          )}
-                        >
-                          {bet.status}
-                        </span>
-                        {bet.outcome && (
-                          <span
-                            className={cn(
-                              "text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider inline-block mt-1 ml-1",
-                              OUTCOME_BADGE[bet.outcome],
-                            )}
-                          >
-                            {bet.outcome}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Stake / Return / Net breakdown */}
-                    <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-gray-50">
-                      <div>
-                        <p className="text-[10px] text-gray-400">Stake</p>
-                        <p className="text-xs font-medium text-gray-900">
-                          {bet.betAmount.toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-gray-400">Return</p>
-                        <p className="text-xs font-medium text-gray-900">
-                          {bet.profitNLoss != null
-                            ? bet.profitNLoss.toFixed(2)
-                            : "—"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-gray-400">Net</p>
-                        <p
-                          className={cn(
-                            "text-xs font-semibold",
-                            bet.net == null
-                              ? "text-gray-400"
-                              : bet.net > 0
-                                ? "text-green-600"
-                                : bet.net < 0
-                                  ? "text-red-500"
-                                  : "text-gray-500",
-                          )}
-                        >
-                          {bet.net == null
-                            ? "—"
-                            : `${bet.net > 0 ? "+" : ""}${bet.net.toFixed(2)}`}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                    bet={bet}
+                    currency={currency || "SGD"}
+                  />
                 ))}
               </div>
             )}

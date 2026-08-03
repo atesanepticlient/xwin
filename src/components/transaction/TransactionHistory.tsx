@@ -1,11 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFetchTransactionsQuery } from "@/lib/features/paymentApiSlice";
 import { TransactionFilters } from "@/types/api";
 import TransactionFiltersBar from "./TransactionFilters";
 import TransactionStatsBar from "./TransactionStatsBar";
 import TransactionList from "./TransactionList";
 import { ScaleLoader } from "react-spinners";
+import { useMarkNotificationsAsSeenMutation } from "@/lib/features/notificatinApiSlice";
 
 const DEFAULT_FILTERS: TransactionFilters = {
   type: "all",
@@ -18,6 +19,10 @@ const TransactionHistory = () => {
   const [filters, setFilters] = useState<TransactionFilters>(DEFAULT_FILTERS);
   const { data, isLoading, isFetching } = useFetchTransactionsQuery(filters);
 
+  const [updateStatus] = useMarkNotificationsAsSeenMutation();
+  useEffect(() => {
+    updateStatus({ proccessQueue: ["DEPOSIT", "WITHDRAW"] });
+  }, []);
   return (
     <div className="flex flex-col gap-3">
       <TransactionFiltersBar filters={filters} setFilters={setFilters} />

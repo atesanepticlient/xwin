@@ -132,3 +132,51 @@ export const useOpenGame = create<OpenGameStore>((set, get) => ({
     }
   },
 }));
+
+export interface NotificationPayload {
+  profileStatus: "HIGH_RISK" | "WARNING" | null;
+  scurityStatus: "WARNING" | null;
+  unSeenMessage: boolean;
+  claimableCashback: boolean;
+  depositNofication: boolean;
+  withdrawalNofication: boolean;
+}
+
+interface NotificationState {
+  notifications: NotificationPayload | null;
+  isLoading: boolean;
+  error: string | null;
+  fetchNotifications: () => Promise<void>;
+  resetNotifications: () => void;
+}
+
+export const useNotificationStore = create<NotificationState>((set) => ({
+  notifications: null,
+  isLoading: false,
+  error: null,
+
+  fetchNotifications: async () => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await fetch("/api/notification"); // Adjust route to your endpoint path
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch notifications");
+      }
+
+      const data = await response.json();
+      set({ notifications: data.payload, isLoading: false });
+    } catch (err: any) {
+      set({
+        error: err.message || "An unexpected error occurred",
+        isLoading: false,
+      });
+    }
+  },
+
+  resetNotifications: () => {
+    set({ notifications: null, isLoading: false, error: null });
+  },
+}));

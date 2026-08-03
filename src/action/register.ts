@@ -35,7 +35,7 @@ export const register = async (data: zod.infer<typeof registerSchema>) => {
       // `phone`, `firstName`, `lastName` are still required (non-null)
       // columns in the DB, and this wizard doesn't collect any of them,
       // so we fill in placeholders rather than passing null.
-      phone: generateGuestPhone(),
+      phone: "",
       firstName: "",
       lastName: "",
       country,
@@ -65,8 +65,8 @@ export const oneClickRegister = async (
   try {
     const parsed = oneClickSchema.parse(data);
 
-    const email = generateGuestEmail();
-    const phone = generateGuestPhone();
+    const email = "";
+    const phone = "";
     const password = generateGuestPassword();
     const { firstName, lastName } = generateGuestName();
 

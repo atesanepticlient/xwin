@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   MdOutlineHistory,
   MdOutlineFileDownload,
@@ -14,12 +14,24 @@ import {
 } from "react-icons/md";
 import AccountMenuItem from "./AccountMenuItem";
 import { signOut } from "next-auth/react";
+import { useNotificationStore } from "@/store/useStore";
+
 const AccountMenu = () => {
+  const { notifications, fetchNotifications } = useNotificationStore();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
   const handleLogout = async () => {
     await signOut({ redirect: false });
-
     window.location.href = "/";
   };
+
+  // Check if either deposit or withdrawal notifications are present
+  const hasTransactionNotification =
+    Boolean(notifications?.depositNofication) ||
+    Boolean(notifications?.withdrawalNofication);
 
   return (
     <div className="space-y-3">
@@ -48,6 +60,7 @@ const AccountMenu = () => {
             label="Transaction history"
             href="/account/transaction"
             icon={<MdSwapHoriz className="w-5 h-5" />}
+            badge={hasTransactionNotification}
           />
           <AccountMenuItem
             label="Payment queries"
@@ -67,13 +80,13 @@ const AccountMenu = () => {
             label="Personal profile"
             href="/account/profile"
             icon={<MdOutlinePerson className="w-5 h-5" />}
-            warning
+            status={notifications?.profileStatus}
           />
           <AccountMenuItem
             label="Security"
             href="/account/security"
             icon={<MdOutlineLock className="w-5 h-5" />}
-            warning
+            status={notifications?.scurityStatus}
           />
           <AccountMenuItem
             label="Responsible Gambling"

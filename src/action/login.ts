@@ -37,14 +37,13 @@ export const loginByEmail = async (
     const passwordsMatch = bcrypt.compareSync(password, user.password);
     if (!passwordsMatch) {
       return { error: "Incorrect password" };
-    } 
+    }
     await signIn("credentials", {
-      email: user.email,
+      email: identifier,
       password,
       remember,
       redirect: false,
     });
-
     return { success: "Logged in successfully" };
   } catch (error) {
     console.log("Login error (email)", error);

@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 
 import logo from "@/../public/assets/images/logo.png";
 
@@ -40,6 +40,7 @@ import LogoutModal from "@/components/LogoutModal";
 import { signOut } from "next-auth/react";
 import Contact from "./contact";
 import CountryFlag from "./country-flag";
+import { useNotificationStore } from "@/store/useStore";
 // import Balance from "./balance";
 // import Inbox from "./inbox";
 // import User from "./user";
@@ -53,6 +54,22 @@ const Header = () => {
 
     window.location.href = "/";
   };
+
+  const { notifications, fetchNotifications } = useNotificationStore();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  // Check if any notification flag is true or has a warning status
+  const hasUnseenNotifications = Boolean(
+    notifications?.unSeenMessage ||
+    notifications?.claimableCashback ||
+    notifications?.depositNofication ||
+    notifications?.withdrawalNofication ||
+    notifications?.profileStatus ||
+    notifications?.scurityStatus,
+  );
 
   return (
     <header className="w-full  z-[1000] sticky top-0 left-0  flex flex-col items-center justify-between ">
@@ -225,10 +242,15 @@ const Header = () => {
                 </Link>
               </PrimaryButton> */}
               <Link
-                href={"/account"}
-                className="bg-[#3a3a3a] hover:bg-[#4f4f4f] w-7 flex items-center justify-center aspect-square rounded-sm"
+                href="/account"
+                className="relative bg-[#3a3a3a] hover:bg-[#4f4f4f] w-7 flex items-center justify-center aspect-square rounded-sm"
               >
-                <FaUser className="w-4 h-4 !text-white  rounded-md" />
+                <FaUser className="w-4 h-4 !text-white rounded-md" />
+
+                {/* Notification Dot */}
+                {hasUnseenNotifications && (
+                  <span className="absolute top-1 right-0.5 flex h-1.5 w-1.5 bg-yellow-500 rounded-full"></span>
+                )}
               </Link>
             </div>
           )}

@@ -35,6 +35,6 @@ const paymentApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useFetchMessagesQuery,
-  useDeleteMessagesMutation,
+   useDeleteMessagesMutation,
   useSeenMessagesMutation,
 } = paymentApiSlice;
