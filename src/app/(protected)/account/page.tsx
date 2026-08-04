@@ -6,6 +6,7 @@ import AccountTabs from "@/components/account/AccountTabs";
 import AccountMenu from "@/components/account/AccountMenu";
 import PromoMenu from "@/components/account/PromoMenu";
 import SettingsMenu from "@/components/account/SettingsMenu";
+import NewUserBonusNotification from "@/components/newuser-bonus-notification";
 
 const AccountPage = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -21,7 +22,11 @@ const AccountPage = () => {
           {activeTab === "promo" && <PromoMenu />}
           {activeTab === "settings" && <SettingsMenu />}
         </div>
+
+        <NewUserBonusNotification />
         <div className="hidden md:block">{/* Desktop view if needed */}</div>
+
+        <NewUserBonusNotification />
       </main>
       <TabBar />
     </div>

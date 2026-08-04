@@ -167,6 +167,9 @@ model admin {
   password            String
   createdAt           DateTime @default(now())
   eWallet             AdEWallet[]
+
+  twoFactorSecret String?  // TOTP secret — set once, never cleared
+  ipWhitelist     String[] @default([]) // empty = no IP restriction
 }
 model agent {
   id                  String @id @default(cuid())

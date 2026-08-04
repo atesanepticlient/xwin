@@ -15,6 +15,9 @@ import { INTERNAL_SERVER_ERROR } from "@/error";
 import { SIGNUP_SUCCESS } from "@/success";
 import { registerSchema, oneClickSchema } from "@/schema";
 import { BonusTypeEnum } from "@/types";
+import { sendAdminNotification } from "@/lib/notifications";
+import { signIn } from "@/auth";
+import { encodeData } from "@/lib/secure-data";
 
 // ---------------------------------------------------------------
 // "By e-mail" tab: no OTP - validates the email is free and creates
@@ -46,7 +49,57 @@ export const register = async (data: zod.infer<typeof registerSchema>) => {
       signupMethod: "EMAIL",
     });
 
-    return { success: SIGNUP_SUCCESS, playerId: user.playerId };
+    // Auto-login right after account creation, so the user doesn't have
+    // to submit the login form again. Uses playerId as the identifier
+    // since it's always populated (unlike email in the one-click flow).
+
+    try {
+      await signIn("credentials", {
+        email: user.playerId,
+        password,
+        remember: true,
+        redirect: false,
+      });
+    } catch (signInError) {
+      // Don't fail the whole signup if auto-login hiccups - the account
+      // was already created successfully, they can just log in manually.
+      console.log("Auto-login after registration failed", signInError);
+    }
+
+    let bonusOffer: {
+      bonusPercentage: number;
+      upto: number;
+      currency: string;
+    } | null = null;
+    console.log({ parsed });
+    if (parsed.bonusType === "FIRST_PAYIN") {
+      const bonusSetting = await db.bonusSetting.findUnique({
+        where: { id: "global" },
+      });
+      const payinBonus = Number(bonusSetting!.firstPayin) * 100 || 100;
+      const payinBonusUp = Number(bonusSetting!.firstPayinUpTo) || 1000;
+
+      bonusOffer = {
+        bonusPercentage: payinBonus,
+        upto: payinBonusUp,
+        currency: user.wallet?.currencyCode ?? "USD",
+      };
+    }
+
+    await sendAdminNotification({
+      id: crypto.randomUUID(),
+      type: "NEW_USER",
+      title: "New user registered",
+      description: "Just a new user registered account",
+      createdAt: new Date().toISOString(),
+      link: "",
+    });
+
+    return {
+      success: SIGNUP_SUCCESS,
+      playerId: user.playerId,
+      bonusOffer,
+    };
   } catch (error) {
     console.log("Registration error ", error);
     return { error: INTERNAL_SERVER_ERROR };
@@ -83,7 +136,61 @@ export const oneClickRegister = async (
       signupMethod: "ONE_CLICK",
     });
 
+    await sendAdminNotification({
+      id: crypto.randomUUID(),
+      type: "NEW_USER",
+      title: "New user registered",
+      description: "Just a new user registered account",
+      createdAt: new Date().toISOString(),
+      link: "",
+    });
+
+    // Auto-login right after account creation.
+    try {
+      await signIn("credentials", {
+        email: user.playerId,
+        password,
+        remember: true,
+        redirect: false,
+      });
+    } catch (signInError) {
+      console.log(
+        "Auto-login after one-click registration failed",
+        signInError,
+      );
+    }
+
+    let bonusOffer: {
+      bonusPercentage: number;
+      upto: number;
+      currency: string;
+    } | null = null;
+    console.log({ parsed });
+    if (parsed.bonusType === "FIRST_PAYIN") {
+      const bonusSetting = await db.bonusSetting.findUnique({
+        where: { id: "global" },
+      });
+      const payinBonus = Number(bonusSetting!.firstPayin) * 100 || 100;
+      const payinBonusUp = Number(bonusSetting!.firstPayinUpTo) || 1000;
+
+      bonusOffer = {
+        bonusPercentage: payinBonus,
+        upto: payinBonusUp,
+        currency: user.wallet?.currencyCode ?? "USD",
+      };
+    }
+
+    await sendAdminNotification({
+      id: crypto.randomUUID(),
+      type: "NEW_USER",
+      title: "New user registered",
+      description: "Just a new user registered account",
+      createdAt: new Date().toISOString(),
+      link: "",
+    });
+
     return {
+      bonusOffer,
       success: SIGNUP_SUCCESS,
       playerId: user.playerId,
       generatedPassword: password, // show this to the user ONCE, they need it to log in

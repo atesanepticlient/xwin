@@ -35,6 +35,10 @@ type Props = {
   initialCountry?: string;
 };
 
+const bonusOfferStoreInLocalstorage = (key: string, value: string) => {
+  localStorage.setItem(key, value);
+};
+
 const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
   const searchParams = useSearchParams();
   // Read both "ref" and "r" query parameters
@@ -216,7 +220,13 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
             showConfirmButton: false,
             timer: 2000,
           });
-          redirect("/login");
+          if (res.bonusOffer) {
+            sessionStorage.setItem(
+              "newUserBonus",
+              JSON.stringify(res.bonusOffer),
+            );
+          }
+          window.location.href = "/";
         } else if (res.error) {
           SweetToast.fire({
             icon: "error",
@@ -243,7 +253,15 @@ const RegistationForm = ({ firstDepositBonus = 0, initialCountry }: Props) => {
             title: "Account created",
             html: `Your player ID: <b>${res.playerId}</b><br/>Your password: <b>${res.generatedPassword}</b><br/>Save this now — it won't be shown again.`,
             showConfirmButton: true,
-          }).then(() => redirect("/login"));
+          }).then(() => {
+            if (res.bonusOffer) {
+              sessionStorage.setItem(
+                "newUserBonus",
+                JSON.stringify(res.bonusOffer),
+              );
+            }
+            window.location.href = "/";
+          });
         } else if (res.error) {
           SweetToast.fire({
             icon: "error",

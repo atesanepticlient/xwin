@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
 export const findUserByEmail = async (email: string) =>
-  await db.users.findUnique({ where: { email } });
+  await db.users.findFirst({ where: { email } });
 
 export const findUserById = async (id: string) =>
   await db.users.findUnique({ where: { id } });
