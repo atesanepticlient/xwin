@@ -11,7 +11,7 @@ import { Categories } from "../types/game";
 import { redirect } from "next/navigation";
 import GamesLoader from "@/app/GamesLoader";
 
-const Live = () => {
+const PopularLive = () => {
   const { getGames } = useGames((state) => state);
 
   const games = getGames(Categories.LiveDealers, undefined, 20);
@@ -41,4 +41,4 @@ const Live = () => {
   );
 };
 
-export default Live;
+export default PopularLive;

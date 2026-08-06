@@ -37,9 +37,9 @@ export const POST = async (req: NextRequest) => {
       gameId: gameId,
       cmd: "openGame",
       demo: "0",
-      domain: "https://www.livvbet.com/",
+      domain: "https://www.winparibet.com/",
       cdnUrl: "",
-      exitUrl: "https://www.livvbet.com/",
+      exitUrl: "https://www.winparibet.com/",
       language: "en",
     });
 

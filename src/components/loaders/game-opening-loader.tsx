@@ -12,7 +12,11 @@ const GameOpeningLoader = () => {
         <div className="borderCircle3"></div>
         <div className="innerCircle flex items-center justify-center">
           <p>
-            <Image src={logo} alt="Livvbet" className="w-[70px] -translate-y-[15px]" />
+            <Image
+              src={logo}
+              alt="WinpariBet"
+              className="w-[70px] -translate-y-[15px]"
+            />
           </p>
         </div>
         <div className="outerCirlce"></div>

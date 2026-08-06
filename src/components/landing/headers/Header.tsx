@@ -41,13 +41,11 @@ import { signOut } from "next-auth/react";
 import Contact from "./contact";
 import CountryFlag from "./country-flag";
 import { useNotificationStore } from "@/store/useStore";
-// import Balance from "./balance";
-// import Inbox from "./inbox";
-// import User from "./user";
-// import Logout from "./logout";
+import { useHeaderVisibility } from "@/hooks/useHeaderVisibility";
 
 const Header = () => {
   const user = useCurrentUser();
+  const visible = useHeaderVisibility();
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -61,7 +59,6 @@ const Header = () => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // Check if any notification flag is true or has a warning status
   const hasUnseenNotifications = Boolean(
     notifications?.unSeenMessage ||
     notifications?.claimableCashback ||
@@ -72,7 +69,12 @@ const Header = () => {
   );
 
   return (
-    <header className="w-full  z-[1000] sticky top-0 left-0  flex flex-col items-center justify-between ">
+    <header
+      className={cn(
+        "w-full z-[1000] sticky top-0 left-0 flex flex-col items-center justify-between transition-transform duration-300 ease-in-out",
+        visible ? "translate-y-0" : "-translate-y-full",
+      )}
+    >
       <TooltipProvider>
         <div className="w-full bg-[#292929] px-5 md:px-7 lg:px-8 py-4 hidden md:flex items-center justify-between ">
           <div className="flex items-center gap-4 md:gap-5 lg:gap-7  ">
@@ -135,7 +137,7 @@ const Header = () => {
           <Link href="/">
             <Image
               src={logo}
-              alt="LivvBet"
+              alt="WinpariBet"
               placeholder="blur"
               className="w-[110px] md:w-[120px] lg:w-[140px] "
             />
@@ -161,18 +163,6 @@ const Header = () => {
                   <Link href="/sports">IPL</Link>
                 </MenubarItem>
                 <MenubarSeparator />
-                {/* <MenubarSub>
-                  <MenubarSubTrigger>Share</MenubarSubTrigger>
-                  <MenubarSubContent>
-                    <MenubarItem>Email link</MenubarItem>
-                    <MenubarItem>Messages</MenubarItem>
-                    <MenubarItem>Notes</MenubarItem>
-                  </MenubarSubContent>
-                </MenubarSub> */}
-
-                {/* <MenubarItem>
-                  Print... <MenubarShortcut>⌘P</MenubarShortcut>
-                </MenubarItem> */}
               </MenubarContent>
             </MenubarMenu>
 
@@ -193,10 +183,6 @@ const Header = () => {
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
-            {/* 
-            <MenubarMenu>
-              <MenubarItem><Link href="/live">Live</Link></MenubarItem>
-            </MenubarMenu> */}
             <MenubarMenu>
               <MenubarTrigger>
                 Casino <IoMdArrowDropdown className={cn("w-4 h-4 ")} />
@@ -233,21 +219,12 @@ const Header = () => {
           {user && (
             <div className="flex items-center gap-2">
               <Balance />
-              {/* <PrimaryButton>
-                <Link
-                  href="/account/deposit"
-                  className="flex items-center gap-1"
-                >
-                  Deposit
-                </Link>
-              </PrimaryButton> */}
               <Link
                 href="/account"
                 className="relative bg-[#3a3a3a] hover:bg-[#4f4f4f] w-7 flex items-center justify-center aspect-square rounded-sm"
               >
                 <FaUser className="w-4 h-4 !text-white rounded-md" />
 
-                {/* Notification Dot */}
                 {hasUnseenNotifications && (
                   <span className="absolute top-1 right-0.5 flex h-1.5 w-1.5 bg-yellow-500 rounded-full"></span>
                 )}

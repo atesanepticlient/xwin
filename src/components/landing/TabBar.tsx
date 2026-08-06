@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import useCurrentUser from "@/hook/useCurrentUser";
 import { MdSportsBasketball } from "react-icons/md";
 import AppBanner from "../app-banner";
+import { useAppStore } from "@/lib/store.zustond";
 
 // ---- App banner global (module-level, in-memory) timing state ----
 // Lives for the lifetime of the JS module: shared across client-side
@@ -53,7 +54,7 @@ const baseNavItems: NavItem[] = [
     submenu: [
       {
         label: "Live",
-        href: "/sports?type=live",
+        href: "/sports?redirect=live",
         icon: (
           <div className="relative flex items-center justify-center">
             <IoRadioOutline className="w-5 h-5 text-[#7EC151]" />
@@ -100,7 +101,7 @@ const baseNavItems: NavItem[] = [
   {
     id: "betslip",
     label: "Bet Slip",
-    href: "/sports?type=slip",
+    href: "/sports?redirect=user/coupon",
     icon: IoTicket,
   },
   {
@@ -277,13 +278,13 @@ const TabBar = ({ showAppBanner: showAppBannerProp = true }: TabBarProps) => {
     if (parentId === "casino") setSelectedContext("casino");
     setActiveMenuId(null);
   };
-
+  const { isMobileSubdomain } = useAppStore();
   return (
     <div
       ref={containerRef}
       className="md:hidden fixed z-[500000000] left-0 bottom-0 w-full flex flex-col items-center pointer-events-none"
     >
-      {isBannerVisible && (
+      {isBannerVisible && !isMobileSubdomain && (
         <div className="pointer-events-auto w-full">
           <AppBanner
             onClose={handleBannerClose}

@@ -11,6 +11,7 @@ import { InternetProvider } from "./internet-provider";
 import InternetGate from "@/components/InternetGate";
 import AuthGuard from "./AuthGuard";
 import { SessionWatcher } from "./session-watcher";
+import AppInitializer from "./AppInitializer";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -54,6 +55,7 @@ export default async function RootLayout({
                 <InternetGate>
                   <SessionWatcher />
                   {children}
+                  <AppInitializer />
                 </InternetGate>
               </InternetProvider>
               <Intro />

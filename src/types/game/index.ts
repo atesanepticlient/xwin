@@ -75,3 +75,11 @@ export interface GameItem {
   is_favorite?: boolean;
   support_currency?: string;
 }
+export interface GreGameItem {
+  id: string;
+  isEnabled: boolean;
+  title: string;
+  imageUrl: string;
+  category: string;
+  provider: string;
+}

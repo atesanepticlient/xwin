@@ -20,8 +20,6 @@ const HomeSlots = () => {
     setGames(activeGames);
     setLoading(false);
   }, []);
-
-  if (loading)
     return (
       <section className="w-full font-sans px-3 pt-3">
         <div className="flex items-center justify-between mb-1 px-1"></div>

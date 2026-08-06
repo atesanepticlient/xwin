@@ -11,11 +11,14 @@ import { ImCross } from "react-icons/im";
 import { IoSearch } from "react-icons/io5";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import Image from "next/image";
-
-import GameCard, { GameItem } from "@/components/casino/GameCard";
-import { categories, providers } from "@/../public/data/games";
-import gamesData from "@/../data/games.json";
+import { categories } from "@/../public/data/games";
+import { gameSearchEngine } from "@/lib/games"; // Your new search engine
 import { useSearchGames } from "@/store/useStore";
+
+// Import your provider data
+import providersData from "@/../data/gra-provider.json";
+import GameCard from "@/components/casino/GameCard";
+import { GreGameItem } from "@/types/game";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -58,15 +61,16 @@ const Filter: React.FC<FilterProps> = ({
 }) => {
   const [providerSearch, setProviderSearch] = useState("");
 
+  // Filter providers based on search
   const filteredProvidersList = useMemo(() => {
-    if (!providerSearch.trim()) return providers;
-    return providers.filter((p) =>
+    if (!providerSearch.trim()) return providersData;
+    return providersData.filter((p) =>
       p.name.toLowerCase().includes(providerSearch.toLowerCase()),
     );
   }, [providerSearch]);
 
   return (
-    <Popover className="relative inline-block text-left ]">
+    <Popover className="relative inline-block text-left">
       <PopoverButton className="w-9 h-9 flex items-center justify-center rounded-md cursor-pointer text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-[#55A630]">
         <FaFilter />
       </PopoverButton>
@@ -132,17 +136,13 @@ const Filter: React.FC<FilterProps> = ({
 
             <div className="max-h-[220px] overflow-y-auto grid grid-cols-3 gap-1.5 pr-1">
               {filteredProvidersList.map((provider, i) => {
-                // Use code or product_code if available in provider object, fallback to slug
-                const providerValue = String(
-                  provider.product_code || provider.code || provider.slug,
-                );
-                const isActive = providerValue === selectedProvider;
+                const isActive = provider.name === selectedProvider;
 
                 return (
                   <button
                     key={i}
                     onClick={() =>
-                      setSelectedProvider(isActive ? "" : providerValue)
+                      setSelectedProvider(isActive ? "" : provider.name)
                     }
                     className={`rounded-sm p-2 border-b-[4px] hover:border-b-[#55A630] hover:to-[#C1E02733] transition-all bg-gradient-to-b from-[#00000008] flex justify-center items-center cursor-pointer ${
                       isActive
@@ -150,15 +150,21 @@ const Filter: React.FC<FilterProps> = ({
                         : "to-[#0000000a] border-b-gray-300"
                     }`}
                   >
-                    <picture>
-                      <Image
-                        src={provider.image}
-                        alt={provider.name}
-                        width={80}
-                        height={32}
-                        className="w-full h-auto object-contain max-h-8"
-                      />
-                    </picture>
+                    {provider.image ? (
+                      <picture>
+                        <Image
+                          src={provider.image}
+                          alt={provider.name}
+                          width={80}
+                          height={32}
+                          className="w-full h-auto object-contain max-h-8"
+                        />
+                      </picture>
+                    ) : (
+                      <span className="text-xs text-gray-500 font-medium">
+                        {provider.name}
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -215,51 +221,55 @@ const SearchGames: React.FC<SearchGamesProps> = ({
     setSelectedProvider("");
   };
 
-  // 1. Get filtered list of games
+  // Get filtered games using the new gameSearchEngine
   const filteredGames = useMemo(() => {
     // IF filteringOff is true AND user hasn't typed or picked a filter, RETURN EMPTY ARRAY
     if (filteringOff && !hasUserFiltered) {
       return [];
     }
 
-    const rawList = (gamesData.list || []) as GameItem[];
+    // If no search term and no filters, return all valid games
+    if (!activeSearch && !activeCategory && !activeProvider) {
+      return gameSearchEngine.getAll(1, 9999);
+    }
 
-    return rawList.filter((game) => {
-      // 1. Name search
-      if (
-        activeSearch &&
-        !game.game_name.toLowerCase().includes(activeSearch.toLowerCase())
-      ) {
-        return false;
-      }
+    let results: GreGameItem[] = [];
 
-      // 2. Category match
-      if (
-        activeCategory &&
-        game.game_type.toLowerCase() !== activeCategory.toLowerCase()
-      ) {
-        return false;
-      }
+    // If there's a search term, use the main search
+    if (activeSearch) {
+      results = gameSearchEngine.search({
+        query: activeSearch,
+        limit: 9999,
+      });
+    } else {
+      // Start with all valid games
+      results = gameSearchEngine.getAll(1, 9999);
+    }
 
-      // 3. Provider match -> Updated to string compare with product_code
-      if (activeProvider) {
-        const providerSlug = activeProvider.toLowerCase().trim();
-        const productCode = String(game.product_code).toLowerCase().trim();
-        const productId = String(game.product_id).toLowerCase().trim();
+    // Apply category filter (using getByCategory which checks both category AND title)
+    if (activeCategory) {
+      const categoryResults = gameSearchEngine.getByCategory(
+        activeCategory,
+        9999,
+      );
+      results = results.filter((game) =>
+        categoryResults.some((catGame) => catGame.id === game.id),
+      );
+    }
 
-        // Checks if provider slug matches product_code, product_id, or is contained within it
-        const isProviderMatch =
-          productCode === providerSlug ||
-          productId === providerSlug ||
-          productCode.includes(providerSlug);
+    // Apply provider filter
+    if (activeProvider) {
+      const providerResults = gameSearchEngine.searchByField(
+        "provider",
+        activeProvider,
+        9999,
+      );
+      results = results.filter((game) =>
+        providerResults.some((provGame) => provGame.id === game.id),
+      );
+    }
 
-        if (!isProviderMatch) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+    return results;
   }, [
     filteringOff,
     hasUserFiltered,
@@ -273,7 +283,7 @@ const SearchGames: React.FC<SearchGamesProps> = ({
     setCurrentPage(1);
   }, [activeSearch, activeCategory, activeProvider]);
 
-  // Paginate 15 games per page
+  // Paginate games
   const totalPages = Math.ceil(filteredGames.length / ITEMS_PER_PAGE);
   const paginatedGames = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -281,10 +291,10 @@ const SearchGames: React.FC<SearchGamesProps> = ({
   }, [filteredGames, currentPage]);
 
   return (
-    <div className="w-full">
+    <div className="w-full px-2">
       {/* Search Input & Filter Controls */}
-      <div className="flex items-center gap-2">
-        <div className="flex-1 md:max-w-[300px] flex items-center gap-1.5 bg-white rounded-sm px-2 py-2.5 shadow-sm">
+      <div className="flex items-center gap-2 mt-2">
+        <div className="flex-1 md:max-w-[300px] flex items-center gap-1.5 bg-white rounded-sm px-2 py-2.5 shadow-sm ">
           <div className="pl-2 pr-3 border-r border-gray-200">
             <IoSearch className="w-4 h-4 text-black" />
           </div>
@@ -307,6 +317,13 @@ const SearchGames: React.FC<SearchGamesProps> = ({
         </div>
       </div>
 
+      {/* Results count */}
+      {!filteringOff && filteredGames.length > 0 && (
+        <div className="mt-3 text-xs text-gray-500">
+          Found {filteredGames.length} games
+        </div>
+      )}
+
       {/* Render Games or Empty State */}
       <div className="py-4">
         {paginatedGames.length === 0 ? (
@@ -315,10 +332,10 @@ const SearchGames: React.FC<SearchGamesProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {paginatedGames.map((game) => (
               <GameCard
-                key={`${game.product_code}-${game.game_code}`}
+                key={game.id}
                 game={game}
-                onPlay={(g) => console.log("Play:", g.game_name)}
-                onPlayFree={(g) => console.log("Play Free:", g.game_name)}
+                // onPlay={(g) => console.log("Play:", g.title)}
+                // onPlayFree={(g) => console.log("Play Free:", g.title)}
               />
             ))}
           </div>

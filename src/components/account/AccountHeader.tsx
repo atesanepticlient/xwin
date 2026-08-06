@@ -78,7 +78,7 @@ const AccountHeader = ({ onClose }: AccountHeaderProps) => {
       </div>
 
       <div className="flex items-center gap-3 px-4 pb-4">
-        <Link href="/account/my-bets" className="flex-1">
+        <Link href="/account/bet-history" className="flex-1">
           <button className="w-full py-2 rounded-md bg-[#2b2b2b] text-white text-sm">
             My bets
           </button>

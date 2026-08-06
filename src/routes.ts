@@ -36,6 +36,8 @@ export const publicRoutes = [
   "/api/daypay/collection",
   "/api/daypay/payment",
   "/api/country-code",
+  "/api/esports/live",
+  "/api/tournaments",
 ];
 
 /**

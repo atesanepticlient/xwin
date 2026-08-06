@@ -1,18 +1,23 @@
+"use client";
+
 import AccountNavigation from "@/components/account/AccountNavigation";
 // import Footer from "@/components/landing/footer/Footer";
 import { Metadata } from "next";
 import React from "react";
 import Header from "@/components/landing/headers/Header";
-export const metadata: Metadata = {
-  title: "Livvbet - Account",
-  description:
-    "Manage your Livvbet Companl account with ease! Check your balance, update details, track bets, and enjoy seamless withdrawals and deposits. Secure and fast access anytime. Log in now!",
-};
+import { useAppStore } from "@/lib/store.zustond";
+// export const metadata: Metadata = {
+//   title: "WinpariBet - Account",
+//   description:
+//     "Manage your WinpariBet Companl account with ease! Check your balance, update details, track bets, and enjoy seamless withdrawals and deposits. Secure and fast access anytime. Log in now!",
+// };
 
 const AccountLayout = ({ children }: { children: React.ReactNode }) => {
+  const { isMobileSubdomain } = useAppStore();
   return (
     <div className="  ">
-      <Header />
+      {!isMobileSubdomain && <Header />}
+
       <div className="hidden md:block relative overflow-hidden ">
         <div className="grid grid-cols-[18%,_82%]">
           <AccountNavigation />
@@ -22,7 +27,6 @@ const AccountLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
       <div className="md:hidden ">{children}</div>
-
     </div>
   );
 };

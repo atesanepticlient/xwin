@@ -87,10 +87,7 @@ export const GameCard = ({ game, gameType }: GameCardWithProviderProps) => {
     <>
       {loaded && imageSrc ? (
         <div className="relative mih-h-[120px] game-main overflow-hidden rounded-md">
-          <div
-            title={game.name}
-            className={`relative overflow-y-hidden  `}
-          >
+          <div title={game.name} className={`relative overflow-y-hidden  `}>
             <div className="shiny-card w-full">
               <img
                 alt={name}
@@ -123,7 +120,9 @@ export const GameCard = ({ game, gameType }: GameCardWithProviderProps) => {
           )}
 
           <div className="bg-gray-200/70">
-            <p className="text-center text-xs py-1 font-medium text-black line-clamp-1 max-w-[80%] mx-auto">{name}</p>
+            <p className="text-center text-xs py-1 font-medium text-black line-clamp-1 max-w-[80%] mx-auto">
+              {name}
+            </p>
           </div>
         </div>
       ) : (
@@ -156,7 +155,7 @@ export const GameLoader = () => {
     <div className="w-full h-[120px] bg-[#262B31] flex items-center justify-center">
       <Image
         src={logo}
-        alt="livvbet"
+        alt="WinpariBet"
         className=" w-[80px] select-none opacity-50"
       />
     </div>

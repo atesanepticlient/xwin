@@ -138,7 +138,7 @@ export const GET = async () => {
         wallets: withdrawBase.filter((w) => w.category === "CRYPTO"),
       },
       {
-        methodName: "Livvbet Cash",
+        methodName: "WinpariBet Cash",
         wallets: [livvbetCash],
       },
     ].filter((cat) => cat.wallets.length > 0);

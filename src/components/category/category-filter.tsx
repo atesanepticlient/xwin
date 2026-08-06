@@ -35,7 +35,7 @@ export const SportsHeaderBar: React.FC<SportsHeaderProps> = ({
       <div className="w-full max-w-xl py-1 px-2 rounded-2xl flex items-center gap-1.5 font-sans md:hidden">
         {/* LIVE Tab */}
         <Link
-          href={"/sports?type=live"}
+          href={"/sports?redirect=live"}
           className={`flex-1 h-12 rounded-xl flex items-center justify-center gap-1.5 font-bold text-gray-700 text-sm tracking-wide transition-all duration-150 bg-white hover:bg-gray-50`}
         >
           <Radio className="w-4 h-4 text-lime-500 stroke-[2.5]" />
@@ -44,25 +44,27 @@ export const SportsHeaderBar: React.FC<SportsHeaderProps> = ({
 
         {/* SPORTS Tab */}
         <Link
-          href={"/sports?type=line"}
+          href={"/sports?redirect=live"}
           className={`flex-1 h-12 rounded-xl flex items-center justify-center font-bold text-gray-700 text-sm tracking-wide transition-all duration-150 bg-white hover:bg-gray-50`}
         >
           SPORTS
         </Link>
 
         {/* Favorites Button */}
-        <button
-          type="button"
-          onClick={onFavoriteClick}
-          aria-label="Favorites"
-          className="w-12 h-12 bg-white hover:bg-gray-50 active:scale-95 transition rounded-xl flex items-center justify-center shadow-sm flex-shrink-0"
-        >
-          <Star className="w-5 h-5 fill-[#499A13] text-[#499A13]" />
-        </button>
+        <Link href={"/sports?redirect=search-events"}>
+          <button
+            type="button"
+            onClick={onFavoriteClick}
+            aria-label="Favorites"
+            className="w-12 h-12 bg-white hover:bg-gray-50 active:scale-95 transition rounded-xl flex items-center justify-center shadow-sm flex-shrink-0"
+          >
+            <Star className="w-5 h-5 fill-[#499A13] text-[#499A13]" />
+          </button>
+        </Link>
 
         {/* Search Button */}
         <Link
-          href={"/sports?type=live"}
+          href={"/sports?redirect=live"}
           aria-label="Search"
           className="w-12 h-12 bg-white hover:bg-gray-50 active:scale-95 transition rounded-xl flex items-center justify-center shadow-sm flex-shrink-0"
         >

@@ -6,8 +6,11 @@ import TabBar from "@/components/landing/TabBar";
 import { useOpenGame } from "@/store/useStore";
 import { getSportsUrl } from "@/lib/helpers";
 import { useSearchParams } from "next/navigation";
+import { useAppStore } from "@/lib/store.zustond";
 
 export default function GamePage() {
+  const { isMobileSubdomain } = useAppStore();
+
   const searchParams = useSearchParams();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [needsCookiePermission, setNeedsCookiePermission] = useState(false);
@@ -44,14 +47,11 @@ export default function GamePage() {
     }
   };
 
-  const type = searchParams.get("type");
+  const redirect = searchParams.get("redirect"); // Extract redirect param
 
-  // Pass all supported types: "live", "line", or "slip"
-  const validTypes = ["live", "line", "slip"];
-  const selectedType = validTypes.includes(type || "") ? type : "";
+  // Pass redirect query param to helper function
+  const iframeUrl = getSportsUrl(gameUrl, redirect);
 
-  const iframeUrl = getSportsUrl(gameUrl, selectedType);
-  console.log({ iframeUrl });
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black text-white">
@@ -102,9 +102,11 @@ export default function GamePage() {
         />
       </main>
       {/* Target the wrapper specifically on this page so it occupies layout flow instead of floating over the iframe */}
-      <div className="shrink-0 [&>div]:relative [&>div]:bottom-auto [&>div]:left-0 [&>div]:translate-x-0">
-        <TabBar showAppBanner={false} />
-      </div>
+      {!isMobileSubdomain && (
+        <div className="shrink-0 [&>div]:relative [&>div]:bottom-auto [&>div]:left-0 [&>div]:translate-x-0">
+          <TabBar showAppBanner={false} />
+        </div>
+      )}
     </div>
   );
 }

@@ -39,7 +39,6 @@ const Casino = () => {
 
           <div className="p-2.5 md:p-3 lg:p-5">
             <PopularGames />
-            <FishGames />
             <PockerGames />
           </div>
         </div>

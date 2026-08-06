@@ -21,7 +21,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     const mailOptions = {
       from: process.env.SMTP_USERNAME,
       to: email,
-      subject: `Livvbet <${process.env.SMTP_USERNAME}>`,
+      subject: `WinpariBet <${process.env.SMTP_USERNAME}>`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
           <h1 style="color: #333; text-align: center;">Email Verification</h1>

@@ -8,13 +8,13 @@ const Providers = () => {
   const [filteredProviders, setFilteredProviders] = useState(providers);
 
   const { setProvider, provider: gameProvider } = useGamesFilter(
-    (state) => state
+    (state) => state,
   );
 
   useEffect(() => {
     setFilteredProviders(() => {
       const newState = providers.filter((provider) =>
-        provider.name.toLowerCase().includes(search)
+        provider.name.toLowerCase().includes(search),
       );
 
       return newState;

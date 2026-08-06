@@ -1014,11 +1014,6 @@ svg#play:hover #lineTwo {
   -ms-overflow-style: none;
 }
 
-
-
-
-
-
 /* globals.css or component.css */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
@@ -1031,7 +1026,9 @@ svg#play:hover #lineTwo {
 
 /* Match card hover effect */
 .match-card {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
 }
 
 .match-card:hover {
@@ -1041,7 +1038,8 @@ svg#play:hover #lineTwo {
 
 /* Loading animation */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -1051,4 +1049,19 @@ svg#play:hover #lineTwo {
 
 .animate-pulse {
   animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
 }

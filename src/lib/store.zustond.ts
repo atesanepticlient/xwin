@@ -107,3 +107,43 @@ export const useGamesFilter = create<GameFilterType>((set) => ({
   clearFilter: () =>
     set((state) => ({ ...state, category: "", provider: "", search: "" })),
 }));
+
+type TabType = "TOP" | "SPORTS" | "CASINO" | "ESPORTS" | "GAMES";
+
+interface MobileHomeTabsStore {
+  selectedTab: TabType;
+  setSelectedTab: (tab: TabType) => void;
+}
+
+export const useMobileHomeTabsStore = create<MobileHomeTabsStore>((set) => ({
+  selectedTab: "TOP",
+  setSelectedTab: (tab) => set({ selectedTab: tab }),
+}));
+
+type AppStore = {
+  isMobileSubdomain: boolean;
+  subdomain: string | null;
+  init: () => void;
+};
+
+export const useAppStore = create<AppStore>((set) => ({
+  isMobileSubdomain: false,
+  subdomain: null,
+
+  init: () => {
+    if (typeof window === "undefined") return;
+
+    const hostname = window.location.hostname;
+    const parts = hostname.split(".");
+
+    // mobile.site.com -> "mobile"
+    // www.site.com -> "www"
+    // site.com -> null
+    const subdomain = parts.length > 2 ? parts[0] : null;
+
+    set({
+      subdomain,
+      isMobileSubdomain: subdomain === "mobile",
+    });
+  },
+}));

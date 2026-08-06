@@ -12,7 +12,7 @@ const PageHeader = ({
 }) => {
   const router = useRouter();
   return (
-    <header className="top-0 left-0 sticky flex px-2 items-center justify-between bg-[#2b2b2b] md:hidden h-[55px]">
+    <header className="top-0 left-0 sticky z-40 flex px-2 items-center justify-between bg-[#2b2b2b] md:hidden h-[55px]">
       <div className="flex items-center gap-2">
         <button
           className="w-8 h-8 flex items-center justify-center rounded-md cursor-pointer text-white bg-[#4f4f4f]"

@@ -98,28 +98,21 @@ export const generateGuestName = () => {
   return { firstName: "Guest", lastName: `${n}` };
 };
 
-export function getSportsUrl(url: string, type?: string | null) {
+export function getSportsUrl(url: string, redirect?: string | null) {
   if (!url) return url;
 
-  const parsed = new URL(url);
+  try {
+    const parsed = new URL(url);
 
-  // If type is "slip", completely replace the path with /en/user/coupon
-  if (type === "slip") {
-    parsed.pathname = "/en/user/coupon";
+    if (redirect) {
+      parsed.pathname = redirect.startsWith("/") ? redirect : `/${redirect}`;
+    }
+
     return parsed.toString();
+  } catch (err) {
+    console.error("Invalid URL passed to getSportsUrl:", err);
+    return url;
   }
-
-  // Fallback for live/line behavior
-  const page = type === "line" ? "line" : "live";
-
-  parsed.pathname = parsed.pathname
-    .split("/")
-    .map((segment) =>
-      segment === "live" || segment === "line" ? page : segment,
-    )
-    .join("/");
-
-  return parsed.toString();
 }
 export function calculateBonus(
   amount: number,
@@ -135,3 +128,23 @@ export function calculateBonus(
   // Don't exceed the maximum bonus
   return Math.min(bonus, maxBonus);
 }
+
+const currencyLocales: Record<string, string> = {
+  BDT: "bn-BD",
+  INR: "en-IN",
+  PKR: "ur-PK",
+};
+export const formatAmount = (amount: number, currency: string) => {
+  if (!amount || currency) return 0;
+  const code = currency.toUpperCase();
+
+  // Use "en-IN" for South Asian digit grouping (e.g., 1,00,000) or "en-US" for standard thousand grouping (100,000)
+  // Both keep numbers in standard English digits (0-9)
+  const locale =
+    code === "INR" || code === "BDT" || code === "PKR" ? "en-IN" : "en-US";
+
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
