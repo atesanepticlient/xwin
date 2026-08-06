@@ -25,7 +25,7 @@ const GameBoard = ({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 w-screen h-screen bg-black z-[999999]">
+    <div className="fixed inset-0 w-screen h-screen bg-black z-[999999999999999999]">
       <button
         onClick={() => onCloseGame()}
         className="left-1/2 -translate-x-1/2 top-1 absolute px-2 py-0.5 rounded cursor-pointer bg-white/30 z-[1000000]"

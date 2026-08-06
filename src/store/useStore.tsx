@@ -112,6 +112,7 @@ export const useOpenGame = create<OpenGameStore>((set, get) => ({
 
       const res = await fetch("/api/open-1x", {
         method: "POST",
+        body: JSON.stringify({ gameId: "sportshub:0:0" }),
       });
 
       const result = await res.json();

@@ -73,7 +73,7 @@ async function handleWebhook(
   // FIX: Added `id: true` to the select block so `user.id` is defined
   const user = await db.users.findUnique({
     where: { playerId: payload.login },
-    select: { id: true, wallet: true },
+    select: { id: true, wallet: true, playerId: true },
   });
 
   if (!user || !user.wallet || !user.wallet.currencyCode)

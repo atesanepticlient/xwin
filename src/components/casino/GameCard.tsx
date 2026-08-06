@@ -175,29 +175,21 @@ const GameCard: React.FC<GameCardProps> = ({
 
   const { title, imageUrl, provider } = game;
 
-  // const {
-  //   openGame,
-  //   gameContent,
-  //   gameUrl,
-  //   gameError,
-  //   gameOpen,
-  //   reset,
-  //   isLoading,
-  // } = useOpenGame({ product_code, game_code, game_type });
+  const { openGame, gameUrl, gameError, gameOpen, reset, isLoading } =
+    useOpenGame({ gameId: game.id });
 
   return (
     <>
-      {/* {gameOpen && (
+      {gameOpen && (
         <GameBoard
           isLoading={isLoading}
-          url={gameUrl}
-          content={gameContent}
+          url={gameUrl!}
           onCloseGame={() => reset()}
           error={gameError}
         />
-      )} */}
+      )}
       <div
-        // onClick={openGame}
+        onClick={openGame}
         className={`group max-w-[200px] relative overflow-hidden transition-all duration-300 rounded-2xl border ${
           isLight
             ? "bg-white border-zinc-200 shadow-sm hover:shadow-md"

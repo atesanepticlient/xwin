@@ -5,27 +5,37 @@ import crypto from "crypto";
 import { findCurrentUser } from "@/data/user";
 import { replaceDomain } from "@/lib/utils";
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
     const user = await findCurrentUser();
 
     if (!user) {
       console.error("[OPEN GAME] Auth failed: No current user found.");
-      return Response.json(
+      return NextResponse.json(
         { message: "Authentication failed" },
         { status: 401 },
       );
     }
 
-    const userLoginId = user.playerId;
+    // Extract gameId from the incoming request body
+    const reqBody = await req.json().catch(() => ({}));
+    const { gameId } = reqBody;
 
-    const userCorrency = user?.wallet?.currencyCode || "BDT";
+    if (!gameId) {
+      return NextResponse.json(
+        { error: "Game ID is required" },
+        { status: 400 },
+      );
+    }
+
+    const userLoginId = user.playerId;
+    const userCurrency = user?.wallet?.currencyCode || "BDT";
 
     const body = {
-      currency: userCorrency,
+      currency: userCurrency,
       demo: "0",
-      exitUrl: process.env.CLINET_URL || "https://google.com",
-      gameId: process.env.GREGMORN_1XID,
+      exitUrl: process.env.CLINET_URL || "https://www.winparibet.com",
+      gameId: gameId,
       language: "en",
       player_login: userLoginId,
       user_id: "6712031e-2632-4b4c-9226-8e19215a4ebb",
