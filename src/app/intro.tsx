@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 const Intro = () => {
   const [visible, setVisible] = useState(true);
   const [fadingOut, setFadingOut] = useState(false);
-
+  const { isMobileSubdomain } = useAppStore();
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
       setFadingOut(true);
@@ -24,8 +24,8 @@ const Intro = () => {
   }, []);
 
   if (!visible) return null;
-  const { isMobileSubdomain } = useAppStore();
-  if (isMobileSubdomain) return null;
+
+  if (isMobileSubdomain) return <div></div>;
   return (
     <div
       className={`w-full h-screen left-0 top-0 fixed flex justify-center items-center z-[1000000000] bg-white transition-opacity duration-500 ease-out ${
