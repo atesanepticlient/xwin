@@ -52,6 +52,7 @@ const Feartures = () => {
           className="flex flex-col gap-2 min-w-20  h-[115px] justify-between"
         >
           <Image
+            placeholder="blur"
             src={feature.image}
             alt={feature.name}
             className=" aspect-square rounded-3xl object-cover"
