@@ -135,7 +135,7 @@ const currencyLocales: Record<string, string> = {
   PKR: "ur-PK",
 };
 export const formatAmount = (amount: number, currency: string) => {
-  if (!amount || currency) return 0;
+  if (!amount || !currency) return 0;
   const code = currency.toUpperCase();
 
   // Use "en-IN" for South Asian digit grouping (e.g., 1,00,000) or "en-US" for standard thousand grouping (100,000)

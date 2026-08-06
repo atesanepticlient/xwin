@@ -30,6 +30,7 @@ const Balance = ({ currency, amount }: BalanceProps) => {
         return <FaCoins className="w-3 h-3 text-black shrink-0" />;
     }
   };
+  console.log({ currency, amount,formattedAmount });
   return (
     <div className="flex bg-[#EDF0F2] h-max gap-2 p-0.5 rounded-full justify-start items-center">
       <Link

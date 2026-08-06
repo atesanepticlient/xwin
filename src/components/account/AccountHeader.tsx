@@ -41,10 +41,10 @@ const AccountHeader = ({ onClose }: AccountHeaderProps) => {
           <FaUserCircle className="w-10 h-10 text-[#4a4a4a]" />
           <div>
             <span
-              className="text-sm text-[#4a4a4a] font-medium cursor-pointer"
+              className="text-xs text-[#4a4a4a] font-medium cursor-pointer"
               onClick={handleCopy}
             >
-              Account No. <br />
+              Account No. 
               {copied ? (
                 <span className="ml-2 text-xs text-green-600 font-semibold">
                   Copied!
@@ -53,6 +53,10 @@ const AccountHeader = ({ onClose }: AccountHeaderProps) => {
                 user?.playerId
               )}
             </span>
+            <p className="font-bold text-sm text-[#242424]">
+              {Number(user?.wallet?.balance).toFixed(2)}{" "}
+              {user?.wallet?.currencyCode}
+            </p>
           </div>
         </div>
 
