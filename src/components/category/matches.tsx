@@ -104,6 +104,7 @@ SportsWrapper.EsportsLive = () => {
 
 SportsWrapper.LiveTournaments = () => {
   const { tournaments, totalTournaments, loading } = useLiveMatches();
+  console.log({ tournaments });
   if (loading) return <LoadingSkeleton />;
   return (
     <BaseLiveTournament
