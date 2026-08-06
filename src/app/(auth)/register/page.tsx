@@ -11,7 +11,7 @@ const RegisterPage = async () => {
   const { isMobileSubdomain } = useAppStore();
   return (
     <div className="bg-slate-50 w-full  ">
-      <Header />
+      {!isMobileSubdomain && <Header />}
       <AuthHeaderAndHolder title="REGISTRATION">
         <RegistationForm initialCountry={"BD"} />
       </AuthHeaderAndHolder>

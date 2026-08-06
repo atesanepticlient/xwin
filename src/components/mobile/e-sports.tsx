@@ -29,7 +29,7 @@ const Esports = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center fixed inset-0 z-50  overflow-hidden text-black">
+      <div className="flex h-screen bg-[#EDF0F2] w-full items-center justify-center fixed inset-0 z-50  overflow-hidden text-black">
         Loading...
       </div>
     );
@@ -37,18 +37,17 @@ const Esports = () => {
 
   if (error) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-black text-white">
+      <div className="flex h-screen w-full items-center justify-center bg-[#EDF0F2] text-white">
         {error}
       </div>
     );
   }
 
   const iframeUrl = getSportsUrl(gameUrl, "/esports/real");
-  console.log({ iframeUrl });
   if (!iframeUrl) return null;
 
   return (
-    <div className="fixed inset-0 z-50  overflow-hidden">
+    <div className="fixed inset-0 z-50  overflow-hidden pb-[65px]">
       <iframe
         src={iframeUrl}
         className="h-full w-full border-0 block"

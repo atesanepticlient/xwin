@@ -40,7 +40,9 @@ const MobileHomePageTabps = () => {
   const { selectedTab, setSelectedTab } = useMobileHomeTabsStore();
   const user = useCurrentUser();
   const handleClick = (tabName: any) => {
-    if (!user) return redirect("/login");
+    if (tabName == "ESPORTS") {
+      if (!user) return redirect("/login");
+    }
     setSelectedTab(tabName);
   };
   return (

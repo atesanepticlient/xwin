@@ -11,7 +11,7 @@ const ForgotPasswordPage = () => {
   return (
     <Suspense>
       <div className="bg-slate-50 w-full h-screen">
-        <Header />
+        {!isMobileSubdomain && <Header />}
         <AuthHeaderAndHolder title="Reset Password">
           <ForgotPasswordForm />
         </AuthHeaderAndHolder>

@@ -12,13 +12,12 @@ const LoginPage = () => {
   return (
     <Suspense>
       <div className="bg-slate-50 w-full">
-        <Header />
+        {!isMobileSubdomain && <Header />}
         <AuthHeaderAndHolder title="LOGIN">
           <LoginForm />
         </AuthHeaderAndHolder>
 
         {!isMobileSubdomain && <TabBar />}
-        
       </div>
     </Suspense>
   );
