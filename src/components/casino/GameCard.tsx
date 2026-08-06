@@ -152,9 +152,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Star } from "lucide-react";
-import useOpenGame from "@/hooks/useOpenGame";
 import GameBoard from "./game-board";
 import { GameItem, GreGameItem } from "@/types/game";
+import useOpenGame from "@/hooks/useOpenGame";
 
 interface GameCardProps {
   game: GreGameItem;
@@ -177,7 +177,7 @@ const GameCard: React.FC<GameCardProps> = ({
 
   const { openGame, gameUrl, gameError, gameOpen, reset, isLoading } =
     useOpenGame({ gameId: game.id });
-
+  console.log({ gameUrl });
   return (
     <>
       {gameOpen && (

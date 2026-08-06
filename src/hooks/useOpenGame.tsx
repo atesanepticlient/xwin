@@ -92,7 +92,7 @@ const useOpenGame = ({ gameId }: { gameId: string }) => {
       if (!res.ok) {
         throw new Error(result.error || "Failed to open game");
       }
-
+      console.log([result]);
       if (result.data.content.game.url) {
         setGameUrl(result.data.content.game.url);
       } else {

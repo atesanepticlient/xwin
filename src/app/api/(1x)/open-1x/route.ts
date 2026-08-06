@@ -20,7 +20,6 @@ export async function POST(req: Request) {
     // Extract gameId from the incoming request body
     const reqBody = await req.json().catch(() => ({}));
     const { gameId } = reqBody;
-    console.log({ gameId });
     if (!gameId) {
       return NextResponse.json(
         { error: "Game ID is required" },
@@ -89,11 +88,13 @@ export async function POST(req: Request) {
       );
     }
 
-    const rawSportUrl = replaceDomain(
-      data.content.game.url,
-      process.env.XBET_CUSTOM_LINK!,
-    );
-    data.content.game.url = rawSportUrl;
+    if (gameId == process.env.GREGMORN_1XID) {
+      const rawSportUrl = replaceDomain(
+        data.content.game.url,
+        process.env.XBET_CUSTOM_LINK!,
+      );
+      data.content.game.url = rawSportUrl;
+    }
 
     return NextResponse.json(
       {
