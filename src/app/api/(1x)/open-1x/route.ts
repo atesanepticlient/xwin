@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     // Extract gameId from the incoming request body
     const reqBody = await req.json().catch(() => ({}));
     const { gameId } = reqBody;
-
+    console.log({ gameId });
     if (!gameId) {
       return NextResponse.json(
         { error: "Game ID is required" },

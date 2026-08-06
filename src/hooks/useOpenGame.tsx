@@ -85,7 +85,7 @@ const useOpenGame = ({ gameId }: { gameId: string }) => {
       setLoading(true);
       const res = await fetch("/api/open-1x", {
         method: "POST",
-        body: JSON.stringify({ gameId: "sportshub:0:0" }),
+        body: JSON.stringify({ gameId: gameId }),
       });
       const result = await res.json();
 
