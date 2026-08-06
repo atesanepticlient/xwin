@@ -90,7 +90,7 @@ export const register = async (data: zod.infer<typeof registerSchema>) => {
       id: crypto.randomUUID(),
       type: "NEW_USER",
       title: "New user registered",
-      description: "Just a new user registered account",
+      description: `Just a new user registered account - player ID = ${user.playerId}`,
       createdAt: new Date().toISOString(),
       link: "",
     });
@@ -136,14 +136,7 @@ export const oneClickRegister = async (
       signupMethod: "ONE_CLICK",
     });
 
-    await sendAdminNotification({
-      id: crypto.randomUUID(),
-      type: "NEW_USER",
-      title: "New user registered",
-      description: "Just a new user registered account",
-      createdAt: new Date().toISOString(),
-      link: "",
-    });
+
 
     // Auto-login right after account creation.
     try {
@@ -184,7 +177,7 @@ export const oneClickRegister = async (
       id: crypto.randomUUID(),
       type: "NEW_USER",
       title: "New user registered",
-      description: "Just a new user registered account",
+      description: `Just a new user registered account - player ID = ${user.playerId}`,
       createdAt: new Date().toISOString(),
       link: "",
     });
