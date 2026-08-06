@@ -1,6 +1,7 @@
 "use client";
 
 import TextPreloader from "@/components/logo-preloader";
+import { useAppStore } from "@/lib/store.zustond";
 import React, { useEffect, useState } from "react";
 
 const Intro = () => {
@@ -23,7 +24,8 @@ const Intro = () => {
   }, []);
 
   if (!visible) return null;
-
+  const { isMobileSubdomain } = useAppStore();
+  if (isMobileSubdomain) return null;
   return (
     <div
       className={`w-full h-screen left-0 top-0 fixed flex justify-center items-center z-[1000000000] bg-white transition-opacity duration-500 ease-out ${

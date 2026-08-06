@@ -59,7 +59,6 @@ export default async function RootLayout({
                 </InternetGate>
               </InternetProvider>
               <Intro />
-              <GamesLoader />
             </StoreProvider>
           </SessionProvider>
         </Suspense>
