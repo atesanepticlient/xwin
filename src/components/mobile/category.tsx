@@ -65,7 +65,7 @@ const categories = [
   },
   {
     icon: PiSlidersHorizontalFill,
-    link: "/sports/redirect=live",
+    link: "/sports?redirect=live",
     lable: "Filter",
   },
 ];

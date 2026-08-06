@@ -70,7 +70,7 @@ export default function GamePage() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-black">
-      <Header />
+      {!isMobileSubdomain && <Header />}
 
       <main className="flex-1 w-full relative min-h-0">
         {/* Mobile Safari/Chrome Cookie Overlay */}

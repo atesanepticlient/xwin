@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import logo from "@/../public/assets/images/logo.png";
 import Image from "next/image";
 import useCurrentUser from "@/hook/useCurrentUser";
@@ -89,60 +89,12 @@ const HeaderTop = () => {
   );
 };
 
-// Custom hook to detect scroll direction and control header visibility
-function useHeaderVisibility(threshold = 8) {
-  const [visible, setVisible] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    lastScrollY.current = window.scrollY;
-
-    let ticking = false;
-
-    const updateVisibility = () => {
-      const currentScrollY = window.scrollY;
-      const diff = currentScrollY - lastScrollY.current;
-
-      // Always show header when near the top of the page
-      if (currentScrollY <= 0) {
-        setVisible(true);
-      } else if (Math.abs(diff) > threshold) {
-        if (diff > 0) {
-          // scrolling down
-          setVisible(false);
-        } else {
-          // scrolling up
-          setVisible(true);
-        }
-        lastScrollY.current = currentScrollY;
-      }
-
-      ticking = false;
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateVisibility);
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [threshold]);
-
-  return visible;
-}
-
 const MobileHeader = () => {
   const user = useCurrentUser();
-  const visible = useHeaderVisibility();
 
   return (
     <div
-      className={`top-0 left-0 sticky w-full bg-white py-2 px-2.5 border-b z-50 transition-transform duration-300 ease-in-out ${
-        visible ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`top-0 left-0 sticky w-full bg-white py-2 px-2.5 border-b z-50 transition-transform duration-300 ease-in-out `}
     >
       <HeaderTop />
       {!user && (

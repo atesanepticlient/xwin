@@ -74,7 +74,7 @@ export default function TermsModal({ children }: TermsModalProps) {
             Invite friends and earn money
           </h2>
           <p className="text-[#555555] text-sm leading-snug">
-            Become a XpariBet partner, tell your friends about us, and make
+            Become a Winparbet partner, tell your friends about us, and make
             money! Build a multi-level network by inviting friends who in turn
             will bring their own friends. You can find your affiliate referral
             link in My Account. All you need to do is share the link with a
@@ -135,7 +135,7 @@ export default function TermsModal({ children }: TermsModalProps) {
           </h2>
           <p className="text-[#555555] text-sm leading-snug mb-3">
             As you refer friends, you build a multi-level network. At each level
-            you'll earn a percentage of the XpariBet net profit:
+            you'll earn a percentage of the WinpariBet net profit:
           </p>
 
           <div className="space-y-1.5 text-sm font-medium text-[#333333] mb-4">
@@ -462,7 +462,7 @@ export default function TermsModal({ children }: TermsModalProps) {
             <li className="flex items-start gap-2">
               <span className="font-bold">•</span>
               <span>
-                Your earnings are not fixed: they depend on the XpariBet profit
+                Your earnings are not fixed: they depend on the WinpariBet profit
                 generated from players who registered using your link. The
                 commission fees, bonuses, and the total turnover of players you
                 bring to the site do not affect your earnings.
@@ -503,9 +503,9 @@ export default function TermsModal({ children }: TermsModalProps) {
             <li className="flex items-start gap-2">
               <span className="font-bold">•</span>
               <span>
-                Advertising under the XpariBet name is not permitted. This
+                Advertising under the WinpariBet name is not permitted. This
                 includes the use of unsolicited email (spam), contextual
-                advertising containing the XpariBet trademark, and Click-under
+                advertising containing the WinpariBet trademark, and Click-under
                 and Pop-under Ads. If a player is found to have taken such
                 actions, their account will be excluded from the Affiliate
                 Program and all earnings received through the program will be
@@ -522,7 +522,7 @@ export default function TermsModal({ children }: TermsModalProps) {
             <li className="flex items-start gap-2 pl-4">
               <span className="font-bold">•</span>
               <span>
-                Opening the XpariBet website in iframe with zero-length sides or
+                Opening the WinpariBet website in iframe with zero-length sides or
                 in an invisible zone.
               </span>
             </li>

@@ -8,6 +8,7 @@ import PageHeader from "@/components/page-header";
 import TermsModal from "./TermsModal";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { TiInfoLarge } from "react-icons/ti";
+import { useAppStore } from "@/lib/store.zustond";
 
 export default function AffiliatePage() {
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
@@ -27,10 +28,11 @@ export default function AffiliatePage() {
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   };
+  const { isMobileSubdomain } = useAppStore();
 
   return (
     <div className="bg-[#f4f5f7] h-screen">
-      <Header />
+      {!isMobileSubdomain && <Header />}
       <PageHeader
         title="Invite Friend"
         rightAction={
@@ -87,7 +89,7 @@ export default function AffiliatePage() {
           {/* Bottom Paragraph - Exact Text */}
           <p className="text-[#555555] text-sm md:text-base leading-relaxed mb-6">
             As you refer friends, you build a multi-level network. At each level
-            you'll earn a percentage of the XpariBet net profit:
+            you'll earn a percentage of the WinpariBet net profit:
           </p>
 
           {/* ================= REFERRAL CODE INPUT WITH INLINE COPY ICON ================= */}
