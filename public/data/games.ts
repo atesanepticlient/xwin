@@ -1,4 +1,4 @@
-import { FaDice } from 'react-icons/fa';
+import { FaDice } from "react-icons/fa";
 // import spribe from "@/../public/assets/images/providers/SPB-BLACK.png";
 // import jili from "@/../public/assets/images/providers/JL-BLACK.png";
 // // import jdb from "@/../public/assets/images/providers/JDB-BLACK.png";
@@ -213,7 +213,7 @@ export const categories = [
     icon: PiCellSignalSlashBold,
   },
   {
-    slug: "SLOTS",
+    slug: "Slot",
     name: "Slot",
     icon: PiCherriesFill,
   },
@@ -227,10 +227,10 @@ export const categories = [
     name: "Fish",
     icon: IoFish,
   },
-    {
+  {
     slug: "Dice",
     name: "Dice",
-    icon: FaDice ,
+    icon: FaDice,
   },
 ];
 

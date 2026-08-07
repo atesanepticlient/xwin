@@ -33,7 +33,7 @@ const Slots = ({
 
   useEffect(() => {
     // Simulate data loading/fetching
-    const games = gameSearchEngine.getByCategory("slots", 20);
+    const games = gameSearchEngine.getByCategory("slot", 20);
     setGames(games);
     setLoading(false);
   }, []);
@@ -44,7 +44,7 @@ const Slots = ({
     }
 
     toggleSearchUi();
-    setFilterProps({ category: "slots" });
+    setFilterProps({ category: "slot" });
   };
 
   useEffect(() => {
@@ -72,7 +72,7 @@ const Slots = ({
               rows: maxRow,
               fill: "row",
             }}
-            className="w-full !pb-8 select-none cursor-grab active:cursor-grabbing"
+            className="w-full !pb-5 select-none cursor-grab active:cursor-grabbing"
           >
             {games.map((game, i) => (
               <SwiperSlide key={i} className="max-w-[150px]">

@@ -1065,3 +1065,9 @@ svg#play:hover #lineTwo {
 .animate-slide-up {
   animation: slideUp 0.3s ease-out;
 }
+
+.features-games-bg {
+  background: url("/assets/images/casino-category/feature-game-bg.png") no-repeat;
+  background-size: cover;
+  background-position: center;
+}

@@ -28,6 +28,13 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
 
+    if (user.wallet?.currencyCode != "BDT") {
+      return NextResponse.json(
+        { error: "This method is not allowed" },
+        { status: 400 },
+      );
+    }
+
     const body: CreateCollectionParams & { walletId: string } =
       await req.json();
 

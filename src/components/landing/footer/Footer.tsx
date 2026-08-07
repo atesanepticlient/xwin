@@ -10,17 +10,21 @@ import About from "../about/About";
 // import Contact from "../contact/Contact";
 import { MdOutlineSupportAgent } from "react-icons/md";
 import PrimaryButton from "@/components/buttons/primary-button";
+import AppDownload from "./app-downlaod";
+import Contact from "../contact/Contact";
+import Sponsors from "../sponsors/Sponsors";
 const Footer = () => {
   return (
     <div className="">
-      {/* <Sponsors /> */}
-      <div className="bg-[#212121] px-4">
-        {/* <Contact /> */}
+      <div className="bg-[rgb(31,31,31)] px-4">
+        <AppDownload />
+        <Contact />
         <SiteContent />
         <About />
+        <Sponsors />
         <div className="mt-6 md:mt-8  px-5 md:px-8 py-6 md:py-8 shadow-sm">
           <div className="flex justify-center py-4 lg:py-6">
-            <a href="https://agent.winparibet.com/signup" target="blank">
+            <a href="https://winparibetagent.com/signup" target="blank">
               <PrimaryButton className="flex items-center gap-1">
                 Become an agent
                 <MdOutlineSupportAgent className="w-4 h-4 lg:w-5 lg:h-5" />{" "}

@@ -177,7 +177,6 @@ const GameCard: React.FC<GameCardProps> = ({
 
   const { openGame, gameUrl, gameError, gameOpen, reset, isLoading } =
     useOpenGame({ gameId: game.id });
-  console.log({ gameUrl });
   return (
     <>
       {gameOpen && (
@@ -213,17 +212,15 @@ const GameCard: React.FC<GameCardProps> = ({
 
           {/* Lazy Loaded Image */}
           {imageUrl && (
-            <Image
+            <img
               src={imageUrl}
               alt={title}
-              fill
               sizes="(max-width: 640px) 40vw, (max-width: 1024px) 25vw, 15vw"
               loading="lazy"
               onLoad={() => setIsLoaded(true)}
               className={`object-cover transition-all duration-500 group-hover:scale-105 rounded-2xl ${
                 isLoaded ? "opacity-100" : "opacity-0"
               }`}
-              unoptimized
             />
           )}
 

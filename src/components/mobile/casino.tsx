@@ -13,12 +13,142 @@ import dice from "@/../public/assets/images/casino-category/dice.png";
 import poker from "@/../public/assets/images/casino-category/poker.png";
 import Image from "next/image";
 import Link from "next/link";
+import aviator_banner from "@/../public/assets/images/casino-category/aviator.png";
+import feature_games_bg from "@/../public/assets/images/casino-category/feature-game-bg.png";
+import useOpenGame from "@/hooks/useOpenGame";
+import GameBoard from "../casino/game-board";
+
+const FeaturesGames = () => {
+  const games = [
+    {
+      id: "slotegrator:748:9d9b5b34389337d4e43568b4ba2d56be97de447a",
+      isEnabled: true,
+      title: "Aviatrix",
+      imageUrl:
+        "https://gis-static.com/games/Aviatrix/9d9b5b34389337d4e43568b4ba2d56be97de447a.png",
+      category: "crash",
+      provider: "Aviatrix",
+    },
+    {
+      id: "slotegrator:748:dd6966c763cdb0793074534f250ab52d090e0972",
+      isEnabled: true,
+      title: "Aviatrix Second Chance",
+      imageUrl:
+        "https://gis-static.com/games/Aviatrix/dd6966c763cdb0793074534f250ab52d090e0972.png",
+      category: "crash",
+      provider: "Aviatrix",
+    },
+    {
+      id: "ag:pg:48",
+      isEnabled: true,
+      title: "Double Fortune",
+      imageUrl:
+        "https://gis-static.com/games/KAGaming/74566dc08645446f95f1bf859252b3c6.png",
+      category: "slots",
+      provider: "PG Soft",
+    },
+    {
+      id: "greece:700:30071",
+      isEnabled: true,
+      title: "Chicken Drop",
+      imageUrl:
+        "https://static.slot7hub.com/providers/pragmatic/gs2c/common/lobby/v1/apps/game-assets/vs20chickdrop/vs20chickdrop_800x600_NB.jpg",
+      category: "Slot",
+      provider: "Pragmatic",
+    },
+  ];
+  return (
+    <div className="features-games-bg h-[130px] w-full rounded-2xl px-3 flex items-end relative">
+      <div className="flex pb-1.5 items-center flex-nowrap overflow-x-auto max-w-full gap-2 hide-scrollbar">
+        {games.map((game, i) => (
+          <GameCard
+            key={i}
+            name={game.title}
+            image={game.imageUrl}
+            gameId={game.id}
+          />
+        ))}
+      </div>
+      <p className="top-2 left-6 absolute text-lg text-white font-bold">
+        For you
+      </p>
+    </div>
+  );
+};
+
+const GameCard = ({
+  gameId,
+  name,
+  image,
+}: {
+  gameId: string;
+  image: string;
+  name: string;
+}) => {
+  const { openGame, gameUrl, gameError, gameOpen, reset, isLoading } =
+    useOpenGame({ gameId });
+
+  return (
+    <>
+      <button
+        onClick={openGame}
+        className="relative min-w-[120px] overflow-hidden rounded-2xl group"
+      >
+        <img
+          src={image}
+          alt={name}
+          className="w-full rounded-2xl select-none aspect-[3/2]"
+        />
+
+        {/* Smooth black gradient */}
+        <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+
+        {/* Game Name */}
+        <div className="absolute bottom-2 left-0 right-0 px-2">
+          <p className="truncate text-left text-[10px] max-w-[60%] line-clamp-1 font-semibold text-white drop-shadow-md">
+            {name}
+          </p>
+        </div>
+      </button>
+
+      {gameOpen && (
+        <GameBoard
+          isLoading={isLoading}
+          url={gameUrl!}
+          onCloseGame={() => reset()}
+          error={gameError}
+        />
+      )}
+    </>
+  );
+};
+
+const Aviator = () => {
+  const { openGame, gameUrl, gameError, gameOpen, reset, isLoading } =
+    useOpenGame({ gameId: "nova:spribe:Aviator" });
+  return (
+    <>
+      <div className="">
+        <button onClick={openGame}>
+          {" "}
+          <Image
+            alt="Aviator"
+            src={aviator_banner}
+            className="w-full rounded-2xl "
+          />
+        </button>
+      </div>
+    </>
+  );
+};
 
 const MobileCasinoTab = () => {
   return (
     <div className="space-y-3">
       <CasinoBanner />
       <Slots theme="light" maxRow={1} />
+      <Aviator />
+      <FeaturesGames />
       <PopularLive theme="light" maxRow={1} />
       <CasinoCategory />
     </div>
@@ -49,7 +179,7 @@ const casinoCategoris = [
     image: slots,
     label: "Slots",
     name: "slots",
-    link: "/casino?category=slots",
+    link: "/casino?category=slot",
   },
   {
     image: bingo,

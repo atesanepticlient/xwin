@@ -611,3 +611,11 @@ model BonusSetting {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+
+model DollerRate {
+  id           String   @id @default("global")
+  bdt          Decimal @default(122)
+  pkr           Decimal @default(277)
+  inr         Decimal @default(95)
+}

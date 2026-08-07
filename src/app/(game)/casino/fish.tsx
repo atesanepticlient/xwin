@@ -132,7 +132,7 @@ const FishGames = ({
     }
 
     toggleSearchUi();
-    setFilterProps({ category: "slots" });
+    setFilterProps({ category: "fish" });
   };
 
   useEffect(() => {

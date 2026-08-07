@@ -1,5 +1,5 @@
 "use client";
-import { MessageBox } from "@/components/landing/headers/inbox";
+import  MessageBox  from "@/components/landing/headers/inbox";
 import TextPreloader from "@/components/logo-preloader";
 import PageHeader from "@/components/page-header";
 import { useFetchMessagesQuery } from "@/lib/features/messageApiSlice";
@@ -15,7 +15,7 @@ const Messages = () => {
         <main>
           <PageHeader title="Messages" />
 
-          <div className="w-full p-2">
+          <div className="w-full p-2 ">
             {messages && <MessageBox messages={messages} />}
           </div>
         </main>

@@ -3,6 +3,8 @@ import { findCurrentUser } from "@/data/user";
 import { db } from "@/lib/db";
 import { INTERNAL_SERVER_ERROR } from "@/error";
 import { v4 as uuidv4 } from "uuid";
+import { sendAdminNotification } from "@/lib/notifications";
+import { convertCurrency } from "@/lib/helpers";
 export async function POST(req: NextRequest) {
   try {
     const user = await findCurrentUser();
@@ -11,6 +13,19 @@ export async function POST(req: NextRequest) {
         { error: "Authentication error!" },
         { status: 401 },
       );
+
+    if (user.isBanned) {
+      return NextResponse.json(
+        { error: "Your withdrawal is temporary blocked! Contact support" },
+        { status: 400 },
+      );
+    }
+    if (!user.wallet?.currencyCode) {
+      return NextResponse.json(
+        { error: "Withdrawal is blocked at the moment!" },
+        { status: 400 },
+      );
+    }
 
     const body = await req.json();
     const { walletId, amount, address } = body;
@@ -68,10 +83,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const exchangeRate = await db.dollerRate.findUnique({
+      where: { id: "global" },
+    });
+
+    const convertedAmount = convertCurrency(
+      user.wallet?.currencyCode!,
+      amount,
+      exchangeRate,
+    );
+
     // Atomic debit — only succeeds if balance was still sufficient at this instant.
     const debited = await db.wallet.updateMany({
-      where: { userId: user.id, balance: { gte: numAmount } },
-      data: { balance: { decrement: numAmount } },
+      where: { userId: user.id, balance: { gte: convertedAmount } },
+      data: { balance: { decrement: convertedAmount } },
     });
 
     if (debited.count === 0) {
@@ -91,7 +116,14 @@ export async function POST(req: NextRequest) {
         merchantId: trxId,
       },
     });
-
+    await sendAdminNotification({
+      id: crypto.randomUUID(),
+      type: "WITHDRAW",
+      title: "New crypto withdraw found",
+      description: `User : ${user.phone || user.email || user.playerId}, created a withdrawl request for $${withdraw.amount}`,
+      createdAt: new Date().toISOString(),
+      link: "/payment/withdraws",
+    });
     return NextResponse.json({
       message: "Withdrawal request submitted and is pending admin review.",
       withdrawId: withdraw.id,

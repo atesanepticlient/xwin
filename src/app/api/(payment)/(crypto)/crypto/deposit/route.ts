@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { findCurrentUser } from "@/data/user";
 import { db } from "@/lib/db";
 import { INTERNAL_SERVER_ERROR } from "@/error";
+import { sendAdminNotification } from "@/lib/notifications";
 
 export async function POST(req: NextRequest) {
   try {
@@ -78,6 +79,15 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         ewalletId: walletId,
       },
+    });
+
+    await sendAdminNotification({
+      id: crypto.randomUUID(),
+      type: "DEPOSIT",
+      title: "New crypto deposit found",
+      description: `User : ${user.phone || user.email || user.playerId}, created a deposit request for $${deposit.amount}`,
+      createdAt: new Date().toISOString(),
+      link: "/account/message",
     });
 
     return NextResponse.json({

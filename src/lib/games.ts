@@ -40,10 +40,10 @@ export const getGameNameByCode = (code: string) => {
   const game = games.find((game: any) => game.game_code == code);
   return game.game_name;
 };
-
 interface SearchOptions {
   query: string;
   limit?: number;
+  popularOnly?: boolean;
 }
 
 class GameSearch {
@@ -76,12 +76,40 @@ class GameSearch {
   }
 
   /**
+   * Fetch popular games with pagination
+   * Only returns valid games where popular is true
+   */
+  getPopular(page: number = 1, limit: number = 20): GreGameItem[] {
+    const popularGames = this.getValidGames().filter(
+      (game) => game.popular === true,
+    );
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    return popularGames.slice(start, end);
+  }
+
+  /**
+   * Get total count of popular valid games
+   */
+  getTotalPopularGames(): number {
+    return this.getValidGames().filter((game) => game.popular === true).length;
+  }
+
+  /**
    * Search games by name, provider, or category
    * Uses regex for flexible matching (case-insensitive, ignores spaces)
-   * Only returns games with valid id and imageUrl
+   * Optional parameter `popularOnly` filters results to popular games only
    */
-  search({ query, limit = 20 }: SearchOptions): GreGameItem[] {
-    const validGames = this.getValidGames();
+  search({
+    query,
+    limit = 20,
+    popularOnly = false,
+  }: SearchOptions): GreGameItem[] {
+    let validGames = this.getValidGames();
+
+    if (popularOnly) {
+      validGames = validGames.filter((game) => game.popular === true);
+    }
 
     if (!query || query.trim() === "") {
       return validGames.slice(0, limit);
@@ -117,8 +145,13 @@ class GameSearch {
     query,
     limit = 20,
     exactMatch = false,
+    popularOnly = false,
   }: SearchOptions & { exactMatch?: boolean }): GreGameItem[] {
-    const validGames = this.getValidGames();
+    let validGames = this.getValidGames();
+
+    if (popularOnly) {
+      validGames = validGames.filter((game) => game.popular === true);
+    }
 
     if (!query || query.trim() === "") {
       return validGames.slice(0, limit);
@@ -164,15 +197,19 @@ class GameSearch {
     field: "title" | "provider" | "category",
     query: string,
     limit: number = 20,
+    popularOnly: boolean = false,
   ): GreGameItem[] {
-    const validGames = this.getValidGames();
+    let validGames = this.getValidGames();
+
+    if (popularOnly) {
+      validGames = validGames.filter((game) => game.popular === true);
+    }
 
     if (!query || query.trim() === "") {
       return validGames.slice(0, limit);
     }
 
     const cleanQuery = query.toLowerCase().trim().replace(/\s+/g, "");
-    // Check if query is contained anywhere in the field
     const regexPattern = cleanQuery.split("").join("\\s*");
     const regex = new RegExp(regexPattern, "i");
 
@@ -196,25 +233,34 @@ class GameSearch {
 
   /**
    * Get games by provider
-   * Only returns games with valid id and imageUrl
    */
-  getByProvider(provider: string, limit: number = 20): GreGameItem[] {
-    return this.searchByField("provider", provider, limit);
+  getByProvider(
+    provider: string,
+    limit: number = 20,
+    popularOnly: boolean = false,
+  ): GreGameItem[] {
+    return this.searchByField("provider", provider, limit, popularOnly);
   }
 
   /**
    * Get games by category - checks BOTH category AND title
-   * This will find "fish" in category like "fishing" and also in titles
    */
-  getByCategory(category: string, limit: number = 20): GreGameItem[] {
-    const validGames = this.getValidGames();
+  getByCategory(
+    category: string,
+    limit: number = 20,
+    popularOnly: boolean = false,
+  ): GreGameItem[] {
+    let validGames = this.getValidGames();
+
+    if (popularOnly) {
+      validGames = validGames.filter((game) => game.popular === true);
+    }
 
     if (!category || category.trim() === "") {
       return validGames.slice(0, limit);
     }
 
     const cleanQuery = category.toLowerCase().trim().replace(/\s+/g, "");
-    // Create pattern that matches if the word is contained anywhere
     const regexPattern = cleanQuery.split("").join("\\s*");
     const regex = new RegExp(regexPattern, "i");
 
@@ -222,7 +268,6 @@ class GameSearch {
       const categoryValue = game.category.toLowerCase().replace(/\s+/g, "");
       const titleValue = game.title.toLowerCase().replace(/\s+/g, "");
 
-      // Check if query is CONTAINED in category OR title
       return regex.test(categoryValue) || regex.test(titleValue);
     });
 

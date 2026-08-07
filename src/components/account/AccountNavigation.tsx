@@ -131,7 +131,7 @@ const AccountNavigation = () => {
           />
           <AccountMenuItem
             label="Messages"
-            href="/account/messages"
+            href="/account/message"
             icon={<FaMessage className="w-3.5 h-3.5 text-white" />}
             badge={3}
           />

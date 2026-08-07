@@ -24,7 +24,7 @@ const Contact = () => {
       <div className="px-3 py-3">
         <Link
           href="/register"
-          className="w-full bg-[#FCCD20] py-2 flex items-center justify-center gap-3 text-black text-sm"
+          className="w-full bg-[#7EC151] py-2 flex items-center justify-center gap-3 text-black text-sm rounded-lg"
         >
           <AiOutlineLogin className="w-4 h-4 " />
           Registation
@@ -50,7 +50,7 @@ const Contact = () => {
                 href={`https://t.me/${data.payload.telegram}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 bg-[#24507d] text-white py-3"
+                className="flex-1 bg-[rgb(51,51,51)] text-white py-3 rounded-lg"
               >
                 <BsTelegram className="w-4 h-4 text-white mx-auto" />
               </Link>
@@ -61,7 +61,7 @@ const Contact = () => {
                 href={data.payload.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 bg-[#24507d] text-white py-3"
+                className="flex-1 bg-[rgb(51,51,51)] text-white py-3  rounded-lg"
               >
                 <FaFacebookF className="w-4 h-4 text-white mx-auto" />
               </Link>

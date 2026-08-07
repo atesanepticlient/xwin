@@ -135,11 +135,7 @@ const Poker = ({
 
   return (
     <section className="w-full py-4">
-      <GameSectionHeader
-        title="Poker"
-        textColor="white"
-        seeMore={handleSeeMore}
-      />
+      <GameSectionHeader title="Poker" theme={theme} seeMore={handleSeeMore} />
 
       <div className="mt-3 min-h-[300px]">
         {loading ? (

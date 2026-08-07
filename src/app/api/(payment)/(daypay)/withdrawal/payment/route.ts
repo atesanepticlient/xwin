@@ -27,6 +27,18 @@ export async function POST(req: NextRequest) {
         { error: "Authentication error!" },
         { status: 401 },
       );
+    if (user.isBanned) {
+      return NextResponse.json(
+        { error: "Your withdrawal is temporary blocked! Contact support" },
+        { status: 400 },
+      );
+    }
+    if (user.wallet?.currencyCode != "BDT") {
+      return NextResponse.json(
+        { error: "This method is not allowed" },
+        { status: 400 },
+      );
+    }
 
     const body: CreatePaymentParams & { walletId: string } = await req.json();
 

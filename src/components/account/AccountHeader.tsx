@@ -44,7 +44,7 @@ const AccountHeader = ({ onClose }: AccountHeaderProps) => {
               className="text-xs text-[#4a4a4a] font-medium cursor-pointer"
               onClick={handleCopy}
             >
-              Account No. 
+              Account No.
               {copied ? (
                 <span className="ml-2 text-xs text-green-600 font-semibold">
                   Copied!
@@ -75,9 +75,11 @@ const AccountHeader = ({ onClose }: AccountHeaderProps) => {
             )}
           </Link>
           <div className="w-px h-6 bg-gray-200" />
-          <button onClick={onClose} aria-label="Close">
-            <IoClose className="w-6 h-6 text-black" />
-          </button>
+          <Link href={"/"}>
+            <button onClick={onClose} aria-label="Close">
+              <IoClose className="w-6 h-6 text-black" />
+            </button>
+          </Link>
         </div>
       </div>
 

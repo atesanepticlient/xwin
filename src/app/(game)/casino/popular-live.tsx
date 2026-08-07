@@ -116,7 +116,7 @@ const PopularLive = ({
 
   useEffect(() => {
     // Simulate data loading/fetching
-    const games = gameSearchEngine.getByCategory("live dealer", 20);
+    const games = gameSearchEngine.getByCategory("live dealer");
     setGames(games);
     setLoading(false);
   }, []);
@@ -130,7 +130,7 @@ const PopularLive = ({
     }
 
     toggleSearchUi();
-    setFilterProps({ category: "slots" });
+    setFilterProps({ category: "live dealer" });
   };
 
   useEffect(() => {
@@ -170,7 +170,7 @@ const PopularLive = ({
               rows: maxRow,
               fill: "row",
             }}
-            className="w-full !pb-8"
+            className="w-full !pb-5"
           >
             {games.map((game, i) => (
               <SwiperSlide key={i} className="max-w-[150px]">

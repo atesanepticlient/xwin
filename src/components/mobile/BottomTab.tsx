@@ -39,7 +39,7 @@ const tabs: Tab[] = [
   },
   {
     label: "History",
-    href: "account/bet-history",
+    href: "/sports?redirect=office/history",
     icon: FaHistory,
   },
   {

@@ -148,3 +148,15 @@ export const formatAmount = (amount: number, currency: string) => {
     maximumFractionDigits: 2,
   }).format(amount);
 };
+
+export type CurrencyCode = "BDT" | "INR" | "PKR";
+
+export function convertCurrency(
+  currency: string,
+  usdAmount: number,
+  rates: any,
+): number {
+  const key = currency.toLowerCase() as keyof any;
+
+  return usdAmount * Number(rates[key]);
+}

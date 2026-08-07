@@ -19,6 +19,7 @@ import { sendAdminNotification } from "@/lib/notifications";
 import { signIn } from "@/auth";
 import { encodeData } from "@/lib/secure-data";
 
+const supportedCurrencis = ["BDT", "INR", "PKR"];
 // ---------------------------------------------------------------
 // "By e-mail" tab: no OTP - validates the email is free and creates
 // the user directly with everything collected across the 3 steps.
@@ -26,6 +27,10 @@ import { encodeData } from "@/lib/secure-data";
 export const register = async (data: zod.infer<typeof registerSchema>) => {
   try {
     const parsed = registerSchema.parse(data);
+
+    if (!supportedCurrencis.includes(parsed.currencyCode)) {
+      return { error: "Invalid currency" };
+    }
 
     const exitingUser = await findUserByEmail(parsed.email);
     if (exitingUser) {
@@ -92,7 +97,7 @@ export const register = async (data: zod.infer<typeof registerSchema>) => {
       title: "New user registered",
       description: `Just a new user registered account - player ID = ${user.playerId}`,
       createdAt: new Date().toISOString(),
-      link: "",
+      link: `/users/explor/${user.id}`,
     });
 
     return {
@@ -123,6 +128,10 @@ export const oneClickRegister = async (
     const password = generateGuestPassword();
     const { firstName, lastName } = generateGuestName();
 
+    if (!supportedCurrencis.includes(parsed.currencyCode)) {
+      return { error: "Invalid currency" };
+    }
+
     const user = await createUserAndApplyBonus({
       email,
       phone,
@@ -135,8 +144,6 @@ export const oneClickRegister = async (
       bonusType: parsed.bonusType,
       signupMethod: "ONE_CLICK",
     });
-
-
 
     // Auto-login right after account creation.
     try {
@@ -179,7 +186,7 @@ export const oneClickRegister = async (
       title: "New user registered",
       description: `Just a new user registered account - player ID = ${user.playerId}`,
       createdAt: new Date().toISOString(),
-      link: "",
+      link: `/users/explor/${user.id}`,
     });
 
     return {

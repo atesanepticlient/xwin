@@ -43,6 +43,7 @@
     "cmdk": "^1.0.0",
     "crypto-js": "^4.2.0",
     "embla-carousel-react": "^8.5.2",
+    "framer-motion": "^13.0.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.475.0",
     "mock-aws-s3": "^4.0.2",
