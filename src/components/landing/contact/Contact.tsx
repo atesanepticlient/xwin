@@ -6,12 +6,13 @@ import React from "react";
 // import logo from "@/../public/assets/svg/logo2.svg";
 // import Image from "next/image";
 
-import { BsTelegram } from "react-icons/bs";
+import { BsTelegram, BsTwitterX } from "react-icons/bs";
 import { FaFacebookF } from "react-icons/fa6";
 // import SupportLine from "../SupportLine";
 import { MdOutlineEmail } from "react-icons/md";
 import { AiOutlineLogin } from "react-icons/ai";
 import { useFetchContactQuery } from "@/lib/features/contactApiSlice";
+import { FaInstagramSquare, FaYoutube } from "react-icons/fa";
 const Contact = () => {
   const { data, isLoading } = useFetchContactQuery();
 
@@ -64,6 +65,38 @@ const Contact = () => {
                 className="flex-1 bg-[rgb(51,51,51)] text-white py-3  rounded-lg"
               >
                 <FaFacebookF className="w-4 h-4 text-white mx-auto" />
+              </Link>
+            )}
+
+            {data.payload.youtube && (
+              <Link
+                href={data.payload.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 bg-[rgb(51,51,51)] text-white py-3  rounded-lg"
+              >
+                <FaYoutube className="w-4 h-4 text-white mx-auto" />
+              </Link>
+            )}
+
+            {data.payload.instagram && (
+              <Link
+                href={data.payload.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 bg-[rgb(51,51,51)] text-white py-3  rounded-lg"
+              >
+                <FaInstagramSquare className="w-4 h-4 text-white mx-auto" />
+              </Link>
+            )}
+            {data.payload.twitter && (
+              <Link
+                href={data.payload.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 bg-[rgb(51,51,51)] text-white py-3  rounded-lg"
+              >
+                <BsTwitterX className="w-4 h-4 text-white mx-auto" />
               </Link>
             )}
 

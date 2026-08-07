@@ -56,6 +56,7 @@ const getApiErrorMessage = (error: FetchQueryError | undefined): string =>
 
 const PaymentMain = ({ wallet }: { wallet: any }) => {
   const type = usePaymentMethods((state) => state.type);
+  console.log({ wallet });
   return (
     <div className="rounded-sm shadow-sm w-[95%] mx-auto">
       <div className="bg-white w-full flex items-center justify-center py-2 md:py-4">
@@ -1142,6 +1143,39 @@ const CryptoDepositContent = ({ wallet }: { wallet: any }) => {
         </div>
       )}
 
+      {crypto.currencyCode && (
+        <div className="flex justify-between items-center mb-1">
+          <label
+            htmlFor="currencyCode"
+            className="text-accent text-xs font-medium"
+          >
+            Currency
+          </label>
+          <input
+            disabled={true}
+            placeholder="0.00"
+            value={crypto.currencyCode}
+            id={"currencyCode"}
+            className="bg-white outline-none placeholder:text-gray-400 text-xs p-1 text-center border border-[#8f9da8] border-t-[#8f9da8] border-r-white border-b-white border-l-[#8f9da8] text-[#1f72ad]"
+          />
+        </div>
+      )}
+
+      {crypto.network && (
+        <div className="flex justify-between items-center">
+          <label htmlFor="network" className="text-accent text-xs font-medium">
+            Network
+          </label>
+          <input
+            disabled={true}
+            placeholder="0.00"
+            value={crypto.network}
+            id="network"
+            className="bg-white outline-none placeholder:text-gray-400 text-xs p-1 text-center border border-[#8f9da8] border-t-[#8f9da8] border-r-white border-b-white border-l-[#8f9da8] text-[#1f72ad]"
+          />
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="flex items-center justify-between mt-1">
@@ -1257,6 +1291,12 @@ const CryptoWithdrawContent = ({ wallet }: { wallet: any }) => {
         Double-check your wallet address before submitting. Withdrawals sent to
         an incorrect or unsupported-network address cannot be recovered.
       </p>
+
+      {wallet.name && (
+        <h3 className="text-accent text-sm text-center font-bold">
+          {wallet.name}
+        </h3>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>

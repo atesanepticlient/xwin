@@ -35,6 +35,8 @@ export const metadata: Metadata = {
   title: "WinpariBet",
   description:
     "WinpariBet Company Trusted Online Betting Site in Bangladesh, Join 1xbet companl for the ultimate betting experience! Enjoy sports betting, casino games, live dealers, Aviator crash game, and more. Get the best odds and exciting bonuses. Sign up now!",
+  manifest: "/manifest.json",
+  themeColor: "#ffffff",
 };
 
 export default async function RootLayout({

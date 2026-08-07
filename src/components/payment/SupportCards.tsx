@@ -23,7 +23,7 @@ export default function SupportCards() {
         <p className="mb-0.5">
           Become an Agent and earn with WinpariBet, Here you can earn a lot of
           money.{" "}
-          <a href="www.winparibetagent.com" className="text-[#1B6BB0]">
+          <a href="https://www.winparibetagent.com/" className="text-[#1B6BB0]">
             Join now
           </a>{" "}
         </p>

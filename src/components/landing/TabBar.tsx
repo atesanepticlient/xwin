@@ -206,12 +206,23 @@ const TabBar = ({ showAppBanner: showAppBannerProp = true }: TabBarProps) => {
     setIsBannerVisible(false);
   };
 
+  const downloadApp = () => {
+    const link = document.createElement("a");
+    link.href = "/winparibet.apk";
+    link.download = "WinparBet.apk";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
   const handleBannerDownload = () => {
-    bannerDismissed = true;
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-    setIsBannerVisible(false);
+    // bannerDismissed = true;
+    // if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    // setIsBannerVisible(false);
     // Note: setting `app-downloaded` in localStorage is left to you,
     // wherever the actual download/redirect logic lives.
+    downloadApp();
+    localStorage.setItem("app-downloaded", "true");
   };
 
   // Synchronize state when pathname changes to explicit routes
