@@ -143,7 +143,7 @@ export const useAppStore = create<AppStore>((set) => ({
 
     set({
       subdomain,
-      isMobileSubdomain: true,
+      isMobileSubdomain: subdomain === "mobile",
     });
   },
 }));
