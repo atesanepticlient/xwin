@@ -47,16 +47,18 @@ const Esports = () => {
   if (!iframeUrl) return null;
 
   return (
-    <div className="fixed inset-0 z-50  overflow-hidden pb-[65px]">
-      <iframe
-        src={iframeUrl}
-        className="h-full w-full border-0 block"
-        allowFullScreen
-        title="Esports"
-        allow="fullscreen; autoplay; clipboard-write; encrypted-media; storage-access"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-storage-access-by-user-activation"
-        referrerPolicy="no-referrer-when-downgrade"
-      />
+    <div className="fixed inset-0 z-50 h-screen bg-[#EDF0F2] overflow-hidden pb-[90px]">
+      <div className="pt-[180px]">
+        <iframe
+          src={iframeUrl}
+          className="h-full w-full border-0 block"
+          allowFullScreen
+          title="Esports"
+          allow="fullscreen; autoplay; clipboard-write; encrypted-media; storage-access"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-storage-access-by-user-activation"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      </div>
     </div>
   );
 };
