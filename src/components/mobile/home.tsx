@@ -7,7 +7,7 @@ import Slots from "@/app/(game)/casino/slots";
 
 const Home = () => {
   return (
-    <div>
+    <div className="p-2">
       <Category />
       <Feartures />
       <SportsWrapper.TopLive />

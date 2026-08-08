@@ -4,7 +4,7 @@ import { SportsWrapper } from "../category/matches";
 
 const Sports = () => {
   return (
-    <div>
+    <div className="p-2">
       <Category />
       <SportsWrapper.TopLive />
       <SportsWrapper.PreMatch />

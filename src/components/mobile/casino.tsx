@@ -144,7 +144,7 @@ const Aviator = () => {
 
 const MobileCasinoTab = () => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 p-2">
       <CasinoBanner />
       <Slots theme="light" maxRow={1} />
       <Aviator />

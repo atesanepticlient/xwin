@@ -6,6 +6,7 @@ import live from "@/../data/live-games.json";
 import { GameItem, GreGameItem } from "@/types/game";
 
 import greGamesList from "@/../data/all-gre-games.json";
+import { BettingCategory, Prisma } from "@prisma/client";
 
 type GameTypes = "LIVE_CASINO" | "POPULAR" | "FISHING" | "POKER" | "ALL";
 type Currency = "BDT" | "INR" | "PKR";
@@ -290,3 +291,26 @@ class GameSearch {
 }
 
 export const gameSearchEngine = new GameSearch(greGamesList);
+
+export const getGreCasinoNameAndCategoryById = (id: string) => {
+  const game = greGamesList.find((game) => game.id == id);
+
+  if (!game) {
+    return { name: "", category: null };
+  }
+
+  let category = null;
+
+  if (/slot[\s_-]*s?/i.test(game.category)) {
+    category = BettingCategory.SLOT;
+  } else if (/fishing[\s_-]*s?/i.test(game.category)) {
+    category = BettingCategory.FISH;
+  } else if (/poker[\s_-]*s?/i.test(game.category)) {
+    category = BettingCategory.POKER;
+  } else if (/live[\s_-]*dealer[\s_-]*s?/i.test(game.category)) {
+    category = BettingCategory.LIVE_CASINO;
+  } else {
+    category = BettingCategory.SLOT;
+  }
+  return { name: game?.title, category };
+};

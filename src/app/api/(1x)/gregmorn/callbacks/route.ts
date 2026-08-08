@@ -364,6 +364,7 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
 import { Decimal } from "@prisma/client/runtime/library";
+import { getGreCasinoNameAndCategoryById } from "@/lib/games";
 
 const USER_SECRET = process.env.GREGMORN_SECRET || "";
 
@@ -708,16 +709,6 @@ async function handleCasinoBet(
       );
     }
 
-    // Determine category
-    let category: "SLOT" | "LIVE_CASINO" | "OTHER" | "POKER" | "FISH" = "OTHER";
-    if (gameId) {
-      const g = gameId.toLowerCase();
-      if (g.includes("slot")) category = "SLOT";
-      else if (g.includes("live")) category = "LIVE_CASINO";
-      else if (g.includes("poker")) category = "POKER";
-      else if (g.includes("fish")) category = "FISH";
-    }
-
     const status: "RUNNING" | "SETTLED" | "CANCELED" | "VOID" = round_finished
       ? "SETTLED"
       : "RUNNING";
@@ -744,7 +735,7 @@ async function handleCasinoBet(
           },
         });
       } else {
-        // CREATE initial record and save roundId
+        const { name, category } = getGreCasinoNameAndCategoryById(gameId);
         await tx.bettingRecord.create({
           data: {
             userId: user.id,
@@ -754,6 +745,7 @@ async function handleCasinoBet(
             status: status,
             roundId: roundId || undefined,
             wagerCode: transactionId || undefined,
+            name: name,
           },
         });
       }

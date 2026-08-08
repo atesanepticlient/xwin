@@ -16,7 +16,7 @@ export const MobileHomePage = () => {
     <div>
       <MobileHeader />
 
-      <main className="w-full bg-[#EDF0F2] p-2 pb-[75px] ">
+      <main className="w-full bg-[#EDF0F2]  pb-[75px] ">
         {selectedTab == "TOP" && <Home />}
         {selectedTab == "SPORTS" && <Sports />}
         {(selectedTab == "CASINO" || selectedTab == "GAMES") && (
