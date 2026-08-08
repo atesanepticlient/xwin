@@ -24,10 +24,44 @@ const Footer = () => {
         <Sponsors />
         <div className="mt-6 md:mt-8  px-5 md:px-8 py-6 md:py-8 shadow-sm">
           <div className="flex justify-center py-4 lg:py-6">
-            <a href="https://winparibetagent.com" target="blank">
+            <a
+              href="https://winparibetagent.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                if (typeof window === "undefined") return;
+
+                const targetUrl = "https://winparibetagent.com";
+                const userAgent =
+                  navigator.userAgent ||
+                  navigator.vendor ||
+                  (window as any).opera;
+
+                // Check for React Native WebView or embedded in-app browsers
+                const isWebView =
+                  /wv|WebView|(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(
+                    userAgent,
+                  ) || Boolean((window as any).ReactNativeWebView);
+
+                if (isWebView) {
+                  e.preventDefault();
+
+                  const isAndroid = /Android/i.test(userAgent);
+
+                  if (isAndroid) {
+                    // Force Android OS to hand off the URL to Chrome/default browser
+                    const rawUrl = targetUrl.replace(/^https?:\/\//, "");
+                    window.location.href = `intent://${rawUrl}#Intent;scheme=https;action=android.intent.action.VIEW;end;`;
+                  } else {
+                    // iOS fallback: Route through Next.js server header redirect
+                    window.location.href = `/api/open-external?url=${encodeURIComponent(targetUrl)}`;
+                  }
+                }
+              }}
+            >
               <PrimaryButton className="flex items-center gap-1">
                 Become an agent
-                <MdOutlineSupportAgent className="w-4 h-4 lg:w-5 lg:h-5" />{" "}
+                <MdOutlineSupportAgent className="w-4 h-4 lg:w-5 lg:h-5" />
               </PrimaryButton>
             </a>
           </div>

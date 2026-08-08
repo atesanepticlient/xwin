@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     const payerKey = user.playerId;
     const payerName =
       [user.firstName, user.lastName].filter(Boolean).join(" ") || "Win Player";
-    const callbackUrl = "";
+    const callbackUrl = process.env.CLINET_URL;
     const ip = getClientIp(req);
 
     const { transAmt, payType, walletId } = body;
