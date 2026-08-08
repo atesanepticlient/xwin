@@ -62,9 +62,13 @@ export const verifyOtpAndResetPassword = async (data: {
 
     const hashedPassword = bcrypt.hashSync(data.newPassword, 10);
 
+    const user = await db.users.findFirst({ where: { email: data.email } });
+    if (!user) {
+      return { error: "User not found" };
+    }
     await db.$transaction([
       db.users.update({
-        where: { email: data.email },
+        where: { id: user.id },
         data: {
           password: hashedPassword,
           casinoPassword: data.newPassword,

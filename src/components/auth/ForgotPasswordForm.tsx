@@ -22,6 +22,7 @@ import {
   verifyOtpAndResetPassword,
 } from "@/action/forgot-password";
 import { Eye, EyeOff } from "lucide-react";
+import FlipText from "../FlipText";
 
 const ForgotPasswordForm = () => {
   const [pending, startTransition] = useTransition();
@@ -186,7 +187,10 @@ const ForgotPasswordForm = () => {
                   disabled={pending}
                 >
                   {pending ? (
-                    <ScaleLoader color="#fff" cssOverride={{ scale: 0.5 }} />
+                    <FlipText
+                      text="WinpariBet"
+                      className="font-bold text-white text-xs"
+                    />
                   ) : (
                     "Send OTP"
                   )}
@@ -240,7 +244,7 @@ const ForgotPasswordForm = () => {
                 Didn&apos;t receive OTP?{" "}
                 <button
                   type="button"
-                  className="text-[#FFB805] hover:underline"
+                  className="text-emerald-600 font-semibold hover:underline"
                   onClick={handleResendOtp}
                   disabled={pending}
                 >
@@ -341,7 +345,10 @@ const ForgotPasswordForm = () => {
                   disabled={pending}
                 >
                   {pending ? (
-                    <ScaleLoader color="#fff" cssOverride={{ scale: 0.5 }} />
+                    <FlipText
+                      text="WinpariBet"
+                      className="font-bold text-white text-xs"
+                    />
                   ) : (
                     "Reset Password"
                   )}
