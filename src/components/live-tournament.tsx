@@ -60,7 +60,7 @@ export const LiveTournament = ({
                 return (
                   <div className="bg-white px-3 py-4 rounded-2xl flex justify-between items-center min-w-[300px]">
                     <div className="flex items-center gap-2">
-                      {match.flag ? (
+                      {match.flagType === "image" ? (
                         <div className="relative">
                           <Image
                             width={24}
@@ -69,13 +69,22 @@ export const LiveTournament = ({
                             src={match.flag}
                             alt={match.name}
                           />
-
+                          <div className="absolute"></div>
+                        </div>
+                      ) : match.flagType === "svg" ? (
+                        <div className="relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            width={24}
+                            height={24}
+                            className="w-6 h-6 aspect-square rounded-full object-cover"
+                            src={match.flag}
+                            alt={match.name}
+                          />
                           <div className="absolute"></div>
                         </div>
                       ) : (
-                        <>
-                          <GiWorld className="text-blue-600 w-7 h-7" />
-                        </>
+                        <GiWorld className="text-blue-600 w-7 h-7" />
                       )}
 
                       <p className="max-w-[85%] line-clamp-1 text-xs text-[rgb(149,149,149)]">
