@@ -24,7 +24,7 @@ const Footer = () => {
         <Sponsors />
         <div className="mt-6 md:mt-8  px-5 md:px-8 py-6 md:py-8 shadow-sm">
           <div className="flex justify-center py-4 lg:py-6">
-            <a href="https://winparibetagent.com/signup" target="blank">
+            <a href="https://winparibetagent.com" target="blank">
               <PrimaryButton className="flex items-center gap-1">
                 Become an agent
                 <MdOutlineSupportAgent className="w-4 h-4 lg:w-5 lg:h-5" />{" "}
