@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  instrumentationHook: true,
   images: {
     domains: [
       "flagcdn.com",

@@ -5,6 +5,15 @@ import authConfig from "./auth.config";
 const { auth } = NextAuth({ ...authConfig });
 
 export default auth(async (req) => {
+  const host = req.headers.get("host") || "";
+
+  // Remove port if running locally
+  const hostname = host.split(":")[0];
+
+  if (hostname.startsWith("mobile.")) {
+    return Response.redirect(new URL("https://winparibet.com", req.url));
+  }
+
   const { nextUrl } = req;
   const session = !!req.auth;
 
