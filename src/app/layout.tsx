@@ -35,7 +35,7 @@ const russoOne = Russo_One({
 export const metadata: Metadata = {
   title: "WinpariBet",
   description:
-    "WinpariBet Company Trusted Online Betting Site in Bangladesh, Join 1xbet companl for the ultimate betting experience! Enjoy sports betting, casino games, live dealers, Aviator crash game, and more. Get the best odds and exciting bonuses. Sign up now!",
+    "WinpariBet Company Trusted Online Betting Site in Bangladesh, Join winparibet for the ultimate betting experience! Enjoy sports betting, casino games, live dealers, Aviator crash game, and more. Get the best odds and exciting bonuses. Sign up now!",
   manifest: "/manifest.json",
   themeColor: "#ffffff",
 };
