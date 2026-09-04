@@ -30,7 +30,7 @@ const fixImageUrl = (url: string): string => {
   if (!url) return "";
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
   if (url.startsWith("//")) return `https:${url}`;
-  if (url.startsWith("/")) return `https://1xframemxz.com${url}`;
+  if (url.startsWith("/")) return `https://sportshub-custom001.network/${url}`;
   return url;
 };
 

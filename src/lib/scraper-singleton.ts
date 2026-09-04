@@ -1160,13 +1160,13 @@ class ScraperService extends EventEmitter {
       try {
         const [liveData, sportsData, esportsData, tournamentsData] =
           await Promise.all([
-            scrapeMatches("https://1xframemxz.com/en/live", this.browser!),
-            scrapeMatches("https://1xframemxz.com/en/line", this.browser!),
+            scrapeMatches("https://sportshub-custom001.network/en/live", this.browser!),
+            scrapeMatches("https://sportshub-custom001.network/en/line", this.browser!),
             scrapeEsportsMatches(
-              "https://1xframemxz.com/en/live/esports",
+              "https://sportshub-custom001.network/en/live/esports",
               this.browser!,
             ),
-            scrapeTournaments("https://1xframemxz.com/en/live", this.browser!),
+            scrapeTournaments("https://sportshub-custom001.network/en/live", this.browser!),
           ]);
 
         this.latestPayload = {
@@ -1216,7 +1216,7 @@ class ScraperService extends EventEmitter {
   /**
    * Fetch matches only - useful for standalone match data needs
    */
-  async fetchMatches(url: string = "https://1xframemxz.com/en/live") {
+  async fetchMatches(url: string = "https://sportshub-custom001.network/en/live") {
     if (!this.browser) {
       logger.warn("Browser not initialized. Starting scraper service first.");
       return [];
@@ -1228,7 +1228,7 @@ class ScraperService extends EventEmitter {
    * Fetch esports matches only - useful for standalone esports data needs
    */
   async fetchEsportsMatches(
-    url: string = "https://1xframemxz.com/en/live/esports",
+    url: string = "https://sportshub-custom001.network/en/live/esports",
   ) {
     if (!this.browser) {
       logger.warn("Browser not initialized. Starting scraper service first.");
