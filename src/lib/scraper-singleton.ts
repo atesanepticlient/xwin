@@ -1140,6 +1140,11 @@ class ScraperService extends EventEmitter {
   private latestPayload: any = null;
 
   async start() {
+    if (process.env.ENABLE_LIVE_SCRAPER !== "true") {
+      return;
+    }
+
+    if (this.running) return;
     if (this.running) return;
     this.running = true;
 
@@ -1160,13 +1165,22 @@ class ScraperService extends EventEmitter {
       try {
         const [liveData, sportsData, esportsData, tournamentsData] =
           await Promise.all([
-            scrapeMatches("https://sportshub-custom001.network/en/live", this.browser!),
-            scrapeMatches("https://sportshub-custom001.network/en/line", this.browser!),
+            scrapeMatches(
+              "https://sportshub-custom001.network/en/live",
+              this.browser!,
+            ),
+            scrapeMatches(
+              "https://sportshub-custom001.network/en/line",
+              this.browser!,
+            ),
             scrapeEsportsMatches(
               "https://sportshub-custom001.network/en/live/esports",
               this.browser!,
             ),
-            scrapeTournaments("https://sportshub-custom001.network/en/live", this.browser!),
+            scrapeTournaments(
+              "https://sportshub-custom001.network/en/live",
+              this.browser!,
+            ),
           ]);
 
         this.latestPayload = {
@@ -1216,7 +1230,9 @@ class ScraperService extends EventEmitter {
   /**
    * Fetch matches only - useful for standalone match data needs
    */
-  async fetchMatches(url: string = "https://sportshub-custom001.network/en/live") {
+  async fetchMatches(
+    url: string = "https://sportshub-custom001.network/en/live",
+  ) {
     if (!this.browser) {
       logger.warn("Browser not initialized. Starting scraper service first.");
       return [];
