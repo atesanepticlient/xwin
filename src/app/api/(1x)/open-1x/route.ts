@@ -1,25 +1,37 @@
-// app/api/open-game/route.ts
-
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { findCurrentUser } from "@/data/user";
 import { replaceDomain } from "@/lib/utils";
 
+const FALLBACK_SPORTS_URL =
+  "https://sportshub-custom001.network/sports/live?lng=en";
+
 export async function POST(req: Request) {
   try {
     const user = await findCurrentUser();
 
+    // Return the public sports URL when the user is not authenticated.
     if (!user) {
-      console.error("[OPEN GAME] Auth failed: No current user found.");
-      return NextResponse.json(
-        { message: "Authentication failed" },
-        { status: 401 },
+      console.log(
+        "[OPEN GAME] No authenticated user. Returning fallback sports URL.",
       );
+
+      return NextResponse.json({
+        success: true,
+        fallback: true,
+        data: {
+          content: {
+            game: {
+              url: FALLBACK_SPORTS_URL,
+            },
+          },
+        },
+      });
     }
 
-    // Extract gameId from the incoming request body
     const reqBody = await req.json().catch(() => ({}));
     const { gameId } = reqBody;
+
     if (!gameId) {
       return NextResponse.json(
         { error: "Game ID is required" },
@@ -28,20 +40,19 @@ export async function POST(req: Request) {
     }
 
     const userLoginId = user.playerId;
-    const userCurrency = user?.wallet?.currencyCode || "BDT";
+    const userCurrency = user.wallet?.currencyCode || "BDT";
 
     const body = {
       currency: userCurrency,
       demo: "0",
       exitUrl: process.env.CLINET_URL || "https://www.winparibet.com",
-      gameId: gameId,
+      gameId,
       language: "en",
       player_login: userLoginId,
       user_id: "6712031e-2632-4b4c-9226-8e19215a4ebb",
       callbackUrl: "https://www.winparibet.com/api/gregmorn/callbacks",
     };
 
-    // IMPORTANT: Sign the exact string you're going to send.
     const rawBody = JSON.stringify(body);
 
     const signature = crypto
@@ -50,19 +61,6 @@ export async function POST(req: Request) {
       .digest("hex");
 
     const providerUrl = `${process.env.GREGMORN_CLIENT}/games/openGame`;
-
-    // --- LOGS FOR THUNDER CLIENT ---
-    console.log("\n==================================================");
-    console.log("⚡ THUNDER CLIENT DEBUG DETAILS");
-    console.log("==================================================");
-    console.log(`[URL]:          ${providerUrl}`);
-    console.log(`[Method]:       POST`);
-    console.log(`[Header] X-Signature:    ${signature}`);
-    console.log(`[Header] Content-Type:   application/json`);
-    console.log(`[Header] Accept:         */*`);
-    console.log(`[RAW JSON Body]:`);
-    console.log(rawBody);
-    console.log("==================================================\n");
 
     const response = await fetch(providerUrl, {
       method: "POST",
@@ -81,41 +79,37 @@ export async function POST(req: Request) {
       JSON.stringify(data, null, 2),
     );
 
-    if (data.status !== "success") {
+    if (!response.ok || data.status !== "success") {
       return NextResponse.json(
-        { error: "Game is under maintainance" },
+        { error: "Game is under maintenance" },
         { status: 400 },
       );
     }
 
-    if (gameId == process.env.GREGMORN_1XID) {
-      const rawSportUrl = replaceDomain(
+    if (gameId === process.env.GREGMORN_1XID) {
+      data.content.game.url = replaceDomain(
         data.content.game.url,
         process.env.XBET_CUSTOM_LINK!,
       );
-      data.content.game.url = rawSportUrl;
     }
 
     return NextResponse.json(
       {
-        success: response.ok,
+        success: true,
         status: response.status,
         data,
       },
-      {
-        status: response.status,
-      },
+      { status: response.status },
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[OPEN GAME ERROR]:", error);
+
     return NextResponse.json(
       {
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : "Internal server error",
       },
-      {
-        status: 500,
-      },
+      { status: 500 },
     );
   }
 }

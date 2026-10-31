@@ -14,6 +14,7 @@ import { SportsWrapper } from "@/components/category/matches";
 import Slots from "./(game)/casino/slots";
 import PopularLive from "./(game)/casino/popular-live";
 import { useAppStore } from "@/lib/store.zustond";
+import SportsHome from "@/components/sports-home";
 
 export default function Home() {
   const { isMobileSubdomain } = useAppStore();
@@ -26,19 +27,18 @@ export default function Home() {
           <Header />
           <main className="container bg-gray-100 ">
             <FeaturesHighlight />
-            <SportsHeaderBar
+            {/* <SportsHeaderBar
               onFavoriteClick={() => console.log("Favorites clicked")}
               onSearchClick={() => console.log("Search clicked")}
-            />
+            /> */}
             <div className="px-2">
-              <SportsWrapper.TopLive />
+              {/* <SportsWrapper.TopLive />
               <SportsWrapper.PreMatch />
-              <SportsWrapper.LiveTournaments />
-
+              <SportsWrapper.LiveTournaments /> */}
+              <SportsHome />
               <Slots theme="light" maxRow={1} />
               <PopularLive theme="light" maxRow={1} />
             </div>
-
 
             <Footer />
           </main>

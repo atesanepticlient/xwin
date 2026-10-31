@@ -39,7 +39,8 @@ export const publicRoutes = [
   "/api/esports/live",
   "/api/tournaments",
   "/manifest.json",
-  "/api/open-external"
+  "/api/open-external",
+  "/api/open-1x",
 ];
 
 /**

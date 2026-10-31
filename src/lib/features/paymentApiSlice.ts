@@ -1,22 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  MakeWithdrawInput,
-  MakeDepositInput,
-  TransactionFilters,
-} from "@/types/api";
+import { TransactionFilters } from "@/types/api";
 import { apiSlice } from "./apiSlice";
 import { Prisma } from "@prisma/client";
 
+/**
+ * Payments now have exactly two entry points per flow:
+ *   GET/POST /api/payment/deposit
+ *   GET/POST /api/payment/withdraw
+ * The server picks the country (BD / PK / none) and the method (e-wallet or
+ * crypto) from the account and from body.walletId. The client never chooses a
+ * provider or a provider-specific code.
+ */
 const paymentApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     fetchPaymentData: builder.query<any, { type: "withdraw" | "deposit" }>({
       query: ({ type }) => ({
         method: "GET",
-        url: `/api/payment?type=${type}`,
+        url: `/api/payment/${type}`,
       }),
     }),
 
-    makeDeposit: builder.mutation<{ message: string }, MakeDepositInput>({
+    // body: { walletId, amount, account?, transactionId? }
+    // (old names transAmt / account_number / accountNumber are still accepted)
+    makeDeposit: builder.mutation<any, any>({
       query: (body) => ({
         method: "POST",
         url: "/api/payment/deposit",
@@ -24,23 +30,9 @@ const paymentApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["history"],
     }),
-    makeApayDeposit: builder.mutation<any, any>({
-      query: (body) => ({
-        method: "POST",
-        url: "/api/payment/deposit",
-        body,
-      }),
-      invalidatesTags: ["history"],
-    }),
-    makeWithdraw: builder.mutation<{ message: string }, MakeWithdrawInput>({
-      query: (body) => ({
-        method: "POST",
-        url: "/api/payment/withdraw",
-        body,
-      }),
-      invalidatesTags: ["history"],
-    }),
-    makeApayWithdraw: builder.mutation<any, any>({
+
+    // body: { walletId, amount, account?, address? }
+    makeWithdraw: builder.mutation<any, any>({
       query: (body) => ({
         method: "POST",
         url: "/api/payment/withdraw",
@@ -94,59 +86,6 @@ const paymentApiSlice = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
-    makeCollection: builder.mutation<
-      any,
-      {
-        transAmt: number;
-        payType: number;
-        walletId: string;
-        orderRemark?: string;
-      }
-    >({
-      query: (body) => ({
-        url: "/api/collection",
-        method: "POST",
-        body,
-      }),
-    }),
-    makePayment: builder.mutation<
-      any,
-      {
-        account: string;
-        transAmt: number;
-        payType: number;
-        bnkCode?: string;
-        remark?: string;
-      }
-    >({
-      query: (body) => ({
-        url: "/api/withdrawal/payment",
-        method: "POST",
-        body,
-      }),
-    }),
-
-    makeCryptoDeposit: builder.mutation<
-      any,
-      { walletId: string; amount: number; transactionId: string }
-    >({
-      query: (body) => ({
-        url: "/api/crypto/deposit",
-        method: "POST",
-        body,
-      }),
-    }),
-
-    makeCryptoWithdraw: builder.mutation<
-      any,
-      { walletId: string; amount: number; address: string }
-    >({
-      query: (body) => ({
-        url: "/api/crypto/withdraw",
-        method: "POST",
-        body,
-      }),
-    }),
   }),
 });
 
@@ -157,10 +96,16 @@ export const {
   useFetchTransactionsQuery,
   useFetchWalletQuery,
   useFetchWithdrawAddressQuery,
-  useMakeApayDepositMutation,
-  useMakeApayWithdrawMutation,
-  useMakeCollectionMutation,
-  useMakePaymentMutation,
-  useMakeCryptoDepositMutation,
-  useMakeCryptoWithdrawMutation,
 } = paymentApiSlice;
+
+/**
+ * Deprecated aliases so components/payment/PaymentMain.tsx keeps compiling
+ * unchanged. They all hit the same two root routes. Delete them once
+ * PaymentMain uses useMakeDepositMutation / useMakeWithdrawMutation directly.
+ */
+export const useMakeApayDepositMutation = useMakeDepositMutation;
+export const useMakeCollectionMutation = useMakeDepositMutation;
+export const useMakeCryptoDepositMutation = useMakeDepositMutation;
+export const useMakeApayWithdrawMutation = useMakeWithdrawMutation;
+export const useMakePaymentMutation = useMakeWithdrawMutation;
+export const useMakeCryptoWithdrawMutation = useMakeWithdrawMutation;
