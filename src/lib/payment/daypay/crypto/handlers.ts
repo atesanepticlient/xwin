@@ -2,10 +2,10 @@ import { v4 as uuidv4 } from "uuid";
 import { db } from "@/lib/db";
 import { convertCurrency } from "@/lib/helpers";
 import { sendAdminNotification } from "@/lib/notifications";
-import { userHasAgent } from "./context";
-import { asAmount, asString, fail, ok } from "./http";
-import { loadWallet } from "./wallets";
-import type { PaymentContext } from "./types";
+import { userHasAgent } from "../common/context";
+import { asAmount, asString, fail, ok } from "../common/http";
+import { loadWallet } from "../common/wallets";
+import type { PaymentContext } from "../common/types";
 
 /**
  * Crypto deposit / withdraw. Same logic as the old /api/crypto/* routes,
@@ -25,7 +25,12 @@ export async function cryptoDeposit(ctx: PaymentContext): Promise<Response> {
   if (amount === null) return fail("Invalid amount.");
 
   const wallet = ctx.wallet ?? (await loadWallet("deposit", walletId));
-  if (!wallet || !wallet.isActive || wallet.category !== "CRYPTO" || !wallet.crypto) {
+  if (
+    !wallet ||
+    !wallet.isActive ||
+    wallet.category !== "CRYPTO" ||
+    !wallet.crypto
+  ) {
     return fail("This deposit method is unavailable.");
   }
 
@@ -94,11 +99,19 @@ export async function cryptoWithdraw(ctx: PaymentContext): Promise<Response> {
   }
 
   if (await userHasAgent(user)) {
-    return fail("This withdrawal method is unavailable for agent-linked accounts.");
+    return fail(
+      "This withdrawal method is unavailable for agent-linked accounts.",
+    );
   }
 
-  const exchangeRate = await db.dollerRate.findUnique({ where: { id: "global" } });
-  const convertedAmount = convertCurrency(user.wallet.currencyCode, amount, exchangeRate);
+  const exchangeRate = await db.dollerRate.findUnique({
+    where: { id: "global" },
+  });
+  const convertedAmount = convertCurrency(
+    user.wallet.currencyCode,
+    amount,
+    exchangeRate,
+  );
 
   // atomic debit: only succeeds if the balance is still enough right now
   const debited = await db.wallet.updateMany({

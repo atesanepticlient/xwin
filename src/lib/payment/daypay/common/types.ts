@@ -15,8 +15,6 @@ export type MethodKey =
   | "jazzcash"
   | "easypaisa";
 
-export type ProviderKey = "beidou" | "pk-demo";
-
 export type CurrentUser = NonNullable<
   Awaited<ReturnType<typeof findCurrentUser>>
 >;
@@ -82,14 +80,25 @@ export interface ProviderResult {
   message?: string;
   /** Where the user is sent to finish the payment (hosted checkout). */
   redirectUrl?: string;
-  /** True for placeholder providers that do not move money. */
-  demo?: boolean;
 }
 
 export interface PaymentProvider {
-  key: ProviderKey;
-  /** Demo providers never debit the wallet and never persist anything. */
-  isDemo?: boolean;
+  key: string;
   deposit(req: ProviderRequest): Promise<ProviderResult>;
   withdraw(req: ProviderRequest): Promise<ProviderResult>;
+}
+
+/* ---------- a country = its brands + its one provider ---------- */
+
+export interface MethodDef {
+  key: MethodKey;
+  label: string;
+  /** Lower-case, letters/digits only; matched against the wallet row name. */
+  match: string[];
+}
+
+export interface CountryModule {
+  code: CountryCode;
+  methods: MethodDef[];
+  provider: PaymentProvider;
 }

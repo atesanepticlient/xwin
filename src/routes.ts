@@ -41,6 +41,8 @@ export const publicRoutes = [
   "/manifest.json",
   "/api/open-external",
   "/api/open-1x",
+  "/api/payment/pk/callback/payin",
+  "/api/payment/pk/callback/payout",
 ];
 
 /**

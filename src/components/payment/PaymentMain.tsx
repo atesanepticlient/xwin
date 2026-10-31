@@ -334,18 +334,20 @@ const DepositContent = ({
   );
 };
 
-const MOBILE_BANKING_PAY_TYPE: Record<string, number> = {
-  bkash: 2,
-  nagad: 1,
-  rocket: 3,
-};
+// The server now decides the provider and the provider code from walletId.
+// This only recognises the brand so the form can show/hide itself.
+const MOBILE_BANKING_METHODS = [
+  "bkash",
+  "nagad",
+  "upay",
+  "rocket",
+  "jazzcash",
+  "easypaisa",
+];
 
-const getMobileBankingPayType = (walletName: string): number | null => {
-  const key = walletName.toLowerCase();
-  const match = Object.keys(MOBILE_BANKING_PAY_TYPE).find((name) =>
-    key.includes(name),
-  );
-  return match ? MOBILE_BANKING_PAY_TYPE[match] : null;
+const getMobileBankingPayType = (walletName: string): string | null => {
+  const key = walletName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return MOBILE_BANKING_METHODS.find((name) => key.includes(name)) ?? null;
 };
 
 const DepositContentEwallet = ({

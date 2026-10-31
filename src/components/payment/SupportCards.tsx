@@ -1,49 +1,59 @@
 "use client";
+
 import React, { MouseEvent } from "react";
 
 export default function SupportCards() {
-  // Helper function to handle external link clicks safely in WebViews
   const handleExternalClick = (
     e: MouseEvent<HTMLAnchorElement>,
     targetUrl: string,
   ) => {
-    if (typeof window === "undefined") return;
+    const ua = navigator.userAgent || "";
 
-    const userAgent =
-      navigator.userAgent || navigator.vendor || (window as any).opera;
+    // Detect Android WebView
+    const isAndroid = /Android/i.test(ua);
 
-    // Check for React Native WebView or embedded in-app browsers
-    const isWebView =
-      /wv|WebView|(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(
-        userAgent,
-      ) || Boolean((window as any).ReactNativeWebView);
+    const isAndroidWebView =
+      isAndroid &&
+      (/;\s*wv\)/i.test(ua) || Boolean((window as any).ReactNativeWebView));
 
-    if (isWebView) {
-      e.preventDefault();
+    console.log("[External Link] User Agent:", ua);
+    console.log("[External Link] Android:", isAndroid);
+    console.log("[External Link] Android WebView:", isAndroidWebView);
+    console.log("[External Link] Target:", targetUrl);
 
-      const isAndroid = /Android/i.test(userAgent);
+    // Preserve normal browser behaviour
+    if (!isAndroidWebView) return;
 
-      if (isAndroid) {
-        // Force Android OS to hand off the URL to Chrome/default browser
-        const rawUrl = targetUrl.replace(/^https?:\/\//, "");
-        window.location.href = `intent://${rawUrl}#Intent;scheme=https;action=android.intent.action.VIEW;end;`;
-      } else {
-        // iOS fallback: Route through Next.js server header redirect
-        window.location.href = `/api/open-external?url=${encodeURIComponent(
-          targetUrl,
-        )}`;
-      }
+    e.preventDefault();
+
+    try {
+      const url = new URL(targetUrl);
+
+      // Build Android Intent URL
+      const intentUrl =
+        `intent://${url.host}${url.pathname}${url.search}${url.hash}` +
+        `#Intent;scheme=${url.protocol.replace(":", "")};` +
+        `action=android.intent.action.VIEW;` +
+        `category=android.intent.category.BROWSABLE;end`;
+
+      console.log("[External Link] Intent:", intentUrl);
+
+      // Attempt to open the external browser
+      window.location.href = intentUrl;
+    } catch (error) {
+      console.error("[External Link] Failed:", error);
     }
   };
 
   return (
-    <div className=" px-3 flex flex-col gap-3 mt-3 mx-auto justify-center">
+    <div className="px-3 flex flex-col gap-3 mt-3 mx-auto justify-center">
       {/* Top Card - Support Message */}
       <div className="bg-[#cdcdcd] rounded-sm p-1.5 text-gray-800 shadow-sm border border-gray-300/50">
         <p className="text-xs sm:text-sm font-[450]">
           If you have any problems with deposits, withdrawals and accounts
           please contact support
         </p>
+
         <a
           href="https://t.me/WinpariBet_Support"
           target="_blank"
@@ -58,7 +68,7 @@ export default function SupportCards() {
       </div>
 
       {/* Bottom Card - Agent Recruitment Info */}
-      <div className="bg-[#cdcdcd] font-[450] rounded-sm p-1.5 text-gray-800 shadow-sm border border-gray-300/50 text-xs sm:text-sm ">
+      <div className="bg-[#cdcdcd] font-[450] rounded-sm p-1.5 text-gray-800 shadow-sm border border-gray-300/50 text-xs sm:text-sm">
         <p className="mb-0.5">
           Become an Agent and earn with WinpariBet, Here you can earn a lot of
           money.{" "}
@@ -72,7 +82,7 @@ export default function SupportCards() {
             className="text-[#1B6BB0] hover:underline"
           >
             Join now
-          </a>{" "}
+          </a>
         </p>
       </div>
     </div>

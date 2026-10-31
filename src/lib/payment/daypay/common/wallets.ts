@@ -1,14 +1,19 @@
 import { db } from "@/lib/db";
-import { findMethodForCountry } from "./catalog";
-import type { CountryCode, PaymentFlow, WalletRow } from "./types";
+import { findMethod } from "./methods";
+import type { CountryModule, PaymentFlow, WalletRow } from "./types";
 
-const cryptoOf = (c: {
-  currencyCode: string;
-  network: string;
-  address: string;
-  qrCodeImage: string | null;
-  memo: string | null;
-} | null | undefined) =>
+const cryptoOf = (
+  c:
+    | {
+        currencyCode: string;
+        network: string;
+        address: string;
+        qrCodeImage: string | null;
+        memo: string | null;
+      }
+    | null
+    | undefined,
+) =>
   c
     ? {
         currencyCode: c.currencyCode,
@@ -103,26 +108,26 @@ export async function listWallets(
 
 /**
  * E-wallet rows that really belong to this country. A row whose name is not
- * in the country's catalog is hidden (it cannot be processed anyway).
+ * in the country's brand list is hidden (it cannot be processed anyway).
  */
 export async function listCountryEwallets(
   flow: PaymentFlow,
-  country: CountryCode | null,
+  country: CountryModule | null,
 ): Promise<WalletRow[]> {
   if (!country) return [];
   const rows = await listWallets(flow, "MOBILE_BANKING");
-  return rows.filter((w) => findMethodForCountry(country, w.walletName));
+  return rows.filter((w) => findMethod(country.methods, w.walletName));
 }
 
 /** Same JSON shape the old /api/payment returned, so the UI store keeps working. */
 export function toClientWallet(
   flow: PaymentFlow,
   w: WalletRow,
-  opts: { country: CountryCode | null; hasAgent: boolean },
+  opts: { country: CountryModule | null; hasAgent: boolean },
 ) {
   const method =
     w.category === "MOBILE_BANKING"
-      ? findMethodForCountry(opts.country, w.walletName)
+      ? findMethod(opts.country?.methods ?? [], w.walletName)
       : null;
 
   const base = {

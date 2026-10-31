@@ -1,15 +1,19 @@
 import { db } from "@/lib/db";
-import { findMethodForCountry } from "./catalog";
+import { findMethod } from "./methods";
 import { userHasAgent } from "./context";
 import { asAmount, asString, fail, ok } from "./http";
-import { getProvider } from "./providers";
 import { loadWallet } from "./wallets";
-import type { CountryCode, PaymentContext, PaymentFlow, ProviderResult } from "./types";
+import type {
+  CountryModule,
+  PaymentContext,
+  PaymentFlow,
+  ProviderResult,
+} from "./types";
 
 /**
  * Shared POST logic for every country's e-wallets (bKash, Nagad, JazzCash ...).
  * It does the checks that were copy-pasted in each old route, then hands the
- * gateway part to the provider chosen in catalog.ts.
+ * gateway part to the country's own provider (bd/provider.ts, pk/provider.ts).
  */
 const toWire = (result: ProviderResult) =>
   result.ok
@@ -18,14 +22,12 @@ const toWire = (result: ProviderResult) =>
         msg: result.message ?? "success",
         data: result.redirectUrl,
       })
-    : fail(result.message ?? "Payment failed", result.status ?? 400, {
-        ...(result.demo ? { demo: true } : {}),
-      });
+    : fail(result.message ?? "Payment failed", result.status ?? 400);
 
 export async function ewalletPost(
   flow: PaymentFlow,
   ctx: PaymentContext,
-  country: CountryCode,
+  country: CountryModule,
 ): Promise<Response> {
   const { user, body } = ctx;
 
@@ -55,7 +57,7 @@ export async function ewalletPost(
     );
   }
 
-  const method = findMethodForCountry(country, wallet.walletName);
+  const method = findMethod(country.methods, wallet.walletName);
   if (!method) return fail("This method is not allowed");
 
   if (amount < wallet.min || amount > wallet.max) {
@@ -63,10 +65,12 @@ export async function ewalletPost(
   }
 
   if (flow === "withdraw" && (await userHasAgent(user))) {
-    return fail("This withdrawal method is unavailable for agent-linked accounts.");
+    return fail(
+      "This withdrawal method is unavailable for agent-linked accounts.",
+    );
   }
 
-  const provider = getProvider(method.providers[flow]);
+  const provider = country.provider;
   const request = { ctx, method: method.key, wallet, amount, account };
 
   if (flow === "deposit") {
@@ -79,23 +83,17 @@ export async function ewalletPost(
   }
 
   // ---- withdraw: atomic debit first, refund if the provider does not accept ----
-  let debited = false;
-  if (!provider.isDemo) {
-    const res = await db.wallet.updateMany({
-      where: { userId: user.id, balance: { gte: amount } },
-      data: { balance: { decrement: amount } },
-    });
-    if (res.count === 0) return fail("Insufficient balance.");
-    debited = true;
-  }
+  const debit = await db.wallet.updateMany({
+    where: { userId: user.id, balance: { gte: amount } },
+    data: { balance: { decrement: amount } },
+  });
+  if (debit.count === 0) return fail("Insufficient balance.");
 
   const refund = () =>
-    debited
-      ? db.wallet.update({
-          where: { userId: user.id },
-          data: { balance: { increment: amount } },
-        })
-      : Promise.resolve();
+    db.wallet.update({
+      where: { userId: user.id },
+      data: { balance: { increment: amount } },
+    });
 
   try {
     const result = await provider.withdraw(request);

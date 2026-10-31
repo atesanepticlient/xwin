@@ -29,7 +29,10 @@ export async function getPaymentCountries(): Promise<CountryInfo[]> {
       select: { code: true, name: true, currencyCode: true },
     });
   } catch (error) {
-    console.error("[payment] PaymentCountry lookup failed, using fallback", error);
+    console.error(
+      "[payment] PaymentCountry lookup failed, using fallback",
+      error,
+    );
   }
 
   if (rows.length === 0) {
@@ -62,7 +65,10 @@ export async function currencyFromCountry(
 /* ---------------- IP based detection (fallback only) ---------------- */
 
 const IP_TTL_MS = 10 * 60 * 1000;
-const ipCache = new Map<string, { country: CountryCode | null; expiresAt: number }>();
+const ipCache = new Map<
+  string,
+  { country: CountryCode | null; expiresAt: number }
+>();
 
 export async function detectCountryFromIp(
   req: NextRequest,
