@@ -207,12 +207,10 @@ const TabBar = ({ showAppBanner: showAppBannerProp = true }: TabBarProps) => {
   };
 
   const downloadApp = () => {
-    const link = document.createElement("a");
-    link.href = "/winparibet.apk";
-    link.download = "WinparBet.apk";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    const url = "/winparibet.apk";
+
+    // Navigate directly to the actual APK URL.
+    window.location.href = url;
   };
 
   const handleBannerDownload = () => {
