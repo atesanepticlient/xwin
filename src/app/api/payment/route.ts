@@ -98,15 +98,15 @@ export const GET = async () => {
       }),
     );
 
-    const livvbetCash = {
-      id: "livvbet-cash",
-      name: "Livvbet Cash",
-      label: "Livvbet Cash",
-      type: "cash",
-      isActive: hasAgent,
-      image: LIVVBET_CASH_ICON,
-      isRecommended: false,
-    };
+    // const livvbetCash = {
+    //   id: "livvbet-cash",
+    //   name: "Livvbet Cash",
+    //   label: "Livvbet Cash",
+    //   type: "cash",
+    //   isActive: hasAgent,
+    //   image: LIVVBET_CASH_ICON,
+    //   isRecommended: false,
+    // };
 
     // 5. Build category groups dynamically (filtering out empty categories)
     const depositCategories = [
@@ -137,10 +137,10 @@ export const GET = async () => {
         methodName: "Crypto",
         wallets: withdrawBase.filter((w) => w.category === "CRYPTO"),
       },
-      {
-        methodName: "WinpariBet Cash",
-        wallets: [livvbetCash],
-      },
+      // {
+      //   methodName: "WinpariBet Cash",
+      //   wallets: [livvbetCash],
+      // },
     ].filter((cat) => cat.wallets.length > 0);
 
     return NextResponse.json(
