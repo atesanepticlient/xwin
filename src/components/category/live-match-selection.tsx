@@ -14,7 +14,8 @@ import { IoIosFootball } from "react-icons/io";
 import { FaBasketballBall } from "react-icons/fa";
 import { IoTennisballSharp } from "react-icons/io5";
 import GameSectionHeader from "../GameSectionHeader";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+import { matchHref } from "@/lib/helpers";
 
 export interface BettingOption {
   id: string;
@@ -32,6 +33,7 @@ export interface Team {
 
 export interface LiveMatchCardProps {
   id: string;
+  matchUrl?: string;
   sportType:
     | "cricket"
     | "football"
@@ -161,6 +163,8 @@ export const LiveMatchSection: React.FC<LiveSectionProps> = ({
 }) => {
   const sportsRedirect =
     liveTitle === "SPORTS" ? "/sports?redirect=line" : "/sports?redirect=live";
+  const router = useRouter();
+
   return (
     <section className="w-full font-sans  pt-3">
       {/* Section Header */}
@@ -177,8 +181,13 @@ export const LiveMatchSection: React.FC<LiveSectionProps> = ({
       <div className="flex gap-2 sm:gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory hide-scrollbar pb-2">
         {matches.map((match) => {
           const SportsIcon = getSportIcon(match.sportType);
+          const go = () => router.push(matchHref(match.matchUrl));
           return (
             <div
+              role="link"
+              onClick={go}
+              tabIndex={0}
+               onKeyDown={(e) => e.key === "Enter" && go()}
               key={match.id}
               className="w-[300px] xs:w-[310px] sm:w-[330px] flex-shrink-0 snap-start bg-white rounded-2xl p-3 sm:p-3.5 shadow-sm border border-gray-100 flex flex-col justify-between"
             >

@@ -114,6 +114,10 @@ export function getSportsUrl(url: string, redirect?: string | null) {
     return url;
   }
 }
+export const matchHref = (matchUrl?: string) =>
+  matchUrl
+    ? `/sports?redirect=${encodeURIComponent(matchUrl)}`
+    : "/sports?redirect=live";
 export function calculateBonus(
   amount: number,
   percentage: number | Prisma.Decimal,

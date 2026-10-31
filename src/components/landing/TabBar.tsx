@@ -23,7 +23,7 @@ import { useAppStore } from "@/lib/store.zustond";
 // Lives for the lifetime of the JS module: shared across client-side
 // route changes, but naturally resets on a full page reload since the
 // module re-executes from scratch.
-const APP_BANNER_DURATION_MS = 30 * 1000; // 30s, once per page load
+const APP_BANNER_DURATION_MS = 5 * 1000; // 30s, once per page load
 const LS_DOWNLOADED_KEY = "app-downloaded"; // highest priority, set by you elsewhere
 
 let bannerStartTime: number | null = null;
