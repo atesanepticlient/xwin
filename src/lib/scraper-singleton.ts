@@ -1138,25 +1138,33 @@ class ScraperService extends EventEmitter {
   private browser: Browser | null = null;
   private running = false;
   private latestPayload: any = null;
-
   async start() {
-    if (process.env.ENABLE_LIVE_SCRAPER !== "true") {
-      return;
-    }
-
-    if (this.running) return;
     if (this.running) return;
     this.running = true;
 
-    this.browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-      ],
+    try {
+      this.browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+        ],
+      });
+    } catch (err) {
+      this.running = false; // allow a retry on the next call
+      logger.error("Chrome failed to launch", err);
+      throw err;
+    }
+
+    this.browser.on("disconnected", () => {
+      logger.error("Browser disconnected, will relaunch");
+      this.browser = null;
+      this.running = false;
     });
 
+    logger.info("Scraper started");
     this.loop();
   }
 
@@ -1202,7 +1210,7 @@ class ScraperService extends EventEmitter {
 
         this.emit("update", this.latestPayload);
       } catch (err) {
-        this.emit("error", err);
+        logger.error("Scrape cycle failed", err);
       }
 
       await new Promise((r) => setTimeout(r, 10000));
