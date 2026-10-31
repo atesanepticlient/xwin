@@ -10,7 +10,7 @@ interface SportsHomeProps {
 }
 
 const SportsHome = ({
-  redirect = "/sports/live",
+  redirect = "/live",
   className = "w-full",
 }: SportsHomeProps) => {
   const { gameUrl, loading, error, fetchGame } = useOpenGame();
