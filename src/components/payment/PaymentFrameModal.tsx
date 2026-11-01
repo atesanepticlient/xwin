@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { IoIosArrowBack } from "react-icons/io";
 
@@ -9,6 +10,9 @@ const RETURN_PATH = "/account/transaction";
 
 /**
  * Full-page modal that shows the payment page in an iframe (mobile site).
+ * It is rendered straight into document.body (portal). A "fixed" element
+ * inside a parent that has a transform / filter / animation is sized to that
+ * parent instead of the screen, which is what made it not full page.
  * Back closes it and returns to the deposit form. When the gateway sends the
  * user back to our own site inside the frame, the modal closes and the real
  * page opens.
@@ -24,6 +28,9 @@ const PaymentFrameModal = ({
 }) => {
   const router = useRouter();
   const frameRef = useRef<HTMLIFrameElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   // keep the page behind the modal from scrolling
   useEffect(() => {
@@ -51,12 +58,16 @@ const PaymentFrameModal = ({
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-[9999] flex flex-col bg-white min-h-screen h-screen"
+      className="fixed inset-0 z-[99999] flex w-full flex-col bg-white"
+      // dvh = the visible height on mobile browsers (address bar shown or hidden)
+      style={{ height: "100dvh" }}
     >
       <div
         className="grid grid-cols-[auto_1fr_auto] items-center gap-2 bg-brand-foreground px-2 text-white shrink-0"
@@ -89,9 +100,10 @@ const PaymentFrameModal = ({
         onLoad={handleLoad}
         allow="payment *; clipboard-write"
         sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
-        className="w-full flex-1 border-0 bg-white"
+        className="min-h-0 w-full flex-1 border-0 bg-white"
       />
-    </div>
+    </div>,
+    document.body,
   );
 };
 
