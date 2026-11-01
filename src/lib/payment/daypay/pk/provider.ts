@@ -5,7 +5,14 @@ import type {
   ProviderRequest,
   ProviderResult,
 } from "../common/types";
-import { newOrderNo, pkConfig, pkConfigured, pkPost } from "./client";
+import { newOrderNo } from "../common/order";
+import {
+  PK_DEPOSIT_PREFIX,
+  PK_WITHDRAW_PREFIX,
+  pkConfig,
+  pkConfigured,
+  pkPost,
+} from "./client";
 
 /**
  * PK provider: JazzCash and EasyPaisa.
@@ -52,7 +59,7 @@ export const pkPayProvider: PaymentProvider = {
     if (!pkConfigured() || !trade_type) return notConfigured(r);
 
     const c = pkConfig();
-    const outTradeNo = newOrderNo();
+    const outTradeNo = newOrderNo(PK_DEPOSIT_PREFIX);
 
     // Create the record first so the callback can always find it.
     const deposit = await db.deposit.create({
@@ -99,7 +106,7 @@ export const pkPayProvider: PaymentProvider = {
     if (!pkConfigured() || !bank_code) return notConfigured(r);
 
     const c = pkConfig();
-    const outTradeNo = newOrderNo();
+    const outTradeNo = newOrderNo(PK_WITHDRAW_PREFIX);
     const payeeName =
       [r.ctx.user.firstName, r.ctx.user.lastName].filter(Boolean).join(" ") ||
       "Player";

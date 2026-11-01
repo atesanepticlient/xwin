@@ -57,8 +57,9 @@ export function verifyParams(
   return crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
 }
 
-export const newOrderNo = () =>
-  `${Date.now()}${crypto.randomBytes(4).toString("hex")}`;
+/** Order number prefixes (see common/order.ts): PKD = deposit, PKW = withdraw. */
+export const PK_DEPOSIT_PREFIX = "PKD";
+export const PK_WITHDRAW_PREFIX = "PKW";
 
 export interface PkResponse<T = Record<string, unknown>> {
   code?: number;

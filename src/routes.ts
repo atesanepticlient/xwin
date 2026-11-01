@@ -43,6 +43,9 @@ export const publicRoutes = [
   "/api/open-1x",
   "/api/payment/pk/callback/payin",
   "/api/payment/pk/callback/payout",
+  "/api/payment/pk/callback/payin",
+  "/api/payment/pk/callback/payout",
+  "/winparibet.apk",
 ];
 
 /**

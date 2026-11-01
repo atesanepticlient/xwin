@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server";
 import { rootGet, rootPost } from "@/lib/payment/daypay/root";
+import { NextRequest } from "next/server";
 
 // ROOT: picks the country (account currency, IP as fallback) and forwards
 // to /api/payment/<country>/deposit or /api/payment/crypto/deposit.

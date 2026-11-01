@@ -1,18 +1,15 @@
 import { createCountryRoutes } from "../common/routes";
 import type { CountryModule } from "../common/types";
-import { beidouProvider } from "./provider";
+import { bdPayProvider } from "./provider";
 
 /**
- * Bangladesh (BDT): bKash, Nagad, Rocket, Upay, all through Beidou (DayPay).
- * Upay has no payType in provider.ts yet, so it answers "isn't wired up yet".
- *
- * Callbacks keep their old URLs (the gateway is configured with them):
- *   /api/daypay/collection   deposit callback
- *   /api/daypay/payment      withdraw callback
+ * Bangladesh (BDT): bKash, Nagad, Rocket through the BD gateway.
+ * Upay is not in the gateway doc, so it answers "isn't wired up yet".
+ * Callbacks (GET): /api/payment/bd/callback/payin and /payout (see callbacks.ts).
  */
 export const bd: CountryModule = {
   code: "BD",
-  provider: beidouProvider,
+  provider: bdPayProvider,
   methods: [
     { key: "bkash", label: "bKash", match: ["bkash"] },
     { key: "nagad", label: "Nagad", match: ["nagad"] },
