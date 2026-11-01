@@ -56,7 +56,7 @@ const PaymentFrameModal = ({
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-[9999] flex flex-col bg-white"
+      className="fixed inset-0 z-[9999] flex flex-col bg-white min-h-screen h-screen"
     >
       <div
         className="grid grid-cols-[auto_1fr_auto] items-center gap-2 bg-brand-foreground px-2 text-white shrink-0"
