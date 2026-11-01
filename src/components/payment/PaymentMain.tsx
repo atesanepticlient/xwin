@@ -47,6 +47,8 @@ import Link from "next/link";
 import { cashWithdraw } from "@/action/cashwithdraw";
 import { MdContentCopy } from "react-icons/md";
 import RedirectCountdown from "./RedirectCountdown";
+import PaymentFrameModal from "./PaymentFrameModal";
+import { useAppStore } from "@/lib/store.zustond";
 
 // Reads the API's error message consistently. Routes return { error: string }
 // on failure — falls back to .message in case an older route still uses that
@@ -364,6 +366,7 @@ const DepositContentEwallet = ({
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const user = useCurrentUser();
+  const { isMobileSubdomain } = useAppStore();
 
   const payType = getMobileBankingPayType(walletName);
 
@@ -430,6 +433,15 @@ const DepositContentEwallet = ({
   }
 
   if (redirectUrl) {
+    // mobile.site.com: payment page in a full-page modal with a Back button
+    if (isMobileSubdomain) {
+      return (
+        <PaymentFrameModal
+          url={redirectUrl}
+          onBack={() => setRedirectUrl(null)}
+        />
+      );
+    }
     return <RedirectCountdown url={redirectUrl} />;
   }
 
