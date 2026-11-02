@@ -4,14 +4,18 @@ import {
   PK_DEPOSIT_PREFIX,
   PK_WITHDRAW_PREFIX,
   pkConfig,
-  verifyParams,
+  verifyCallback,
 } from "./client";
 
 /**
- * PK gateway callbacks (POST, JSON). The gateway retries until it reads the
- * exact text "success", so every already-handled or irrelevant callback is
- * answered "success"; only invalid signature / unknown order are errors.
- * Money movement is in common/settle.ts (idempotent).
+ * Callbacks (POST, JSON). Auth is in the headers (X-Merchant-Code, X-Timestamp,
+ * X-Nonce, X-Signature). The gateway retries (max 5) until it reads exactly
+ * "success" / "SUCCESS" / "ok" / "OK" as plain text, so every already-handled
+ * or irrelevant callback is acked; only bad signature / unknown order error.
+ * Money movement is in common/settle.ts (must be idempotent).
+ *
+ * IMPORTANT: numeric `status` differs between collection and payout
+ * (3 = success for collection, 3 = failed for payout). We use `status_code`.
  */
 const ack = () =>
   new NextResponse("success", {
@@ -29,18 +33,22 @@ async function readVerified(req: NextRequest, prefix: string) {
   }
   const c = pkConfig();
   // verify over ALL received fields, the gateway may add new ones over time
-  if (!c.secretKey || !verifyParams(payload, c.secretKey)) {
+  if (!c.secretKey || !verifyCallback(req.headers, payload, c.secretKey)) {
     return { error: reject("Invalid Signature", 400) };
   }
-  if (String(payload.merchant_id ?? "") !== c.merchantId) {
+  if (
+    req.headers.get("x-merchant-code") !== c.merchantId ||
+    String(payload.mch_code ?? c.merchantId) !== c.merchantId
+  ) {
     return { error: reject("Unknown merchant", 400) };
   }
+
   // String(): a crafted object can never reach the Prisma filter as an operator
-  const outTradeNo = String(payload.out_trade_no ?? "");
-  if (!outTradeNo.startsWith(prefix)) {
+  const mchOrderNo = String(payload.mch_order_no ?? "");
+  if (!mchOrderNo.startsWith(prefix)) {
     return { error: reject("Required input missing", 400) };
   }
-  return { payload: payload as Record<string, unknown>, outTradeNo };
+  return { payload: payload as Record<string, unknown>, mchOrderNo };
 }
 
 const positive = (v: unknown) => {
@@ -48,20 +56,29 @@ const positive = (v: unknown) => {
   return Number.isFinite(n) && n > 0 ? n : null;
 };
 
-/* ------------- pay-in: 3 success, 4 failed, 5 expired, 0/1/2 in progress ------------- */
+/* -------- collection: success / failed final; processing, verifying = in progress -------- */
 export async function handlePkPayin(req: NextRequest) {
   try {
     const r = await readVerified(req, PK_DEPOSIT_PREFIX);
     if (r.error) return r.error;
 
-    const status = Number(r.payload.status);
-    if (status !== 3 && status !== 4 && status !== 5) return ack(); // in progress
+    const code = String(r.payload.status_code ?? "");
+    if (code !== "success" && code !== "failed") {
+      if (code !== "processing" && code !== "verifying") {
+        console.warn(
+          "[pk-pay payin] unexpected status",
+          r.payload.status,
+          code,
+        );
+      }
+      return ack(); // in progress / unknown: never decide ourselves
+    }
 
-    const paid =
-      positive(r.payload.actual_amount) ?? positive(r.payload.order_amount);
+    // real_amount = what the user actually paid (may differ from amount)
+    const paid = positive(r.payload.real_amount) ?? positive(r.payload.amount);
     const result = await settleDeposit(
-      r.outTradeNo,
-      status === 3 ? "success" : "failed",
+      r.mchOrderNo,
+      code === "success" ? "success" : "failed",
       paid,
     );
     if (result === "not_found") return reject("Deposit not found", 404);
@@ -72,20 +89,29 @@ export async function handlePkPayin(req: NextRequest) {
   }
 }
 
-/* ------------- payout: 2 success, 3/4/5 failed, -1/0/1 in progress ------------- */
+/* -------- payout: success / failed final; pending, processing = in progress -------- */
 export async function handlePkPayout(req: NextRequest) {
   try {
     const r = await readVerified(req, PK_WITHDRAW_PREFIX);
     if (r.error) return r.error;
 
-    const status = Number(r.payload.status);
-    if (status !== 2 && status !== 3 && status !== 4 && status !== 5) {
-      return ack(); // review / pending / processing
+    const code = String(r.payload.status_code ?? "");
+    if (code !== "success" && code !== "failed") {
+      // pending / processing, or "reversed" (not callback-driven, but never
+      // auto-refund or re-pay on it) / unknown
+      if (code !== "pending" && code !== "processing") {
+        console.warn(
+          "[pk-pay payout] unexpected status",
+          r.payload.status,
+          code,
+        );
+      }
+      return ack();
     }
 
     const result = await settleWithdraw(
-      r.outTradeNo,
-      status === 2 ? "success" : "failed",
+      r.mchOrderNo,
+      code === "success" ? "success" : "failed",
     );
     if (result === "not_found") return reject("Withdrawal not found", 404);
     return ack();

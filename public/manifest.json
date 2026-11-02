@@ -1,6 +1,8 @@
 {
-  "name": "WinpariBet",
-  "short_name": "WinpariBet",
+  "name": "Livvbet - Sports Betting & Live Casino",
+  "short_name": "Livvbet",
+  "description": "Livvbet Official Platform - Live Sports Betting, Casino, Slots & Fast Payouts",
+  "start_url": "/",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +17,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#1b1b1b",
+  "background_color": "#1b1b1b",
   "display": "standalone"
 }

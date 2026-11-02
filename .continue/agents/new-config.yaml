@@ -1,0 +1,10 @@
+models:
+  - name: Wiozen
+    provider: openai
+    model: wiozen-anthropic
+    apiBase: https://api.wiozen.com/v1
+    apiKey: sk-gw-QDc9CUmL4-O3-4QLV01vkBMYOiSdEksA
+    roles:
+      - chat
+      - edit
+      - apply

@@ -32,12 +32,83 @@ const russoOne = Russo_One({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.livvbet.com";
+
 export const metadata: Metadata = {
-  title: "WinpariBet",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Livvbet - #1 Online Sports Betting, Live Casino & Games",
+    template: "%s | Livvbet",
+  },
   description:
-    "WinpariBet Company Trusted Online Betting Site in Bangladesh, Join winparibet for the ultimate betting experience! Enjoy sports betting, casino games, live dealers, Aviator crash game, and more. Get the best odds and exciting bonuses. Sign up now!",
+    "Join Livvbet for the ultimate online betting experience! Top odds on Sports, Cricket betting, Football, Live Dealers, Online Casino Slots, Aviator crash game, instant deposits & fast payouts. Register now on Livvbet Official Site!",
+  keywords: [
+    "Livvbet",
+    "Livvbet casino",
+    "Livvbet sports betting",
+    "Livvbet online betting",
+    "Livvbet official site",
+    "Livvbet login",
+    "Livvbet registration",
+    "Livvbet app",
+    "Livvbet Bangladesh",
+    "Livvbet live casino",
+    "cricket betting odds",
+    "online slots Bangladesh",
+    "Aviator crash game",
+  ],
+  authors: [{ name: "Livvbet", url: siteUrl }],
+  creator: "Livvbet",
+  publisher: "Livvbet",
+  applicationName: "Livvbet",
+  generator: "Next.js",
+  referrer: "origin-when-cross-origin",
   manifest: "/manifest.json",
-  themeColor: "#ffffff",
+  icons: {
+    icon: [
+      { url: "/assets/svg/livvbet-main-logo.svg", type: "image/svg+xml" },
+      { url: "/assets/images/icon.ico", sizes: "any" },
+    ],
+    apple: [{ url: "/app/apple-icon.png" }],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
+  openGraph: {
+    title: "Livvbet - Official Online Sports Betting & Live Casino Platform",
+    description:
+      "Join Livvbet for the best sports betting odds, live casino dealers, slots, and fast withdrawals. Play on Livvbet today!",
+    url: siteUrl,
+    siteName: "Livvbet",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: `${siteUrl}/assets/svg/livvbet-main-logo.svg`,
+        width: 1200,
+        height: 630,
+        alt: "Livvbet - Official Online Sports Betting & Casino",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Livvbet - Official Online Sports Betting & Live Casino",
+    description:
+      "Join Livvbet for live sports betting, online casino games, slots & fast payouts.",
+    images: [`${siteUrl}/assets/svg/livvbet-main-logo.svg`],
+  },
 };
 
 export default async function RootLayout({
@@ -46,8 +117,45 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth();
+
+  // JSON-LD Structured Data for Google Search & Brand Knowledge Graph
+  const jsonLdWebsite = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Livvbet",
+    alternateName: ["Livvbet Official", "Livvbet Casino", "Livvbet Sports"],
+    url: siteUrl,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/sports?redirect=search-events&q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const jsonLdOrganization = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Livvbet",
+    url: siteUrl,
+    logo: `${siteUrl}/assets/svg/livvbet-main-logo.svg`,
+    description:
+      "Livvbet is a global online sports betting and live casino company providing premium sports odds, live dealers, slots, and crash games.",
+    sameAs: [
+      "https://t.me/Livvbet_Support",
+      "https://agent.livvbet.com",
+    ],
+  };
+
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([jsonLdWebsite, jsonLdOrganization]),
+          }}
+        />
+      </head>
       <body
         className={` ${inter.variable} ${roboto.variable} ${russoOne.variable} font-inter antialiased !text-white`}
       >

@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Withdraw Found",
+  title: "Livvbet Withdrawal | Instant & Secure Cash Out",
   description:
-    "Easily withdraw your winnings from 1xbet company. Fast and secure payouts with multiple withdrawal methods, including bank transfer, e-wallets, and cryptocurrencies. Get your money instantly!",
+    "Easily withdraw your winnings from Livvbet. Fast and secure payouts with multiple withdrawal methods, e-wallets, and agent cash options.",
 };
 
 const DepsitLayout = ({ children }: { children: React.ReactNode }) => {

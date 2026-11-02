@@ -15,32 +15,31 @@ import {
 } from "./client";
 
 /**
- * PK provider: JazzCash and EasyPaisa.
- *   deposit : POST /payin/create   -> user is sent to data.pay_url
- *   withdraw: POST /payout/create  -> final result arrives on the callback
- * Callbacks (credit / refund) live in ./callbacks.ts, served at:
+ * PK provider: JazzCash and EasyPaisa (Merchant Payment API v1).
+ *   deposit : POST /api/v1/receive/createOrder -> user is sent to data.pay_url
+ *   withdraw: POST /api/v1/payout/createOrder  -> final result arrives on callback
+ * Callbacks live in ./callbacks.ts:
  *   /api/payment/pk/callback/payin  and  /api/payment/pk/callback/payout
  *
- * trade_type (pay-in) and bank_code (payout) for PK are NOT in the doc that was
- * shared (it only lists the US section). Put the values from the PK section in:
- *   PKPAY_TRADE_TYPE_JAZZCASH / PKPAY_TRADE_TYPE_EASYPAISA
- *   PKPAY_BANK_CODE_JAZZCASH  / PKPAY_BANK_CODE_EASYPAISA
+ * `passage` must be a channel activated for the merchant. Defaults are the
+ * examples from the doc (JAZZ, EP); override with env if the platform says otherwise.
  */
-const tradeType = (m: MethodKey) =>
+const passage = (m: MethodKey) =>
   m === "jazzcash"
-    ? process.env.PKPAY_TRADE_TYPE_JAZZCASH
+    ? (process.env.PKPAY_PASSAGE_JAZZCASH ?? "JAZZ")
     : m === "easypaisa"
-      ? process.env.PKPAY_TRADE_TYPE_EASYPAISA
-      : undefined;
-
-const bankCode = (m: MethodKey) =>
-  m === "jazzcash"
-    ? process.env.PKPAY_BANK_CODE_JAZZCASH
-    : m === "easypaisa"
-      ? process.env.PKPAY_BANK_CODE_EASYPAISA
+      ? (process.env.PKPAY_PASSAGE_EASYPAISA ?? "EP")
       : undefined;
 
 const HISTORY_PATH = "/account/transaction";
+const MAX_ORDER_NO = 50; // mch_order_no limit
+const MAX_NOTIFY_URL = 100; // notify_url limit
+
+// Codes that mean "the order was NOT created" -> safe to close + refund.
+// Anything else (9001, unknown, missing) is treated as unclear -> stay PENDING.
+const NOT_CREATED_CODES = new Set([1001, 1002, 1003, 1004, 1005, 2002, 3001]);
+
+const money = (v: unknown) => Number(v).toFixed(2);
 
 const notConfigured = (r: ProviderRequest): ProviderResult => {
   console.error(`[pk-pay] missing env config for ${r.method}`);
@@ -55,11 +54,16 @@ export const pkPayProvider: PaymentProvider = {
   key: "pk-pay",
 
   async deposit(r): Promise<ProviderResult> {
-    const trade_type = tradeType(r.method);
-    if (!pkConfigured() || !trade_type) return notConfigured(r);
+    const ch = passage(r.method);
+    if (!pkConfigured() || !ch) return notConfigured(r);
 
     const c = pkConfig();
-    const outTradeNo = newOrderNo(PK_DEPOSIT_PREFIX);
+    const mchOrderNo = newOrderNo(PK_DEPOSIT_PREFIX);
+    const notifyUrl = `${c.notifyBase}/api/payment/pk/callback/payin`;
+    if (mchOrderNo.length > MAX_ORDER_NO || notifyUrl.length > MAX_NOTIFY_URL) {
+      console.error("[pk-pay] order no / notify_url too long");
+      return notConfigured(r);
+    }
 
     // Create the record first so the callback can always find it.
     const deposit = await db.deposit.create({
@@ -67,7 +71,7 @@ export const pkPayProvider: PaymentProvider = {
         amount: r.amount,
         payFrom: r.wallet.walletName,
         status: "PENDING",
-        merchantId: outTradeNo,
+        merchantId: mchOrderNo,
         user: { connect: { id: r.ctx.user.id } },
         ewallet: { connect: { id: r.wallet.id } },
       },
@@ -77,39 +81,43 @@ export const pkPayProvider: PaymentProvider = {
       db.deposit.deleteMany({ where: { id: deposit.id, status: "PENDING" } });
 
     try {
-      const res = await pkPost<{ pay_url?: string }>("/payin/create", {
-        trade_type,
-        out_trade_no: outTradeNo,
-        order_amount: String(r.amount),
-        notify_url: `${c.notifyBase}/api/payment/pk/callback/payin`,
-        back_url: `${c.notifyBase}${HISTORY_PATH}`,
-        vip_id: r.ctx.user.playerId,
-      });
+      const res = await pkPost<{ pay_url?: string }>(
+        "/api/v1/receive/createOrder",
+        {
+          passage: ch,
+          mch_order_no: mchOrderNo,
+          amount: money(r.amount),
+          notify_url: notifyUrl,
+        },
+        String(r.ctx.user.playerId ?? ""), // X-User-Id header
+      );
 
       const payUrl = res.data?.pay_url;
-      if (res.code === 200 && payUrl) {
-        return { ok: true, message: res.msg, redirectUrl: payUrl };
+      if (res.code === 0 && payUrl) {
+        return { ok: true, message: res.message, redirectUrl: payUrl };
       }
 
-      console.error("[pk-pay] payin rejected", res.code, res.msg);
+      console.error("[pk-pay] receive rejected", res.code, res.message);
       await dropRecord();
       return { ok: false, status: 502, message: "Deposit Failed" };
     } catch (error) {
-      console.error("[pk-pay] payin request failed", error);
+      console.error("[pk-pay] receive request failed", error);
       await dropRecord();
       return { ok: false, status: 502, message: "Deposit Failed" };
     }
   },
 
   async withdraw(r): Promise<ProviderResult> {
-    const bank_code = bankCode(r.method);
-    if (!pkConfigured() || !bank_code) return notConfigured(r);
+    const ch = passage(r.method);
+    if (!pkConfigured() || !ch) return notConfigured(r);
 
     const c = pkConfig();
-    const outTradeNo = newOrderNo(PK_WITHDRAW_PREFIX);
-    const payeeName =
-      [r.ctx.user.firstName, r.ctx.user.lastName].filter(Boolean).join(" ") ||
-      "Player";
+    const mchOrderNo = newOrderNo(PK_WITHDRAW_PREFIX);
+    const notifyUrl = `${c.notifyBase}/api/payment/pk/callback/payout`;
+    if (mchOrderNo.length > MAX_ORDER_NO || notifyUrl.length > MAX_NOTIFY_URL) {
+      console.error("[pk-pay] order no / notify_url too long");
+      return notConfigured(r);
+    }
 
     // Record first (status PENDING) so the callback can find it even if our
     // request to the gateway times out.
@@ -118,7 +126,7 @@ export const pkPayProvider: PaymentProvider = {
         paymentWalletNumber: r.account,
         amount: r.amount,
         status: "PENDING",
-        merchantId: outTradeNo,
+        merchantId: mchOrderNo,
         user: { connect: { id: r.ctx.user.id } },
         withdrawEWallet: { connect: { id: r.wallet.id } },
       },
@@ -132,36 +140,38 @@ export const pkPayProvider: PaymentProvider = {
 
     let res;
     try {
-      res = await pkPost("/payout/create", {
-        out_trade_no: outTradeNo,
-        amount: String(r.amount),
-        bank_code,
-        payee_account: r.account,
-        payee_name: payeeName,
-        notify_url: `${c.notifyBase}/api/payment/pk/callback/payout`,
-        vip_id: r.ctx.user.playerId,
-      });
+      res = await pkPost(
+        "/api/v1/payout/createOrder",
+        {
+          passage: ch,
+          mch_order_no: mchOrderNo,
+          amount: money(r.amount),
+          receive_account: r.account,
+          notify_url: notifyUrl,
+          extra_params: String(r.ctx.user.playerId ?? "").slice(0, 200),
+        },
+        String(r.ctx.user.playerId ?? ""),
+      );
     } catch (error) {
-      // Per the gateway doc: no answer = the order may exist. Never refund and
-      // never resubmit. The callback (or support) settles it.
+      // No answer = the order may exist. Never refund and never resubmit.
+      // The callback (or an active query) settles it.
       console.error(
         "[pk-pay] payout no response, left PENDING",
-        outTradeNo,
+        mchOrderNo,
         error,
       );
       return submitted;
     }
 
-    if (res.code === 200) return submitted;
+    if (res.code === 0) return submitted;
 
-    // Answer without a usable code, or a server error: unknown, keep PENDING.
-    if (typeof res.code !== "number" || res.code >= 500) {
-      console.error("[pk-pay] payout unclear, left PENDING", outTradeNo, res);
+    if (typeof res.code !== "number" || !NOT_CREATED_CODES.has(res.code)) {
+      console.error("[pk-pay] payout unclear, left PENDING", mchOrderNo, res);
       return submitted;
     }
 
-    // 4xx = the gateway refused the order. Close it, the shared handler refunds.
-    console.error("[pk-pay] payout rejected", res.code, res.msg);
+    // Gateway refused the order. Close it, the shared handler refunds.
+    console.error("[pk-pay] payout rejected", res.code, res.message);
     await db.withdraw.updateMany({
       where: { id: withdraw.id, status: "PENDING" },
       data: { status: "REJECTED" },

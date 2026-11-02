@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "WinpariBet - Profile",
+  title: "Livvbet Deposit | Fast & Secure Account Funding",
   description:
-    "Deposit funds securely at WinpariBet Companl! Choose from multiple payment methods, enjoy instant transactions, and start betting right away. Fast, safe, and hassle-free deposits!",
+    "Deposit funds securely into your Livvbet account! Choose from multiple payment methods, enjoy instant transactions, and start betting right away.",
 };
 
 const DepsitLayout = ({ children }: { children: React.ReactNode }) => {

@@ -2,10 +2,9 @@ import { Metadata } from "next";
 import React, { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "WinpariBet - Betting Company Online Betting",
-
+  title: "Livvbet Registration | Sign Up & Get Welcome Bonus",
   description:
-    "Join WinpariBet Companl today! Register now to enjoy the best sports betting and casino games with exciting bonuses, fast payouts, and a secure platform. Sign up in seconds!",
+    "Join Livvbet today! Register now to enjoy the best sports betting odds, cricket matches, live dealers, and casino games with exclusive bonuses and fast payouts.",
 };
 
 const LoginLayout = ({ children }: { children: ReactNode }) => {

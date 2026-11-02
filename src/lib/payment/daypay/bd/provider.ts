@@ -27,12 +27,13 @@ const HISTORY_PATH = "/account/transaction";
 /** Collection types: Bkash, Bkashbiz, Nagad, Nagadbiz, Rocketbiz. */
 const depositType = (method: MethodKey, walletName: string): string | null => {
   // a wallet the admin named "... Business" uses the business channel
-  const biz = /biz|business|merchant/.test(normaliseName(walletName));
+  // const biz = /biz|business|merchant/.test(normaliseName(walletName));
+
   switch (method) {
     case "bkash":
-      return biz ? "Bkashbiz" : "Bkash";
+      return "Bkashbiz";
     case "nagad":
-      return biz ? "Nagadbiz" : "Nagad";
+      return "Nagadbiz";
     case "rocket":
       return "Rocketbiz"; // the only Rocket collection type
     default:

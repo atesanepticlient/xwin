@@ -114,5 +114,6 @@ export async function bdPost(
     cache: "no-store",
     signal: AbortSignal.timeout(15000),
   });
+
   return (await res.json()) as BdResponse;
 }

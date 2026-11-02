@@ -1,0 +1,79 @@
+# Signed payment callbacks. Click "Send Request" above a ### block.
+# Expected: 200 "success" for valid ones, 400 for BAD SIGNATURE, 404 for unknown order.
+# Contains signed requests: do not commit or share this file.
+
+### PK deposit SUCCESS (status 3) -> credits wallet
+POST http://localhost:3000/api/payment/pk/callback/payin
+Content-Type: application/json
+
+{
+  "merchant_id": "MDC78CC98A77FDCC6",
+  "country": "PK",
+  "timestamp": 1793556034,
+  "order_amount": 500,
+  "actual_amount": 500,
+  "fee": 0,
+  "out_trade_no": "PKD17935574385089ff08b2268b1",
+  "order_no": "PI1793556034736",
+  "status": 3,
+  "pay_time": "2026-11-01 18:00:34",
+  "comment": "",
+  "sign": "473344561683D86FCB2B71272BF4EC38"
+}
+
+### PK deposit FAILED (status 4) -> REJECTED
+POST http://localhost:3000/api/payment/pk/callback/payin
+Content-Type: application/json
+
+{
+  "merchant_id": "MDC78CC98A77FDCC6",
+  "country": "PK",
+  "timestamp": 1793556034,
+  "order_amount": 500,
+  "actual_amount": 0,
+  "fee": 0,
+  "out_trade_no": "DS00681793555945291641",
+  "order_no": "PI1793556034737",
+  "status": 4,
+  "pay_time": "2026-11-01 18:00:34",
+  "comment": "",
+  "sign": "D34BCF751782660663236606FD7BDE75"
+}
+
+### PK deposit PROCESSING (status 1) -> ignored
+POST http://localhost:3000/api/payment/pk/callback/payin
+Content-Type: application/json
+
+{
+  "merchant_id": "MDC78CC98A77FDCC6",
+  "country": "PK",
+  "timestamp": 1793556034,
+  "order_amount": 500,
+  "actual_amount": 0,
+  "fee": 0,
+  "out_trade_no": "DS00681793555945291641",
+  "order_no": "PI1793556034737",
+  "status": 1,
+  "pay_time": "2026-11-01 18:00:34",
+  "comment": "",
+  "sign": "AF6CD65B0EA933DB9B4E276771F817A9"
+}
+
+### PK BAD SIGNATURE -> 400
+POST http://localhost:3000/api/payment/pk/callback/payin
+Content-Type: application/json
+
+{
+  "merchant_id": "MDC78CC98A77FDCC6",
+  "country": "PK",
+  "timestamp": 1793556034,
+  "order_amount": 500,
+  "actual_amount": 500,
+  "fee": 0,
+  "out_trade_no": "DS00681793555945291641",
+  "order_no": "PI1793556034737",
+  "status": 3,
+  "pay_time": "2026-11-01 18:00:34",
+  "comment": "",
+  "sign": "00000000000000000000000000000000"
+}
