@@ -101,7 +101,7 @@ export async function bdPost(
   business: Record<string, string | undefined>,
 ): Promise<BdResponse> {
   const c = bdConfig();
-  const params: Record<string, string> = { partner: c.partner };
+  const params: Record<string, string> = { parter: c.partner };
   for (const [k, v] of Object.entries(business)) {
     if (v !== undefined && v !== "") params[k] = v;
   }
