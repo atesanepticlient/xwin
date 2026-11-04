@@ -11,7 +11,7 @@ import { LiaHeartSolid } from "react-icons/lia";
 import { providers } from "@/data/api-providers";
 import { useOpenGameMutation } from "@/lib/features/gamesApiSlice";
 
-import logo from "@/../public/assets/svg/livvbet-white-logo.svg";
+import logo from "@/../public/assets/images/logo.png";
 
 import PlayButton from "./buttons/play-button";
 import { redirect } from "next/navigation";

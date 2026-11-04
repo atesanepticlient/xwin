@@ -11,7 +11,7 @@ import type { PaymentFlow } from "./common/types";
 import { cryptoRoutes } from "./crypto";
 import { getCountryModule, getCountryRoutes } from "./registry";
 
-const LIVVBET_CASH_ICON =
+const WINPARIBET_CASH_ICON =
   "https://res.cloudinary.com/dxs9u7pqc/image/upload/v1749203759/dollars_bhgsma.png";
 
 /**
@@ -53,12 +53,12 @@ export const rootGet = (req: NextRequest, flow: PaymentFlow) =>
         methodName: "WinpariBet Cash",
         wallets: [
           {
-            id: "livvbet-cash",
-            name: "Livvbet Cash",
-            label: "Livvbet Cash",
+            id: "winparibet-cash",
+            name: "WinpariBet Cash",
+            label: "WinpariBet Cash",
             type: "cash",
             isActive: hasAgent,
-            image: LIVVBET_CASH_ICON,
+            image: WINPARIBET_CASH_ICON,
             isRecommended: false,
           },
         ],

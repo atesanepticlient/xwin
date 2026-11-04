@@ -9,7 +9,7 @@ import { useAppStore } from "@/lib/store.zustond";
 // export const metadata: Metadata = {
 //   title: "WinpariBet - Account",
 //   description:
-//     "Manage your WinpariBet Companl account with ease! Check your balance, update details, track bets, and enjoy seamless withdrawals and deposits. Secure and fast access anytime. Log in now!",
+//     "Manage your WinpariBet Company account with ease! Check your balance, update details, track bets, and enjoy seamless withdrawals and deposits. Secure and fast access anytime. Log in now!",
 // };
 
 const AccountLayout = ({ children }: { children: React.ReactNode }) => {

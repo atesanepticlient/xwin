@@ -73,11 +73,11 @@ export default function SupportCards() {
           Become an Agent and earn with WinpariBet, Here you can earn a lot of
           money.{" "}
           <a
-            href="https://www.winparibetagent.com/"
+            href="https://agent.winparibet.com/"
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) =>
-              handleExternalClick(e, "https://www.winparibetagent.com/")
+              handleExternalClick(e, "https://agent.winparibet.com/")
             }
             className="text-[#1B6BB0] hover:underline"
           >

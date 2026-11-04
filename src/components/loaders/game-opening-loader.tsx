@@ -1,6 +1,6 @@
 import React from "react";
 
-import logo from "@/../public/assets/svg/livvbet-white-logo.svg";
+import logo from "@/../public/assets/images/logo.png";
 import Image from "next/image";
 
 const GameOpeningLoader = () => {

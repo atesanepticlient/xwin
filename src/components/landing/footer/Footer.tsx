@@ -25,13 +25,13 @@ const Footer = () => {
         <div className="mt-6 md:mt-8  px-5 md:px-8 py-6 md:py-8 shadow-sm">
           <div className="flex justify-center py-4 lg:py-6">
             <a
-              href="https://winparibetagent.com"
+              href="https://agent.winparibet.com"
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => {
                 if (typeof window === "undefined") return;
 
-                const targetUrl = "https://winparibetagent.com";
+                const targetUrl = "https://agent.winparibet.com";
                 const userAgent =
                   navigator.userAgent ||
                   navigator.vendor ||

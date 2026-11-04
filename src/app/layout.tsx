@@ -38,10 +38,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: "WinpariBet - #1 Online Sports Betting, Live Casino & Games",
-    template: "%s | WinpariBet",
+    template: "%s",
   },
   description:
-    "Join WinpariBet for the ultimate online betting experience! Top odds on Sports, Cricket betting, Football, Live Dealers, Online Casino Slots, Aviator crash game, instant deposits & fast payouts. Register now on Livvbet Official Site!",
+    "Join WinpariBet for the ultimate online betting experience! Top odds on Sports, Cricket betting, Football, Live Dealers, Online Casino Slots, Aviator crash game, instant deposits & fast payouts. Register now on the WinpariBet Official Site!",
   keywords: [
     "WinpariBet",
     "WinpariBet casino",
@@ -53,23 +53,28 @@ export const metadata: Metadata = {
     "WinpariBet app",
     "WinpariBet Bangladesh",
     "WinpariBet live casino",
+    "winparibet",
+    "win pari bet",
+    "winpari bet",
+    "online sports betting",
+    "live casino",
     "cricket betting odds",
     "online slots Bangladesh",
     "Aviator crash game",
   ],
   authors: [{ name: "WinpariBet", url: siteUrl }],
   creator: "WinpariBet",
-  publisher: "Livvbet",
-  applicationName: "Livvbet",
+  publisher: "WinpariBet",
+  applicationName: "WinpariBet",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/assets/svg/livvbet-main-logo.svg", type: "image/svg+xml" },
-      { url: "/assets/images/icon.ico", sizes: "any" },
+      { url: "/assets/images/logo.png", type: "image/png", sizes: "any" },
+      { url: "/favicon.ico", sizes: "any" },
     ],
-    apple: [{ url: "/app/apple-icon.png" }],
+    apple: [{ url: "/apple-icon.png" }],
   },
   robots: {
     index: true,
@@ -86,28 +91,28 @@ export const metadata: Metadata = {
     canonical: siteUrl,
   },
   openGraph: {
-    title: "Livvbet - Official Online Sports Betting & Live Casino Platform",
+    title: "WinpariBet - Official Online Sports Betting & Live Casino Platform",
     description:
-      "Join Livvbet for the best sports betting odds, live casino dealers, slots, and fast withdrawals. Play on Livvbet today!",
+      "Join WinpariBet for the best sports betting odds, live casino dealers, slots, and fast withdrawals. Play on WinpariBet today!",
     url: siteUrl,
-    siteName: "Livvbet",
+    siteName: "WinpariBet",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: `${siteUrl}/assets/svg/livvbet-main-logo.svg`,
-        width: 1200,
-        height: 630,
-        alt: "Livvbet - Official Online Sports Betting & Casino",
+        url: `${siteUrl}/assets/images/logo.png`,
+        width: 1035,
+        height: 255,
+        alt: "WinpariBet - Official Online Sports Betting & Casino",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Livvbet - Official Online Sports Betting & Live Casino",
+    title: "WinpariBet - Official Online Sports Betting & Live Casino",
     description:
-      "Join Livvbet for live sports betting, online casino games, slots & fast payouts.",
-    images: [`${siteUrl}/assets/svg/livvbet-main-logo.svg`],
+      "Join WinpariBet for live sports betting, online casino games, slots & fast payouts.",
+    images: [`${siteUrl}/assets/images/logo.png`],
   },
 };
 
@@ -122,8 +127,8 @@ export default async function RootLayout({
   const jsonLdWebsite = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Livvbet",
-    alternateName: ["Livvbet Official", "Livvbet Casino", "Livvbet Sports"],
+    name: "WinpariBet",
+    alternateName: ["WinpariBet Official", "WinpariBet Casino", "WinpariBet Sports"],
     url: siteUrl,
     potentialAction: {
       "@type": "SearchAction",
@@ -135,14 +140,14 @@ export default async function RootLayout({
   const jsonLdOrganization = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Livvbet",
+    name: "WinpariBet",
     url: siteUrl,
-    logo: `${siteUrl}/assets/svg/livvbet-main-logo.svg`,
+    logo: `${siteUrl}/assets/images/logo.png`,
     description:
-      "Livvbet is a global online sports betting and live casino company providing premium sports odds, live dealers, slots, and crash games.",
+      "WinpariBet is a global online sports betting and live casino company providing premium sports odds, live dealers, slots, and crash games.",
     sameAs: [
-      "https://t.me/Livvbet_Support",
-      "https://agent.livvbet.com",
+      "https://t.me/WinpariBet_Support",
+      "https://agent.winparibet.com",
     ],
   };
 

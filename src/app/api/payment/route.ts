@@ -3,7 +3,7 @@ import { INTERNAL_SERVER_ERROR } from "@/error";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-const LIVVBET_CASH_ICON =
+const WINPARIBET_CASH_ICON =
   "https://res.cloudinary.com/dxs9u7pqc/image/upload/v1749203759/dollars_bhgsma.png";
 
 export const GET = async () => {
@@ -98,13 +98,13 @@ export const GET = async () => {
       }),
     );
 
-    // const livvbetCash = {
-    //   id: "livvbet-cash",
-    //   name: "Livvbet Cash",
-    //   label: "Livvbet Cash",
+    // const winpariBetCash = {
+    //   id: "winparibet-cash",
+    //   name: "WinpariBet Cash",
+    //   label: "WinpariBet Cash",
     //   type: "cash",
     //   isActive: hasAgent,
-    //   image: LIVVBET_CASH_ICON,
+    //   image: WINPARIBET_CASH_ICON,
     //   isRecommended: false,
     // };
 
@@ -139,7 +139,7 @@ export const GET = async () => {
       },
       // {
       //   methodName: "WinpariBet Cash",
-      //   wallets: [livvbetCash],
+      //   wallets: [winpariBetCash],
       // },
     ].filter((cat) => cat.wallets.length > 0);
 

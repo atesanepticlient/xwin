@@ -39,7 +39,7 @@ const SiteContent = () => {
           </li>
           <li>
             <a
-              href="https://agent.livvbet.com/signup"
+              href="https://agent.winparibet.com/signup"
               className="text-[#d3e0f0] text-xs md:text-sm content-link font-normal"
             >
               Become an Agent

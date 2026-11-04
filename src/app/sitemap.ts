@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.livvbet.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.winparibet.com";
   const lastModified = new Date();
 
   return [
