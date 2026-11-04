@@ -521,7 +521,7 @@
 //               this.browser!,
 //             ),
 //             scrapeTournaments(
-//               "https://sportshub-custom001.network/en/live",
+//               "https://1xframemxz.com/en/live",
 //               this.browser!,
 //             ),
 //           ]);
@@ -565,7 +565,7 @@
 //       return [];
 //     }
 //     return scrapeTournaments(
-//       "https://sportshub-custom001.network/en/live",
+//       "https://1xframemxz.com//en/live",
 //       this.browser,
 //     );
 //   }
@@ -1174,19 +1174,19 @@ class ScraperService extends EventEmitter {
         const [liveData, sportsData, esportsData, tournamentsData] =
           await Promise.all([
             scrapeMatches(
-              "https://sportshub-custom001.network/en/live",
+              "https://1xframemxz.com/en/live",
               this.browser!,
             ),
             scrapeMatches(
-              "https://sportshub-custom001.network/en/line",
+              "https://1xframemxz.com/en/line",
               this.browser!,
             ),
             scrapeEsportsMatches(
-              "https://sportshub-custom001.network/en/live/esports",
+              "https://1xframemxz.com/en/live/esports",
               this.browser!,
             ),
             scrapeTournaments(
-              "https://sportshub-custom001.network/en/live",
+              "https://1xframemxz.com/en/live",
               this.browser!,
             ),
           ]);
@@ -1230,7 +1230,7 @@ class ScraperService extends EventEmitter {
       return [];
     }
     return scrapeTournaments(
-      "https://sportshub-custom001.network/en/live",
+      "https://1xframemxz.com/en/live",
       this.browser,
     );
   }
@@ -1239,7 +1239,7 @@ class ScraperService extends EventEmitter {
    * Fetch matches only - useful for standalone match data needs
    */
   async fetchMatches(
-    url: string = "https://sportshub-custom001.network/en/live",
+    url: string = "https://1xframemxz.com/en/live",
   ) {
     if (!this.browser) {
       logger.warn("Browser not initialized. Starting scraper service first.");
@@ -1252,7 +1252,7 @@ class ScraperService extends EventEmitter {
    * Fetch esports matches only - useful for standalone esports data needs
    */
   async fetchEsportsMatches(
-    url: string = "https://sportshub-custom001.network/en/live/esports",
+    url: string = "https://1xframemxz.com/en/live/esports",
   ) {
     if (!this.browser) {
       logger.warn("Browser not initialized. Starting scraper service first.");

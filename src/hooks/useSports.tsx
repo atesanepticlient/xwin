@@ -6,7 +6,10 @@ import {
   EsportsMatchCardProps,
 } from "@/components/esports-match-card";
 import { liveMatchesCache } from "@/lib/live-matches-cache";
-import { BettingOption, LiveMatchCardProps } from "@/components/category/live-match-selection";
+import {
+  BettingOption,
+  LiveMatchCardProps,
+} from "@/components/category/live-match-selection";
 
 const getDefaultLogo = (teamName: string): string => {
   const name = teamName.toLowerCase();
@@ -22,7 +25,7 @@ const fixImageUrl = (url: string): string => {
   if (!url) return "";
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
   if (url.startsWith("//")) return `https:${url}`;
-  if (url.startsWith("/")) return `https://sportshub-custom001.network${url}`;
+  if (url.startsWith("/")) return `https://1xframemxz.com.network${url}`;
   return url;
 };
 

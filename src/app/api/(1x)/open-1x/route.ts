@@ -4,7 +4,7 @@ import { findCurrentUser } from "@/data/user";
 import { replaceDomain } from "@/lib/utils";
 
 const FALLBACK_SPORTS_URL =
-  "https://sportshub-custom001.network/sports/live?lng=en";
+  "https://1xframemxz.com/sports/live?lng=en";
 
 export async function POST(req: Request) {
   try {

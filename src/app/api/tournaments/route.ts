@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 /**
  * GET /api/tournaments
- * Fetches tournament data with event counts from sportshub-custom001.network
+ * Fetches tournament data with event counts from 1xframemxz.com
  *
  * Response format:
  * {
@@ -88,7 +88,7 @@ export async function GET() {
 export async function GET_MATCHES(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const url = searchParams.get("url") || "https://sportshub-custom001.network/en/live";
+    const url = searchParams.get("url") || "https://1xframemxz.com/en/live";
 
     if (!scraperService) {
       return NextResponse.json(
@@ -157,7 +157,7 @@ export async function GET_ESPORTS(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const url =
-      searchParams.get("url") || "https://sportshub-custom001.network/en/live/esports";
+      searchParams.get("url") || "https://1xframemxz.com/en/live/esports";
 
     if (!scraperService) {
       return NextResponse.json(

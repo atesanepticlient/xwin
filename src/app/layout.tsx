@@ -32,33 +32,33 @@ const russoOne = Russo_One({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.livvbet.com";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.winparibet.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Livvbet - #1 Online Sports Betting, Live Casino & Games",
-    template: "%s | Livvbet",
+    default: "WinpariBet - #1 Online Sports Betting, Live Casino & Games",
+    template: "%s | WinpariBet",
   },
   description:
-    "Join Livvbet for the ultimate online betting experience! Top odds on Sports, Cricket betting, Football, Live Dealers, Online Casino Slots, Aviator crash game, instant deposits & fast payouts. Register now on Livvbet Official Site!",
+    "Join WinpariBet for the ultimate online betting experience! Top odds on Sports, Cricket betting, Football, Live Dealers, Online Casino Slots, Aviator crash game, instant deposits & fast payouts. Register now on Livvbet Official Site!",
   keywords: [
-    "Livvbet",
-    "Livvbet casino",
-    "Livvbet sports betting",
-    "Livvbet online betting",
-    "Livvbet official site",
-    "Livvbet login",
-    "Livvbet registration",
-    "Livvbet app",
-    "Livvbet Bangladesh",
-    "Livvbet live casino",
+    "WinpariBet",
+    "WinpariBet casino",
+    "WinpariBet sports betting",
+    "WinpariBet online betting",
+    "WinpariBet official site",
+    "WinpariBet login",
+    "WinpariBet registration",
+    "WinpariBet app",
+    "WinpariBet Bangladesh",
+    "WinpariBet live casino",
     "cricket betting odds",
     "online slots Bangladesh",
     "Aviator crash game",
   ],
-  authors: [{ name: "Livvbet", url: siteUrl }],
-  creator: "Livvbet",
+  authors: [{ name: "WinpariBet", url: siteUrl }],
+  creator: "WinpariBet",
   publisher: "Livvbet",
   applicationName: "Livvbet",
   generator: "Next.js",
