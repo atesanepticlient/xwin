@@ -147,7 +147,7 @@ export default async function RootLayout({
       "WinpariBet is a global online sports betting and live casino company providing premium sports odds, live dealers, slots, and crash games.",
     sameAs: [
       "https://t.me/WinpariBet_Support",
-      "https://agent.winparibet.com",
+      "https://winparibetagent.com",
     ],
   };
 
